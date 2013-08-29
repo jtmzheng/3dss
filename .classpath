@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/Users/Max/Dropbox/Java/3dss/3dss/lwjgl-2.9.0/lwjgl-2.9.0/jar/lwjgl.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Users/Max/Dropbox/Java/3dss/3dss/lwjgl-2.9.0/lwjgl-2.9.0/native/windows"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Max/Dropbox/Java/3dss/3dss/lwjgl-2.9.0/lwjgl-2.9.0/jar/AppleJavaExtensions.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Max/Dropbox/Java/3dss/3dss/lwjgl-2.9.0/lwjgl-2.9.0/jar/asm-debug-all.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Max/Dropbox/Java/3dss/3dss/lwjgl-2.9.0/lwjgl-2.9.0/jar/jinput.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Max/Dropbox/Java/3dss/3dss/lwjgl-2.9.0/lwjgl-2.9.0/jar/lwjgl_test.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Max/Dropbox/Java/3dss/3dss/lwjgl-2.9.0/lwjgl-2.9.0/jar/lwjgl_util.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Max/Dropbox/Java/3dss/3dss/lwjgl-2.9.0/lwjgl-2.9.0/jar/lwjgl_util_applet.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Max/Dropbox/Java/3dss/3dss/lwjgl-2.9.0/lwjgl-2.9.0/jar/lwjgl-debug.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Max/Dropbox/Java/3dss/3dss/lwjgl-2.9.0/lwjgl-2.9.0/jar/lzma.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
