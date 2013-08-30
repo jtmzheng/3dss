@@ -24,6 +24,9 @@ public class Test {
 	float triangleAngle; // Angle of rotation for the triangles
 	float quadAngle; // Angle of rotation for the quads
 
+	// Runs our game in fullscreen. Set to false to run in 640x480
+	private boolean FULLSCREEN_MODE = true;
+	
 	public void run() {
 
 		createWindow();
@@ -186,7 +189,11 @@ public class Test {
 
 	private void createWindow() {
 		try {
-			Display.setDisplayMode(new DisplayMode(640, 480));
+			if (!this.FULLSCREEN_MODE)
+				Display.setDisplayMode(new DisplayMode(640, 480));
+			else
+				Display.setFullscreen(true);
+			
 			Display.setVSyncEnabled(true);
 			Display.setTitle(windowTitle);
 			Display.create();
