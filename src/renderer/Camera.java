@@ -13,8 +13,9 @@ public class Camera {
 	/*
 	 * View and projection matrices
 	 */
-	protected Matrix4f projMatrix;
+	protected Matrix4f modelMatrix;
 	protected Matrix4f viewMatrix;
+	protected Matrix4f projMatrix;
 	
 	/*
 	 * Camera ID
