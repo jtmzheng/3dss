@@ -1,5 +1,7 @@
 package algorithms;
 
+import graphs.Node;
+
 public class AStarAlg implements ShortestPathAlg{
 	
 	private Object src;
@@ -8,7 +10,11 @@ public class AStarAlg implements ShortestPathAlg{
 	@Override
 	public Object getShortestPath(Object src, Object dest)
 			throws ArrayIndexOutOfBoundsException {
-		// TODO Auto-generated method stub
+
+		// Error check for illegal arguments
+		if (!(src instanceof Node) || !(dest instanceof Node))
+			throw new IllegalArgumentException("AStarAlg expects Node objects");
+		
 		return null;
 	}
 
