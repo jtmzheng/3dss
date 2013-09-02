@@ -2,6 +2,8 @@ package system;
 
 import java.util.HashMap;
 
+import org.lwjgl.opengl.GL11;
+
 /*
  * Settings of our application
  */
@@ -14,7 +16,8 @@ public class Settings extends HashMap<String, Object> {
 	
 	static {
 		defaults.put("Fullscreen", true);
-		defaults.put("FrameRate", 40);
+		defaults.put("Framerate", 40);
+		defaults.put("GLVersion", GL11.glGetString(GL11.GL_VERSION));
 	}
 	
 	public Settings () {
