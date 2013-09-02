@@ -2,7 +2,6 @@ package system;
 
 import java.util.HashMap;
 
-import org.lwjgl.opengl.GL11;
 
 /*
  * Settings of our application
@@ -12,16 +11,16 @@ public class Settings extends HashMap<String, Object> {
 	/*
 	 * List of default settings
 	 */
-	private static final Settings defaults = new Settings();
+	private static final Settings defaults = new Settings(false);
 	
 	static {
 		defaults.put("Fullscreen", true);
 		defaults.put("Framerate", 40);
-		defaults.put("GLVersion", GL11.glGetString(GL11.GL_VERSION));
 	}
 	
-	public Settings () {
-		this.putAll(defaults);
+	public Settings (boolean useDefaults) {
+		if (useDefaults) 
+			this.putAll(defaults);
 	}
 	
 	public void putInteger (String key, int val) {
@@ -61,5 +60,15 @@ public class Settings extends HashMap<String, Object> {
 			throw new IllegalArgumentException ("Key '" + val + "' does not exist");
 		
 		return val.floatValue();
+	}
+	
+	@Override
+	public String toString () {
+		String ret = "";
+		for (String str : this.keySet()) {
+			ret += str + ": [" + this.get(str).toString() + "]";
+			ret += "\r\n";
+		}
+		return ret;
 	}
 }
