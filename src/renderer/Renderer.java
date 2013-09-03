@@ -31,7 +31,14 @@ public class Renderer {
 	 */
 	public Renderer(int width, int height){
 		VAO = new ArrayList<Integer>();
-		this.initOpenGL();
+		
+		/*
+		 * If 0 is passed in for width and height, run it fullscreen
+		 */
+		if (width == 0 && height == 0)
+			this.initOpenGL(true);
+		else
+			this.initOpenGL(false);
 	}
 	
 	/* 
@@ -60,13 +67,22 @@ public class Renderer {
 	/*
 	 * Initializes OpenGL (currently using 3.2)
 	 */
-	private void initOpenGL(){
+	private void initOpenGL(boolean fullscreen){
 		try{
 			PixelFormat pixelFormat = new PixelFormat();
 			ContextAttribs contextAtr = new ContextAttribs(3, 2) 
 				.withForwardCompatible(true)
 				.withProfileCore(true);
-			Display.setDisplayMode(new DisplayMode(WIDTH, HEIGHT));
+			
+			if (fullscreen) 
+				Display.setFullscreen(true);
+			else {
+				Display.setDisplayMode(new DisplayMode(WIDTH, HEIGHT));
+				
+				// Map the internal OpenGL coordinate system to the entire screen (not sure what this does)		
+				setViewPort(0, 0, WIDTH, HEIGHT);
+			}
+			
 			Display.setTitle("Game the Name 2.0");
 			Display.create(pixelFormat, contextAtr);
 		} catch (LWJGLException e){
@@ -75,19 +91,14 @@ public class Renderer {
 		}
 		
 		//XNA like background color
-		GL11.glClearColor(0.4f, 0.6f, 0.9f, 0f);
-		
-		// Map the internal OpenGL coordinate system to the entire screen (not sure what this does)		
-		GL11.glViewport(0, 0, WIDTH, HEIGHT);
-		
-		
+		GL11.glClearColor(0.4f, 0.6f, 0.9f, 0f);		
 	}
 	
 	/*
-	 * Sets our view port, centered at x,y with a given width and height.
+	 * Sets our view port with a given width and height.
 	 */
 	private void setViewPort (int x, int y, int width, int height){
-		
+		GL11.glViewport(x, y, width, height);
 	}
 	
 	/*
