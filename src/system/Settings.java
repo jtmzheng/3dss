@@ -2,7 +2,6 @@ package system;
 
 import java.util.HashMap;
 
-
 /*
  * A static utility class defining the settings globally used in the applications.
  * This creates an instance at load time. There isn't a need to use a singleton
@@ -21,6 +20,8 @@ public class Settings {
 		settings.put("in_Color", 1);
 		settings.put("in_TextureCoord", 2);
 		settings.put("in_Normal", 3);
+		settings.put("vertex_path", "src/shaders/vertex.txt");
+		settings.put("fragment_path",  "src/shaders/fragment.txt");
 	}
 	
 	public static void putInteger (String key, int val) {

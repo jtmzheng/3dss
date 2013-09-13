@@ -54,13 +54,14 @@ public class Renderer {
 	 * we call this.initOpenGL with a true "fullscreen" flag.
 	 */
 	public Renderer(int width, int height){
+		this.WIDTH = width;
+		this.HEIGHT = height;
+		
 		if (width == 0 && height == 0)
 			this.initOpenGL(true); 
 		else
 			this.initOpenGL(false);
 		
-		this.WIDTH = width;
-		this.HEIGHT = height;
 		models = new ArrayList<>();
 		shader = new ShaderController();
 		
@@ -68,8 +69,8 @@ public class Renderer {
 		 * Initialize shaders
 		 */
 		HashMap<String, Integer> sh = new HashMap<>();
-		sh.put("src/shaders/vertex.txt", GL20.GL_VERTEX_SHADER);
-		sh.put("src/shaders/fragment.txt", GL20.GL_FRAGMENT_SHADER);
+		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		shader.setProgram(sh); //TO DO: Error checking
 	}
 	
@@ -94,7 +95,6 @@ public class Renderer {
 	 * Renders the new scene.
 	 */
 	public void renderScene (){
-		
 		/*INSERT rendering*/
 		
 		// Render
@@ -113,7 +113,7 @@ public class Renderer {
 			// Bind to the index VBO that has all the information about the order of the vertices
 			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, m.getIndexVBO());
 			// Draw the vertices
-			GL11.glDrawElements(GL11.GL_TRIANGLES, m.getIndicesCount(), GL11.GL_UNSIGNED_BYTE, 0);
+			GL11.glDrawElements(GL11.GL_TRIANGLES, m.getIndicesCount(), GL11.GL_UNSIGNED_SHORT, 0);
 		}
 
 		// Put everything back to default (deselect)
@@ -197,7 +197,7 @@ public class Renderer {
 		 * 1. Bind a few models
 		 * 2. renderScene
 		 */
-		Renderer test = new Renderer(0, 0); //full screen
+		Renderer test = new Renderer(600, 600); //full screen
 		try{
 			test.bindNewModel(OBJLoader.loadModel(new File("res/obj/bunny.obj")));	
 		}
