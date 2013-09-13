@@ -4,39 +4,39 @@ import java.util.HashMap;
 
 
 /*
- * Settings of our application
+ * A static utility class defining the settings globally used in the applications.
+ * This creates an instance at load time. There isn't a need to use a singleton
+ * because we don't need control over when to create or destroy this, it needs
+ * to be initialized at load time.
  */
-public class Settings extends HashMap<String, Object> {
+public class Settings {
 	
-	/*
-	 * List of default settings
-	 */
-	private static final Settings defaults = new Settings(false);
+	public static HashMap<String, Object> settings = new HashMap<String, Object> ();
 	
+	// List of default settings.
 	static {
-		defaults.put("Fullscreen", true);
-		defaults.put("Framerate", 40);
+		settings.put("Fullscreen", true);
+		settings.put("Framerate", 40);
+		settings.put("in_Position", 0);
+		settings.put("in_Color", 1);
+		settings.put("in_TextureCoord", 2);
+		settings.put("in_Normal", 3);
 	}
 	
-	public Settings (boolean useDefaults) {
-		if (useDefaults) 
-			this.putAll(defaults);
+	public static void putInteger (String key, int val) {
+		settings.put(key, new Integer(val));
 	}
 	
-	public void putInteger (String key, int val) {
-		this.put(key, new Integer(val));
+	public static void putString (String key, String val) {
+		settings.put(key, val);
 	}
 	
-	public void putString (String key, String val) {
-		this.put(key, val);
+	public static void putFloat (String key, float val) {
+		settings.put(key, new Float(val));
 	}
 	
-	public void putFloat (String key, float val) {
-		this.put(key, new Float(val));
-	}
-	
-	public int getInteger (String key) {
-		Integer val = (Integer) this.get(key);
+	public static int getInteger (String key) {
+		Integer val = (Integer) settings.get(key);
 		
 		if (val == null) 
 			throw new IllegalArgumentException ("Key '" + val + "' does not exist");
@@ -44,8 +44,8 @@ public class Settings extends HashMap<String, Object> {
 		return val.intValue();
 	}
 	
-	public String getString (String key) {
-		String val = (String) this.get(key);
+	public static String getString (String key) {
+		String val = (String) settings.get(key);
 		
 		if (val == null) 
 			throw new IllegalArgumentException ("Key '" + val + "' does not exist");
@@ -53,8 +53,8 @@ public class Settings extends HashMap<String, Object> {
 		return val;
 	}
 	
-	public float getFloat (String key) {
-		Float val = (Float) this.get(key);
+	public static float getFloat (String key) {
+		Float val = (Float) settings.get(key);
 		
 		if (val == null) 
 			throw new IllegalArgumentException ("Key '" + val + "' does not exist");
@@ -62,11 +62,10 @@ public class Settings extends HashMap<String, Object> {
 		return val.floatValue();
 	}
 	
-	@Override
-	public String toString () {
+	public static String getStringRepresentation () {
 		String ret = "";
-		for (String str : this.keySet()) {
-			ret += str + ": [" + this.get(str).toString() + "]";
+		for (String str : settings.keySet()) {
+			ret += str + ": [" + settings.get(str).toString() + "]";
 			ret += "\r\n";
 		}
 		return ret;

@@ -7,8 +7,10 @@ import java.util.HashMap;
 
 import org.lwjgl.opengl.GL20;
 
-/*
- * ShaderController will manage shaders 
+import system.Settings;
+
+/**
+ * ShaderController will manage shaders.
  * @author Max 
  */
 public class ShaderController {
@@ -25,9 +27,11 @@ public class ShaderController {
 	}
 
 	
-	/*
+	/**
 	 * Currently setProgram is written like this so different shaders can be 
-	 * written for different graphics settings 
+	 * written for different graphics settings.
+	 * 
+	 * @return <code>true</code> if the program was successfully set, and false otherwise.
 	 */
 	public boolean setProgram(HashMap<String, Integer> shaders){
 		if(currentProgram != 0){
@@ -43,18 +47,12 @@ public class ShaderController {
 			shaderIDToType.put(shaderID, shaders.get(file));
 		}
 		
-		/*
-		 * NOTE: Should attributes be a constant, or should the client
-		 * be allowed to change attributes?
-		 */
-		// Position information will be attribute 0
-		GL20.glBindAttribLocation(currentProgram, 0, "in_Position");
-		// Color information will be attribute 1
-		GL20.glBindAttribLocation(currentProgram, 1, "in_Color");
-		// Texture information will be attribute 2
-		GL20.glBindAttribLocation(currentProgram, 2, "in_TextureCoord");
-		//Normal information will be attribute 3
-		GL20.glBindAttribLocation(currentProgram, 3, "in_Normal");
+		
+		// Binding attribute mappings defined in our Settings class.
+		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("in_Position"), "in_Position");
+		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("in_Position"), "in_Color");
+		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("in_Position"), "in_TextureCoord");
+		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("in_Position"), "in_Normal");
 		
 		GL20.glLinkProgram(currentProgram);
 		GL20.glValidateProgram(currentProgram);
@@ -62,10 +60,21 @@ public class ShaderController {
 		return true;
 	}
 	
+	/**
+	 * Getter function for the current program.
+	 * 
+	 * @return An integer defining the current program.
+	 */
 	public int getCurrentProgram(){
 		return currentProgram;
 	}
 	
+	/**
+	 * 
+	 * @param filename Name of shader file.
+	 * @param type 
+	 * @return The shader UID.
+	 */
 	private int loadShader(String filename, int type) {
 		
 		StringBuilder shaderSource = new StringBuilder();

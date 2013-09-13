@@ -18,21 +18,22 @@ import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
+import system.Settings;
+
 /**
- * The renderer class should set up OpenGL
+ * The renderer class should set up OpenGL.
  * In progress.
  * @author Adi
  * @author Max
  */
 public class Renderer {
-	
 	/*
 	 * For each model there will have a VAO with all the data bound to it. This ArrayList
 	 * will be iterated over every render loop. 
 	 */
 	public ArrayList<Model> models; //Arraylist of the models that will be renderered
-	private final int WIDTH = 320;
-	private final int HEIGHT = 240;
+	private int WIDTH = 320;
+	private int HEIGHT = 240;
 	private ShaderController shader;
 	
 	// Moving variables
@@ -49,18 +50,17 @@ public class Renderer {
 	private FloatBuffer matrix44Buffer = null;
 	
 	/*
-	 * Constructor will be filled in later
+	 * Initializes OpenGL. If zero is passed in for both the width and height,
+	 * we call this.initOpenGL with a true "fullscreen" flag.
 	 */
 	public Renderer(int width, int height){
-		/*
-		 * Initialize OpenGL
-		 * If 0 is passed in for width and height, run it fullscreen
-		 */
 		if (width == 0 && height == 0)
 			this.initOpenGL(true); 
 		else
 			this.initOpenGL(false);
 		
+		this.WIDTH = width;
+		this.HEIGHT = height;
 		models = new ArrayList<>();
 		shader = new ShaderController();
 		
@@ -71,7 +71,6 @@ public class Renderer {
 		sh.put("src/shaders/vertex.txt", GL20.GL_VERTEX_SHADER);
 		sh.put("src/shaders/fragment.txt", GL20.GL_FRAGMENT_SHADER);
 		shader.setProgram(sh); //TO DO: Error checking
-		
 	}
 	
 	/* 
@@ -79,6 +78,9 @@ public class Renderer {
 	 * (anything needed to render) and then bound to a VAO(such as texture, vertex position, color, etc). 
 	 * This will PROBABLY make things easier becaues it will abstract creating new models and the actual 
 	 * rendering.  
+	 * 
+	 * @return <code>true</code> if the binding was successful and false otherwise.
+	 * @see Model
 	 */
 	public synchronized boolean bindNewModel(Model model){
 		/*
@@ -88,14 +90,13 @@ public class Renderer {
 		return true;
 	}
 	
-
-	
 	/*
-	 * Renders the new scene
+	 * Renders the new scene.
 	 */
 	public void renderScene (){
 		
 		/*INSERT rendering*/
+		
 		// Render
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
@@ -133,7 +134,7 @@ public class Renderer {
 	}
 	
 	/*
-	 * Initializes OpenGL (currently using 3.2)
+	 * Initializes OpenGL (currently using 3.2).
 	 */
 	private void initOpenGL(boolean fullscreen){
 		try{
@@ -144,15 +145,14 @@ public class Renderer {
 			
 			if (fullscreen) 
 				Display.setFullscreen(true);
-			else {
-				Display.setDisplayMode(new DisplayMode(WIDTH, HEIGHT));
-				
-				// Map the internal OpenGL coordinate system to the entire screen (not sure what this does)		
-				setViewPort(0, 0, WIDTH, HEIGHT);
-			}
+			else 
+				Display.setDisplayMode(new DisplayMode(this.WIDTH, this.HEIGHT));
 			
 			Display.setTitle("Game the Name 2.0");
 			Display.create(pixelFormat, contextAtr);
+			
+			if (WIDTH != 0 && HEIGHT != 0)
+				setViewPort(0, 0, this.WIDTH, this.HEIGHT);
 			
 		} catch (LWJGLException e){
 			e.printStackTrace();
@@ -163,28 +163,28 @@ public class Renderer {
 		GL11.glClearColor(0.4f, 0.6f, 0.9f, 0f);		
 	}
 	
-	/*
+	/**
 	 * Sets our view port with a given width and height.
 	 */
 	private void setViewPort (int x, int y, int width, int height){
 		GL11.glViewport(x, y, width, height);
 	}
 	
-	/*
+	/**
 	 * Sets the view matrix to use.
 	 */
 	private void setViewMatrix (Matrix4f view){
 		
 	}
 	
-	/*
+	/**
 	 * Sets the projection matrix to use.
 	 */
 	private void setProjectionMatrix (Matrix4f proj){
 		
 	}
 	
-	/*
+	/**
 	 * Sets the lighting with a provided LightSet (relative to world space)
 	 */
 	private void setLighting (/*insert a LightSet class here*/){
@@ -204,7 +204,7 @@ public class Renderer {
 		catch(IOException e){
 			e.printStackTrace();
 		}
-		
+				
 		while(!Display.isCloseRequested()){
 			test.renderScene();
 			System.out.println("RENDER");
