@@ -1,14 +1,22 @@
 package renderer;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.ContextAttribs;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
 /**
  * The renderer class should set up OpenGL
@@ -22,23 +30,48 @@ public class Renderer {
 	 * For each model there will have a VAO with all the data bound to it. This ArrayList
 	 * will be iterated over every render loop. 
 	 */
-	public ArrayList<Integer> VAO; //Arraylist of VAO IDs that will be iterated over
+	public ArrayList<Model> models; //Arraylist of the models that will be renderered
 	private final int WIDTH = 320;
 	private final int HEIGHT = 240;
+	private ShaderController shader;
+	
+	// Moving variables
+	private int projectionMatrixLocation = 0;
+	private int viewMatrixLocation = 0;
+	private int modelMatrixLocation = 0;
+	private Matrix4f projectionMatrix = null;
+	private Matrix4f viewMatrix = null;
+	private Matrix4f modelMatrix = null;
+	private Vector3f modelPos = null;
+	private Vector3f modelAngle = null;
+	private Vector3f modelScale = null;
+	private Vector3f cameraPos = null;
+	private FloatBuffer matrix44Buffer = null;
 	
 	/*
 	 * Constructor will be filled in later
 	 */
 	public Renderer(int width, int height){
-		VAO = new ArrayList<Integer>();
-		
 		/*
+		 * Initialize OpenGL
 		 * If 0 is passed in for width and height, run it fullscreen
 		 */
 		if (width == 0 && height == 0)
-			this.initOpenGL(true);
+			this.initOpenGL(true); 
 		else
 			this.initOpenGL(false);
+		
+		models = new ArrayList<>();
+		shader = new ShaderController();
+		
+		/*
+		 * Initialize shaders
+		 */
+		HashMap<String, Integer> sh = new HashMap<>();
+		sh.put("src/shaders/vertex.txt", GL20.GL_VERTEX_SHADER);
+		sh.put("src/shaders/fragment.txt", GL20.GL_FRAGMENT_SHADER);
+		shader.setProgram(sh); //TO DO: Error checking
+		
 	}
 	
 	/* 
@@ -47,9 +80,15 @@ public class Renderer {
 	 * This will PROBABLY make things easier becaues it will abstract creating new models and the actual 
 	 * rendering.  
 	 */
-	public synchronized boolean bindNewModel(Object model){
-		return false;	
+	public synchronized boolean bindNewModel(Model model){
+		/*
+		 * Initialize model
+		 */
+		models.add(model);
+		return true;
 	}
+	
+
 	
 	/*
 	 * Renders the new scene
@@ -57,6 +96,35 @@ public class Renderer {
 	public void renderScene (){
 		
 		/*INSERT rendering*/
+		// Render
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+
+		GL20.glUseProgram(shader.getCurrentProgram());
+
+		for(Model m: models){
+			// Bind to the VAO that has all the information about the vertices
+			GL30.glBindVertexArray(m.getVAO());
+			GL20.glEnableVertexAttribArray(0);
+			GL20.glEnableVertexAttribArray(1);
+			GL20.glEnableVertexAttribArray(2);
+			GL20.glEnableVertexAttribArray(3);
+
+			// Bind to the index VBO that has all the information about the order of the vertices
+			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, m.getIndexVBO());
+			// Draw the vertices
+			GL11.glDrawElements(GL11.GL_TRIANGLES, m.getIndicesCount(), GL11.GL_UNSIGNED_BYTE, 0);
+		}
+
+		// Put everything back to default (deselect)
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+		GL20.glDisableVertexAttribArray(0);
+		GL20.glDisableVertexAttribArray(1);
+		GL20.glDisableVertexAttribArray(2);
+		GL20.glDisableVertexAttribArray(3);
+		GL30.glBindVertexArray(0);
+
+
+		GL20.glUseProgram(0);
 		
 		// Force a maximum FPS of about 60
 		Display.sync(60);
@@ -85,6 +153,7 @@ public class Renderer {
 			
 			Display.setTitle("Game the Name 2.0");
 			Display.create(pixelFormat, contextAtr);
+			
 		} catch (LWJGLException e){
 			e.printStackTrace();
 			System.exit(-1); //quit if opengl context fails
@@ -120,6 +189,26 @@ public class Renderer {
 	 */
 	private void setLighting (/*insert a LightSet class here*/){
 		
+	}
+	
+	public static void main(String [] args){
+		
+		/*
+		 * 1. Bind a few models
+		 * 2. renderScene
+		 */
+		Renderer test = new Renderer(0, 0); //full screen
+		try{
+			test.bindNewModel(OBJLoader.loadModel(new File("res/obj/bunny.obj")));	
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+		
+		while(!Display.isCloseRequested()){
+			test.renderScene();
+			System.out.println("RENDER");
+		}
 	}
 
 }
