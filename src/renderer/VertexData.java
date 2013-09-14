@@ -161,15 +161,22 @@ public class VertexData {
 			return false;
 		
 		VertexData other = (VertexData) o;
-		return other.getGeometric().equals(this.getGeometric()) &&
-			   other.getTexture().equals(this.getTexture());
+
+		return other.xyzw[0] == this.xyzw[0] &&
+			   other.xyzw[1] == this.xyzw[1] &&
+			   other.xyzw[2] == this.xyzw[2] &&
+			   other.st[0] == this.st[0] &&
+			   other.st[1] == this.st[1] &&
+			   other.rgba[0] == this.rgba[0] &&
+			   other.rgba[1] == this.rgba[1] &&
+			   other.rgba[2] == this.rgba[2];
 	}
 	
 	@Override
 	public int hashCode () {
-		return Arrays.hashCode(new float[][] {
-				xyzw,
-				st
-		}); //TODO: Should support color too 
+		int code = Arrays.hashCode(xyzw);
+		code += Arrays.hashCode(st);
+		code += Arrays.hashCode(rgba);
+		return code;
 	}
 }

@@ -21,24 +21,6 @@ import org.lwjgl.util.vector.Vector3f;
  * @author Adi
  */
 public class Model {
-		
-	public static void main (String[] args) {
-		HashMap<VertexData, Byte> vboIndexMap = new HashMap<>();
-		
-		Vector3f v = new Vector3f (1f,2f,3f);
-		Vector2f vt = new Vector2f (0.1f, 0.25f);
-		Vector3f vn = new Vector3f (0.1f, -1f, 0f);
-	
-		byte xb = 3;
-		VertexData x = new VertexData(v, vt, vn);
-		
-		vboIndexMap.put(x,  xb);
-	
-		VertexData y = new VertexData(v, vt, vn);
-
-		System.out.println(vboIndexMap.containsKey(y)); // should return true
-		System.out.println(vboIndexMap.containsValue(xb));
-	}
 	
 	private int vboiID; //vertex indices VBO (GL_ELEMENT_ARRAY_BUFFER)
 	private int vaoID; //vertex array object 
