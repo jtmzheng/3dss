@@ -1,5 +1,7 @@
 package renderer;
 
+import java.util.Arrays;
+
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -50,6 +52,21 @@ public class VertexData {
 		this.st = new float[]{vt.x, vt.y};
 		this.norm = new float[]{vn.x, vn.y, vn.z, 1f};
 		
+	}
+	
+	public VertexData(Vector3f v, Vector2f vt, Vector3f vn) {
+		this.xyzw = new float[]{v.x, v.y, v.z, 1f};
+		this.st = new float[]{vt.x, vt.y};
+		this.norm = new float[]{vn.x, vn.y, vn.z, 1f};
+	}
+	
+	public VertexData(Vector3f v, Vector2f vt) {
+		this.xyzw = new float[]{v.x, v.y, v.z, 1f};
+		this.st = new float[]{vt.x, vt.y};
+	}
+	
+	public VertexData(Vector3f v) {
+		this.xyzw = new float[]{v.x, v.y, v.z, 1f};
 	}
 	
 	// Setters
@@ -107,7 +124,7 @@ public class VertexData {
 		return new float[] {this.xyzw[0], this.xyzw[1], this.xyzw[2], this.xyzw[3]};
 	}
 	
-	public float[] getXYZ() {
+	public float[] getGeometric() {
 		return new float[] {this.xyzw[0], this.xyzw[1], this.xyzw[2]};
 	}
 	
@@ -115,15 +132,25 @@ public class VertexData {
 		return new float[] {this.rgba[0], this.rgba[1], this.rgba[2], this.rgba[3]};
 	}
 	
-	public float[] getRGB() {
+	public float[] getColor() {
 		return new float[] {this.rgba[0], this.rgba[1], this.rgba[2]};
 	}
 	
-	public float[] getST() {
+	public float[] getTexture() {
 		return new float[] {this.st[0], this.st[1]};
 	}
 	
-	public float[] getNorm(){
+	public float[] getNormal(){
 		return new float[] {this.norm[0], this.norm[1], this.norm[2], this.norm[3]};
+	}
+	
+	public String toString () {
+		String ret = "";
+		ret += "XYZW: [" + xyzw[0] + ", " + xyzw[1] + ", " + xyzw[2] + ", " + xyzw[3] + "]\n" +
+			   "RGBA: [" + rgba[0] + ", " + rgba[1] + ", " + rgba[2] + ", " + rgba[3] + "]\n" +
+			   "VTEX: [" + st[0] + ", " + st[1] + "]\n" +
+			   "NORM: [" + norm[0] + ", " + norm[1] + ", " + norm[2] + ", " + norm[3] + "]\n";
+		
+		return ret;
 	}
 }

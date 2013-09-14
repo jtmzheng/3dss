@@ -14,6 +14,8 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
+import util.FloatUtilities;
+
 
 /*
  * Model class is an abstraction used by Renderer. This will use interleaving for vertex properties.
@@ -53,7 +55,7 @@ public class Model {
 	}
 	
 	
-	public Model(List<Vector3f> v, List<Vector3f> vn, List<Vector2f> vt, List<Face> f){	
+	public Model(List<Face> f){	
 		/*
 		 * Set up shit here
 		 */
@@ -75,9 +77,9 @@ public class Model {
 			 * Put in order of attributes for clarity (no color)
 			 * Since each triangle (face) has 3 vertices, there is going to be some annoyingness
 			 */
-			Vector3f normal = vn.get((int) (face.normal.x - 1)); //face.normal.x is the index (TO DO: Use something else other than Vector3f)
-			Vector3f vertex = v.get((int) (face.vertex.x - 1));
-			Vector2f texture = new Vector2f(1f, 1f);//vt.get((int) (face.texture.x - 1));
+			Vector3f normal = FloatUtilities.FTV3(face.faceData.get(0).getNormal()); //face.normal.x is the index (TO DO: Use something else other than Vector3f)
+			Vector3f vertex = FloatUtilities.FTV3(face.faceData.get(0).getGeometric());
+			Vector2f texture = FloatUtilities.FTV2(face.faceData.get(0).getTexture());
 			
 			tempVertexData = new VertexData(vertex, tempColor, texture, normal);
 			if(!vboIndexMap.containsKey(tempVertexData)){
@@ -91,9 +93,9 @@ public class Model {
 				common++;
 			}
 			
-			normal = vn.get((int) (face.normal.y - 1)); //face.normal.x is the index (TO DO: Use something else other than Vector3f)
-			vertex = v.get((int) (face.vertex.y - 1));
-			texture = new Vector2f(1f, 1f);//vt.get((int) (face.texture.y - 1));
+			normal = FloatUtilities.FTV3(face.faceData.get(1).getNormal()); //face.normal.x is the index (TO DO: Use something else other than Vector3f)
+			vertex = FloatUtilities.FTV3(face.faceData.get(1).getGeometric());
+			texture = FloatUtilities.FTV2(face.faceData.get(1).getTexture());
 			
 			tempVertexData = new VertexData(vertex, tempColor, texture, normal);
 			if(!vboIndexMap.containsKey(tempVertexData)){
@@ -107,9 +109,9 @@ public class Model {
 				common++;
 			}
 			
-			normal = vn.get((int) (face.normal.z - 1)); //face.normal.x is the index (TO DO: Use something else other than Vector3f)
-			vertex = v.get((int) (face.vertex.z - 1));
-			texture = new Vector2f(1f, 1f);//vt.get((int) (face.texture.z - 1));
+			normal = FloatUtilities.FTV3(face.faceData.get(2).getNormal()); //face.normal.x is the index (TO DO: Use something else other than Vector3f)
+			vertex = FloatUtilities.FTV3(face.faceData.get(2).getGeometric());
+			texture = FloatUtilities.FTV2(face.faceData.get(2).getTexture());
 			
 			tempVertexData = new VertexData(vertex, tempColor, texture, normal);
 			if(!vboIndexMap.containsKey(tempVertexData)){

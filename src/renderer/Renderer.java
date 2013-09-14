@@ -74,7 +74,7 @@ public class Renderer {
 		shader.setProgram(sh); //TO DO: Error checking
 	}
 	
-	/* 
+	/**
 	 * There will be a class called "Model" which will have all the data that will be bound to a VBO 
 	 * (anything needed to render) and then bound to a VAO(such as texture, vertex position, color, etc). 
 	 * This will PROBABLY make things easier becaues it will abstract creating new models and the actual 
@@ -199,7 +199,7 @@ public class Renderer {
 		 */
 		Renderer test = new Renderer(600, 600); //full screen
 		try{
-			test.bindNewModel(OBJLoader.loadModel(new File("res/obj/bunny.obj")));	
+			test.bindNewModel(ModelFactory.loadModel(new File("res/obj/cube.obj")));	
 		}
 		catch(IOException e){
 			e.printStackTrace();
