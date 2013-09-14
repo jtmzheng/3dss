@@ -144,6 +144,7 @@ public class VertexData {
 		return new float[] {this.norm[0], this.norm[1], this.norm[2], this.norm[3]};
 	}
 	
+	@Override
 	public String toString () {
 		String ret = "";
 		ret += "XYZW: [" + xyzw[0] + ", " + xyzw[1] + ", " + xyzw[2] + ", " + xyzw[3] + "]\n" +
@@ -152,5 +153,25 @@ public class VertexData {
 			   "NORM: [" + norm[0] + ", " + norm[1] + ", " + norm[2] + ", " + norm[3] + "]\n";
 		
 		return ret;
+	}
+	
+	@Override
+	public boolean equals (Object o) {
+		if (!(o instanceof  VertexData))
+			return false;
+		
+		VertexData other = (VertexData) o;
+		return other.getGeometric().equals(this.getGeometric()) &&
+			   other.getNormal().equals(this.getNormal()) &&
+			   other.getTexture().equals(this.getTexture());
+	}
+	
+	@Override
+	public int hashCode () {
+		return Arrays.hashCode(new float[][] {
+				xyzw,
+				st,
+				norm
+		});
 	}
 }

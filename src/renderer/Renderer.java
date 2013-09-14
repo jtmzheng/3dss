@@ -199,7 +199,7 @@ public class Renderer {
 		 */
 		Renderer test = new Renderer(600, 600); //full screen
 		try{
-			test.bindNewModel(ModelFactory.loadModel(new File("res/obj/cube.obj")));	
+			test.bindNewModel(ModelFactory.loadModel(new File("res/obj/bunny.obj")));	
 		}
 		catch(IOException e){
 			e.printStackTrace();
