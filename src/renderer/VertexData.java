@@ -161,7 +161,6 @@ public class VertexData {
 			return false;
 		
 		VertexData other = (VertexData) o;
-
 		return other.xyzw[0] == this.xyzw[0] &&
 			   other.xyzw[1] == this.xyzw[1] &&
 			   other.xyzw[2] == this.xyzw[2] &&
@@ -179,4 +178,5 @@ public class VertexData {
 		code += Arrays.hashCode(rgba);
 		return code;
 	}
+	
 }
