@@ -105,15 +105,16 @@ public class Renderer {
 		for(Model m: models){
 			// Bind to the VAO that has all the information about the vertices
 			GL30.glBindVertexArray(m.getVAO());
-			GL20.glEnableVertexAttribArray(0);
-			GL20.glEnableVertexAttribArray(1);
-			GL20.glEnableVertexAttribArray(2);
-			GL20.glEnableVertexAttribArray(3);
+			GL20.glEnableVertexAttribArray(0); //position
+			GL20.glEnableVertexAttribArray(1); //color
+			GL20.glEnableVertexAttribArray(2); //texture
+			GL20.glEnableVertexAttribArray(3); //normal
 
 			// Bind to the index VBO that has all the information about the order of the vertices
 			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, m.getIndexVBO());
+			
 			// Draw the vertices
-			GL11.glDrawElements(GL11.GL_TRIANGLES, m.getIndicesCount(), GL11.GL_UNSIGNED_SHORT, 0);
+			GL11.glDrawElements(GL11.GL_TRIANGLES, m.getIndicesCount(), GL11.GL_UNSIGNED_BYTE, 0);
 		}
 
 		// Put everything back to default (deselect)
@@ -197,9 +198,9 @@ public class Renderer {
 		 * 1. Bind a few models
 		 * 2. renderScene
 		 */
-		Renderer test = new Renderer(600, 600); //full screen
+		Renderer test = new Renderer(800, 800); //full screen
 		try{
-			test.bindNewModel(ModelFactory.loadModel(new File("res/obj/bunny.obj")));	
+			test.bindNewModel(ModelFactory.loadModel(new File("res/obj/cube.obj")));	
 		}
 		catch(IOException e){
 			e.printStackTrace();

@@ -172,6 +172,6 @@ public class VertexData {
 				xyzw,
 				st,
 				norm
-		});
+		}); //TODO: Should support color too 
 	}
 }

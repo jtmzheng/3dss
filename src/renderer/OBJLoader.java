@@ -44,6 +44,7 @@ import org.lwjgl.util.vector.Vector3f;
  * @author Max
  */
 
+@Deprecated
 public class OBJLoader {
 
 	/*
@@ -100,7 +101,7 @@ public class OBJLoader {
 						Float.valueOf(fields[1].split("/")[2]),
 						Float.valueOf(fields[2].split("/")[2]),
 						Float.valueOf(fields[3].split("/")[2]));
-				faces.add(new Face(v, vn /*, vt */));	
+				//faces.add(new Face(v, vn /*, vt */));	
 			}
 		}
 		
@@ -113,8 +114,9 @@ public class OBJLoader {
 		//if(vertices.size() != normals.size()  || vertices.size() != faces.size())
 		//	throw new IOException();
 		
-		Model m = new Model(vertices, normals, textures, faces);
-		return m;
+		//Model m = new Model(vertices, normals, textures, faces);
+		//return m;
+		return null;
 	}
 	
 }

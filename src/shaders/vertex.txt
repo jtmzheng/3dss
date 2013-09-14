@@ -6,11 +6,13 @@ uniform mat4 modelMatrix;
 
 in vec4 in_Position;
 in vec4 in_Color;
-in vec4 in_Normal
+in vec2 in_Texture;
+in vec4 in_Normal;
 
 out vec4 pass_Color;
 
 void main(void) {
 	gl_Position = in_Position;
+	gl_Normal = in_Normal;
 	pass_Color = in_Color;
 }
