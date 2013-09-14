@@ -162,16 +162,17 @@ public class VertexData {
 		
 		VertexData other = (VertexData) o;
 		return other.getGeometric().equals(this.getGeometric()) &&
-			   other.getNormal().equals(this.getNormal()) &&
-			   other.getTexture().equals(this.getTexture());
+			   other.getTexture().equals(this.getTexture()) &&
+			   other.getColor().equals(this.getColor());
 	}
 	
 	@Override
 	public int hashCode () {
 		return Arrays.hashCode(new float[][] {
 				xyzw,
-				st,
-				norm
+				rgba,
+				st
 		}); //TODO: Should support color too 
 	}
+	
 }
