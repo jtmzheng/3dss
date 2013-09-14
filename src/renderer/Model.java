@@ -73,16 +73,8 @@ public class Model {
 		
 		for(Face face: f){
 			System.out.println(++count);
-<<<<<<< HEAD
 
 			//Add first vertex of the face
-=======
-			/*
-			 * Put in order of attributes for clarity (no color)
-			 * Since each triangle (face) has 3 vertices, there is going to be some annoyingness
-			 *
-		   	 */
->>>>>>> branch 'rendererBranch' of https://github.com/jtmzheng/3dss.git
 			tempVertexData = face.faceData.get(0);
 			if(!vboIndexMap.containsKey(tempVertexData)){
 				vboIndexMap.put(tempVertexData, index);
@@ -95,10 +87,7 @@ public class Model {
 				common++;
 			}
 			
-<<<<<<< HEAD
 			//Add second vertex of the face
-=======
->>>>>>> branch 'rendererBranch' of https://github.com/jtmzheng/3dss.git
 			tempVertexData = face.faceData.get(1);
 			if(!vboIndexMap.containsKey(tempVertexData)){
 				vboIndexMap.put(tempVertexData, index);
@@ -111,10 +100,7 @@ public class Model {
 				common++;
 			}
 
-<<<<<<< HEAD
 			//Add third vertex of the face
-=======
->>>>>>> branch 'rendererBranch' of https://github.com/jtmzheng/3dss.git
 			tempVertexData = face.faceData.get(2);
 			if(!vboIndexMap.containsKey(tempVertexData)){
 				vboIndexMap.put(tempVertexData, index);
