@@ -66,6 +66,7 @@ public class ModelFactory {
 		 * The faces contain all the information we need.
 		 * @see Face.java
 		 */
+		
 		Model m = new Model(faces);
 		return m;
 	}

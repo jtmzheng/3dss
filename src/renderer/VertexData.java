@@ -44,7 +44,7 @@ public class VertexData {
 			colorElementCount + textureElementCount + normalElementCount;	
 	// The size of a vertex in bytes, like in C/C++: sizeof(Vertex)
 	public static final int stride = positionBytesCount + colorByteCount + 
-			textureByteCount + normalElementCount;
+			textureByteCount + normalByteCount;
 	
 	public VertexData(Vector3f v, Vector3f c, Vector2f vt, Vector3f vn){
 		this.xyzw = new float[]{v.x, v.y, v.z, 1f};

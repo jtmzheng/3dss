@@ -69,7 +69,9 @@ public class Face {
     }
     
     public Vector3f getComputedNormal() {
-    	calculateNormal();
+    	if(normalVector == null)
+    		calculateNormal();
+    	
     	return this.normalVector;
     }
 	
