@@ -60,12 +60,12 @@ public class Model {
 		 * Set up shit here
 		 */
 		// Put each 'Vertex' in one FloatBuffer
-		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(f.size() * 5 *  VertexData.stride);            
+		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(f.size() * 3 *  VertexData.stride);            
 		FloatBuffer verticesFloatBuffer = verticesByteBuffer.asFloatBuffer();
 		HashMap<VertexData, Byte> vboIndexMap = new HashMap<>();
 		List<Byte> vboIndex = new ArrayList<>();
 		VertexData tempVertexData;
-		Vector3f tempColor = new Vector3f(1f, 1f, 1f);
+		
 		byte index = 0;
 		int count = 0;
 		int common = 0;
@@ -73,11 +73,8 @@ public class Model {
 		
 		for(Face face: f){
 			System.out.println(++count);
-			/*
-			 * Put in order of attributes for clarity (no color)
-			 * Since each triangle (face) has 3 vertices, there is going to be some annoyingness
-			 *
-		   	 */
+
+			//Add first vertex of the face
 			tempVertexData = face.faceData.get(0);
 			if(!vboIndexMap.containsKey(tempVertexData)){
 				vboIndexMap.put(tempVertexData, index);
@@ -90,6 +87,7 @@ public class Model {
 				common++;
 			}
 			
+			//Add second vertex of the face
 			tempVertexData = face.faceData.get(1);
 			if(!vboIndexMap.containsKey(tempVertexData)){
 				vboIndexMap.put(tempVertexData, index);
@@ -102,6 +100,7 @@ public class Model {
 				common++;
 			}
 
+			//Add third vertex of the face
 			tempVertexData = face.faceData.get(2);
 			if(!vboIndexMap.containsKey(tempVertexData)){
 				vboIndexMap.put(tempVertexData, index);
@@ -151,8 +150,8 @@ public class Model {
 				false, VertexData.stride, VertexData.textureByteOffset);
 		
 		// Put the normal coordinates in attribute list 3
-				GL20.glVertexAttribPointer(2, VertexData.textureElementCount, GL11.GL_FLOAT,
-						false, VertexData.stride, VertexData.normalByteOffset);
+		GL20.glVertexAttribPointer(3, VertexData.textureElementCount, GL11.GL_FLOAT,
+				false, VertexData.stride, VertexData.normalByteOffset);
 		
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 		

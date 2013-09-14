@@ -36,7 +36,7 @@ public class Renderer {
 	private int HEIGHT = 240;
 	private ShaderController shader;
 	
-	// Moving variables
+	// Moving variables (NOT DONE)
 	private int projectionMatrixLocation = 0;
 	private int viewMatrixLocation = 0;
 	private int modelMatrixLocation = 0;
