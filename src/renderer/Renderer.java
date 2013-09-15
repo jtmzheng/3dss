@@ -18,6 +18,8 @@ import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
+import debugger.DebugWindow;
+
 import system.Settings;
 
 /**
@@ -198,9 +200,10 @@ public class Renderer {
 		 * 1. Bind a few models
 		 * 2. renderScene
 		 */
-		Renderer test = new Renderer(800, 800); //full screen
+		Renderer test = new Renderer(600, 600); //full screen
+		DebugWindow.show();
 		try{
-			test.bindNewModel(ModelFactory.loadModel(new File("res/obj/cube.obj")));	
+			test.bindNewModel(ModelFactory.loadModel(new File("res/obj/teddy.obj")));	
 		}
 		catch(IOException e){
 			e.printStackTrace();
