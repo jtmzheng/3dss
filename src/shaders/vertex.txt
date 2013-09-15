@@ -13,6 +13,7 @@ out vec4 pass_Color;
 
 void main(void) {
 	gl_Position = in_Position;
+	gl_Position = projectionMatrix * viewMatrix * modelMatrix * in_Position;
 	gl_Normal = in_Normal;
 	pass_Color = in_Color;
 }

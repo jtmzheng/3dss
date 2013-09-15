@@ -18,6 +18,10 @@ public class ShaderController {
 	private HashMap<String, Integer> shaderNameToID = null;
 	private HashMap<Integer, Integer> shaderIDToType = null;
 	
+	private int projectionMatrixLocation = 0;
+	private int viewMatrixLocation = 0;
+	private int modelMatrixLocation = 0;
+	
 	private int currentProgram;
 
 	public ShaderController() {
@@ -45,17 +49,30 @@ public class ShaderController {
 			GL20.glAttachShader(currentProgram, shaderID);
 			shaderNameToID.put(file, shaderID);
 			shaderIDToType.put(shaderID, shaders.get(file));
+			System.out.println(shaderID);
 		}
 		
 		
 		// Binding attribute mappings defined in our Settings class.
 		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("in_Position"), "in_Position");
-		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("in_Position"), "in_Color");
-		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("in_Position"), "in_TextureCoord");
-		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("in_Position"), "in_Normal");
+		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("in_Color"), "in_Color");
+		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("in_TextureCoord"), "in_TextureCoord");
+		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("in_Normal"), "in_Normal");
 		
 		GL20.glLinkProgram(currentProgram);
 		GL20.glValidateProgram(currentProgram);
+		
+		// Get matrices uniform locations
+		projectionMatrixLocation = GL20.glGetUniformLocation(currentProgram, "projectionMatrix");
+		viewMatrixLocation = GL20.glGetUniformLocation(currentProgram,  "viewMatrix");
+		modelMatrixLocation = GL20.glGetUniformLocation(currentProgram,  "modelMatrix");
+		
+		
+		System.out.println("PROJECTION: " + projectionMatrixLocation);
+		System.out.println("VIEW: " + viewMatrixLocation);
+		System.out.println("MODEL: " + modelMatrixLocation);
+		System.out.println("SHADER: " + currentProgram);
+		
 		
 		return true;
 	}
@@ -67,6 +84,18 @@ public class ShaderController {
 	 */
 	public int getCurrentProgram(){
 		return currentProgram;
+	}
+	
+	public int getModelMatrixLocation(){
+		return modelMatrixLocation;
+	}
+	
+	public int getProjectionMatrixLocation(){
+		return projectionMatrixLocation;
+	}
+	
+	public int getViewMatrixLocation(){
+		return viewMatrixLocation;
 	}
 	
 	/**

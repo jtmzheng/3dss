@@ -11,7 +11,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
-import org.lwjgl.util.vector.Vector2f;
+import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
 
@@ -25,6 +25,7 @@ public class Model {
 	private int vboiID; //vertex indices VBO (GL_ELEMENT_ARRAY_BUFFER)
 	private int vaoID; //vertex array object 
 	private int indicesCount = 0;
+	private Matrix4f modelMatrix = null;
 	
 //	private VertexData[] vertices = null;
 //	private ByteBuffer verticesByteBuffer = null;
@@ -167,6 +168,9 @@ public class Model {
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		System.out.println("COMMON: " + common);
 		System.out.println("NEWC: " + newC);
+		
+		//Initialize model matrix
+		modelMatrix = new Matrix4f(); //Initialized to the identity in the constructor
 				
 	}
 	
@@ -180,6 +184,46 @@ public class Model {
 	
 	public int getIndicesCount(){
 		return indicesCount;
+	}
+	
+	/*
+	 * Translate the model
+	 */
+	public void translate(Vector3f s){
+		Matrix4f.translate(s, modelMatrix, modelMatrix);
+	}
+	
+	/*
+	 * Rotate axis
+	 */
+	public void rotateY(float angle){
+		Matrix4f.rotate(angle, new Vector3f(0f, 1f, 0f), modelMatrix, modelMatrix);
+	}
+	
+	public void rotateX(float angle){
+		Matrix4f.rotate(angle, new Vector3f(1f, 0f, 0f), modelMatrix, modelMatrix);
+	}
+	
+	public void rotateZ(float angle){
+		Matrix4f.rotate(angle, new Vector3f(0f, 0f, 1f), modelMatrix, modelMatrix);
+	}
+	
+	/*
+	 * Scale the model
+	 */
+	public void scale(Vector3f scale){
+		Matrix4f.scale(scale, modelMatrix, modelMatrix);
+	}
+	
+	public void scale(float scale){
+		Matrix4f.scale(new Vector3f(scale, scale, scale), modelMatrix, modelMatrix);
+	}
+	
+	/*
+	 * Get the model matrix
+	 */
+	public Matrix4f getModelMatrix(){
+		return modelMatrix;
 	}
 	
 	
