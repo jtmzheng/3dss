@@ -150,7 +150,7 @@ public class VertexData {
 		ret += "XYZW: [" + xyzw[0] + ", " + xyzw[1] + ", " + xyzw[2] + ", " + xyzw[3] + "]\n" +
 			   "RGBA: [" + rgba[0] + ", " + rgba[1] + ", " + rgba[2] + ", " + rgba[3] + "]\n" +
 			   "VTEX: [" + st[0] + ", " + st[1] + "]\n" +
-			   "NORM: [" + norm[0] + ", " + norm[1] + ", " + norm[2] + ", " + norm[3] + "]\n";
+			   "NORM: [" + norm[0] + ", " + norm[1] + ", " + norm[2] + ", " + norm[3] + "]";
 		
 		return ret;
 	}
