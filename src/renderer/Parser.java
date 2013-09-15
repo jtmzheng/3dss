@@ -11,6 +11,8 @@ import java.util.List;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
+import debugger.DebugWindow;
+
 import util.StringUtilities;
 
 /**
@@ -65,7 +67,7 @@ public class Parser {
     	FileReader fin = new FileReader(file);
     	BufferedReader bin = new BufferedReader (fin);
     	
-    	System.out.println("Parsing " + file.getAbsolutePath() + "...\n");
+    	DebugWindow.write("Parser::parseOBJFile", "Parsing " + file.getAbsolutePath() + "...\n");
     	while ((line = bin.readLine()) != null) {
     		line = line.trim();
     		if (line.length() == 0) continue;
@@ -172,24 +174,23 @@ public class Parser {
     }
     
     private void parseLine (String line) {
-    	System.err.println("Parser::parseLine called. Lines are not supported yet.");
+    	DebugWindow.write("Parser::parseLine", "Parser::parseLine called. Lines are not supported yet.");
     }
     private void parseGroup (String line) {
-    	System.err.println("Parser::parseGroup called. Groups are not supported yet.");
+    	DebugWindow.write("Parser::parseGroup", "Parser::parseGroup called. Groups are not supported yet.");
     }
     private void parsePoint (String line) {
-    	System.err.println("Parser::parsePoint called. Points are not supported yet.");
+    	DebugWindow.write("Parser::parsePoint", "Parser::parsePoint Points. Lines are not supported yet.");
     }
     private void parseMTL (String line) {
-    	System.err.println("Parser::parseMTL called. usemtl not supported yet.");
+    	DebugWindow.write("Parser::parseMTL", "Parser::parseMTL called. usemtl is not supported yet.");
     }
     
     private void dump () {
-    	System.out.println("\nSummary\n-------\n" +
-    					   "Number of vertices (v):  " + vertices.size() + "\n" +
+    	DebugWindow.write("Parser::dump", "Number of vertices (v):  " + vertices.size() + "\n" +
     					   "Number of textures (vt): " + textures.size() + "\n" +
     					   "Number of normals  (vn): " + normals.size() + "\n" +
-    					   "Number of faces    (f):  " + faces.size() + "\n");
+    					   "Number of faces    (f):  " + faces.size());
     					   
     }
     

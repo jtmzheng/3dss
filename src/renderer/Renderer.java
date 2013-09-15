@@ -211,7 +211,6 @@ public class Renderer {
 				
 		while(!Display.isCloseRequested()){
 			test.renderScene();
-			System.out.println("RENDER");
 		}
 	}
 
