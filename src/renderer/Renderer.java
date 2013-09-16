@@ -147,8 +147,6 @@ public class Renderer {
 		
 		/*INSERT altering variables*/
 		viewMatrix = lookAt(cameraPosition, cameraDirection, Vector3f.cross(cameraDirection, cameraRight, null));
-		System.out.println(viewMatrix);
-		System.out.println("blah");
 		
 		projectionMatrix.store(matrix44Buffer); matrix44Buffer.flip();
 		GL20.glUniformMatrix4(shader.getProjectionMatrixLocation(), false, matrix44Buffer);

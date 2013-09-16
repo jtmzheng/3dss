@@ -72,7 +72,6 @@ public class Model {
 		int newC = 0;
 		
 		for(Face face: f){
-			System.out.println(++count);
 			//Add first vertex of the face
 			tempVertexData = face.faceData.get(0);
 			if(!vboIndexMap.containsKey(tempVertexData)){
@@ -112,11 +111,6 @@ public class Model {
 				common++;
 			}
 			
-		}
-		for(VertexData ab : vboIndexMap.keySet()){
-			System.out.println();
-			System.out.println(ab);
-			System.out.println();
 		}
 		verticesFloatBuffer.flip();
 		byte [] indices = new byte[vboIndex.size()];
