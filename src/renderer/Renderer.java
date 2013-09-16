@@ -146,7 +146,7 @@ public class Renderer {
 		GL20.glUseProgram(shader.getCurrentProgram());
 		
 		/*INSERT altering variables*/
-		viewMatrix = lookAt(cameraPosition, Vector3f.add(cameraPosition, cameraDirection, null), new Vector3f(0f, 1f, 0f)); //Vector3f.cross(cameraRight, cameraDirection, null)
+		viewMatrix = lookAt(cameraPosition, Vector3f.add(cameraPosition, cameraDirection, null), new Vector3f(0f,1f,0f)); //Vector3f.cross(cameraRight, cameraDirection, null)
 		
 		projectionMatrix.store(matrix44Buffer); matrix44Buffer.flip();
 		GL20.glUniformMatrix4(shader.getProjectionMatrixLocation(), false, matrix44Buffer);
@@ -336,6 +336,7 @@ public class Renderer {
 					if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE){
 						loop = false; //exit (TODO: make this cleaner/use break?)
 						Mouse.setGrabbed(false);
+						DebugWindow.destroy();
 					}
 				} 
 			}
