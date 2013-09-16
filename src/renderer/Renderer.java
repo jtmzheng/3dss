@@ -50,16 +50,16 @@ public class Renderer {
 	//Camera variables (TODO: will be moved to a camera class in the future)
 	private Vector3f cameraPosition = null;
 	private float cameraFOV = 45f;
-	private float cameraVerticalAngle = 3.14f; //arbitrarily defined right now
-	private float cameraHorizontalAngle = 0.0f; 
+	private float cameraHorizontalAngle = 3.14f; //arbitrarily defined right now
+	private float cameraVerticalAngle = 0.0f; 
 	private Vector3f cameraDirection = new Vector3f(
 			(float)(Math.cos(cameraVerticalAngle) * Math.sin(cameraHorizontalAngle)),
 			(float)(Math.sin(cameraVerticalAngle)),
 			(float)(Math.cos(cameraVerticalAngle) * Math.cos(cameraHorizontalAngle))); 
 	private Vector3f cameraRight = new Vector3f(
 			(float)(Math.sin(cameraHorizontalAngle - 3.14f/2.0f)),
-			(float)(Math.sin(cameraVerticalAngle)),
-			(float)(Math.cos(cameraVerticalAngle - 3.14f/2.0f))); //NOTE: Vector3f has built in cross product
+			(float)(0f),
+			(float)(Math.cos(cameraHorizontalAngle - 3.14f/2.0f))); //NOTE: Vector3f has built in cross product
 	
 	private float cameraSensitivity = 0.005f; //Larger equals more sensitive
 	
@@ -114,7 +114,7 @@ public class Renderer {
 		matrix44Buffer = BufferUtils.createFloatBuffer(16);
 		
 		//Initilize camera
-		cameraPosition = new Vector3f(0f, 0f, 0f);
+		cameraPosition = new Vector3f(0f, 0f, 5f);
 	}
 	
 	/**
@@ -146,7 +146,7 @@ public class Renderer {
 		GL20.glUseProgram(shader.getCurrentProgram());
 		
 		/*INSERT altering variables*/
-		viewMatrix = lookAt(cameraPosition, cameraDirection, Vector3f.cross(cameraDirection, cameraRight, null));
+		viewMatrix = lookAt(cameraPosition, Vector3f.add(cameraPosition, cameraDirection, null), new Vector3f(0f, 1f, 0f)); //Vector3f.cross(cameraRight, cameraDirection, null)
 		
 		projectionMatrix.store(matrix44Buffer); matrix44Buffer.flip();
 		GL20.glUniformMatrix4(shader.getProjectionMatrixLocation(), false, matrix44Buffer);
@@ -279,6 +279,7 @@ public class Renderer {
 		 * Update matrices here?
 		 */
 	}
+	
 	
 	public static void main(String [] args){
 		/*
