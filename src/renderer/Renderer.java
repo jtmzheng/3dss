@@ -253,6 +253,7 @@ public class Renderer {
 	 * Sets our view port with a given width and height.
 	 */
 	private void setViewPort (int x, int y, int width, int height){
+		GL11.glViewport(0, 0, WIDTH, HEIGHT);
 	}
 	
 
@@ -289,7 +290,7 @@ public class Renderer {
 		Renderer test = new Renderer(600, 600); //full screen
 		DebugWindow.show();
 		try{
-			test.bindNewModel(ModelFactory.loadModel(new File("res/obj/teddy.obj")));	
+			test.bindNewModel(ModelFactory.loadModel(new File("res/obj/cube.obj")));	
 		}
 		catch(IOException e){
 			e.printStackTrace();
