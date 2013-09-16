@@ -20,8 +20,8 @@ public class Settings {
 		settings.put("in_Color", 1);
 		settings.put("in_TextureCoord", 2);
 		settings.put("in_Normal", 3);
-		settings.put("vertex_path", "src/shaders/vertex.txt");
-		settings.put("fragment_path",  "src/shaders/fragment.txt");
+		settings.put("vertex_path", "src/shaders/vertex.vert");
+		settings.put("fragment_path",  "src/shaders/fragment.frag");
 	}
 	
 	public static void putInteger (String key, int val) {
