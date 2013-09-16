@@ -245,6 +245,13 @@ public class Renderer {
 		
 		//XNA like background color
 		GL11.glClearColor(0.4f, 0.6f, 0.9f, 0f);		
+		GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE ); //for debug
+		GL11.glEnable(GL11.GL_CULL_FACE);
+		GL11.glCullFace(GL11.GL_BACK);
+		
+		//GL11.glEnable(GL11.GL_DEPTH_TEST);
+		// Accept fragment if it closer to the camera than the former one
+		//GL11.glDepthFunc(GL11.GL_LEQUAL);
 	}
 	
 	/**
@@ -289,7 +296,7 @@ public class Renderer {
 		Renderer test = new Renderer(600, 600); //full screen
 		DebugWindow.show();
 		try{
-			test.bindNewModel(ModelFactory.loadModel(new File("res/obj/cube.obj")));	
+			test.bindNewModel(ModelFactory.loadModel(new File("res/obj/cow.obj")));	
 		}
 		catch(IOException e){
 			e.printStackTrace();
