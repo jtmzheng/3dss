@@ -48,21 +48,7 @@ public class Renderer {
 	private FloatBuffer matrix44Buffer = null;
 	
 	//Camera variables (TODO: will be moved to a camera class in the future)
-	private Vector3f cameraPosition = null;
-	private float cameraFOV = 45f;
-	private float cameraHorizontalAngle = 3.14f; //arbitrarily defined right now
-	private float cameraVerticalAngle = 0.0f; 
-	private Vector3f cameraDirection = new Vector3f(
-			(float)(Math.cos(cameraVerticalAngle) * Math.sin(cameraHorizontalAngle)),
-			(float)(Math.sin(cameraVerticalAngle)),
-			(float)(Math.cos(cameraVerticalAngle) * Math.cos(cameraHorizontalAngle))); 
-	private Vector3f cameraRight = new Vector3f(
-			(float)(Math.sin(cameraHorizontalAngle - 3.14f/2.0f)),
-			(float)(0f),
-			(float)(Math.cos(cameraHorizontalAngle - 3.14f/2.0f))); //NOTE: Vector3f has built in cross product
-	
-	private float cameraSensitivity = 0.005f; //Larger equals more sensitive
-	
+	private Camera camera = null;
 	
 	/*
 	 * Initializes OpenGL. If zero is passed in for both the width and height,
@@ -80,9 +66,7 @@ public class Renderer {
 		models = new ArrayList<>();
 		shader = new ShaderController();
 		
-		/*
-		 * Initialize shaders
-		 */
+		//Initialize shaders
 		HashMap<String, Integer> sh = new HashMap<>();
 		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
@@ -105,8 +89,7 @@ public class Renderer {
 		projectionMatrix.m22 = -((far_plane + near_plane) / frustum_length);
 		projectionMatrix.m23 = -1;
 		projectionMatrix.m32 = -((2 * near_plane * far_plane) / frustum_length);
-                projectionMatrix.m33 = 0;
-		
+		projectionMatrix.m33 = 0;
 		
 		viewMatrix = new Matrix4f();
 		
@@ -114,7 +97,7 @@ public class Renderer {
 		matrix44Buffer = BufferUtils.createFloatBuffer(16);
 		
 		//Initilize camera
-		cameraPosition = new Vector3f(0f, 0f, 5f);
+		camera = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
 	}
 	
 	/**
@@ -126,7 +109,7 @@ public class Renderer {
 	 * @return <code>true</code> if the binding was successful and false otherwise.
 	 * @see Model
 	 */
-	public synchronized boolean bindNewModel(Model model){
+	public boolean bindNewModel(Model model){
 		/*
 		 * Initialize model
 		 */
@@ -146,7 +129,8 @@ public class Renderer {
 		GL20.glUseProgram(shader.getCurrentProgram());
 		
 		/*INSERT altering variables*/
-		viewMatrix = lookAt(cameraPosition, Vector3f.add(cameraPosition, cameraDirection, null), new Vector3f(0f,1f,0f)); //Vector3f.cross(cameraRight, cameraDirection, null)
+		viewMatrix = camera.getViewMatrix(); //Vector3f.cross(cameraRight, cameraDirection, null)
+		System.out.println("VIEW: " + viewMatrix);
 		
 		projectionMatrix.store(matrix44Buffer); matrix44Buffer.flip();
 		GL20.glUniformMatrix4(shader.getProjectionMatrixLocation(), false, matrix44Buffer);
@@ -172,15 +156,13 @@ public class Renderer {
 			GL11.glDrawElements(GL11.GL_TRIANGLES, m.getIndicesCount(), GL11.GL_UNSIGNED_BYTE, 0);
 		}
 
-		// Put everything back to default (deselect)
+		// Deselect
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		GL20.glDisableVertexAttribArray(0);
 		GL20.glDisableVertexAttribArray(1);
 		GL20.glDisableVertexAttribArray(2);
 		GL20.glDisableVertexAttribArray(3);
 		GL30.glBindVertexArray(0);
-
-
 		GL20.glUseProgram(0);
 		
 		// Force a maximum FPS of about 60
@@ -189,32 +171,12 @@ public class Renderer {
 		Display.update();
 	}
 	
-	/*
-	 * TODO: Should be moved to camera class
-	 */
-	private Matrix4f lookAt(Vector3f cam, Vector3f center, Vector3f up) {
-		Vector3f f = normalize(Vector3f.sub(center, cam, null));
-		Vector3f u = normalize(up);
-		Vector3f s = normalize(Vector3f.cross(f, u, null));
-		u = Vector3f.cross(s, f, null);
-
-		Matrix4f result = new Matrix4f();
-		result.m00 = s.x;
-		result.m10 = s.y;
-		result.m20 = s.z;
-		result.m01 = u.x;
-		result.m11 = u.y;
-		result.m21 = u.z;
-		result.m02 = -f.x;
-		result.m12 = -f.y;
-		result.m22 = -f.z;
+	public Camera getCamera() throws NullPointerException{
+		if(camera == null){
+			throw new NullPointerException();
+		}
 		
-		return Matrix4f.translate(new Vector3f(-cam.x, -cam.y, -cam.z),  result, result);
-	}
-
-	private Vector3f normalize(Vector3f v){
-		float mag = (float)(Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z));
-		return new Vector3f(v.x/mag, v.y/mag, v.z/mag);
+		return camera;
 	}
 	
 	/*
@@ -261,32 +223,6 @@ public class Renderer {
 		GL11.glViewport(0, 0, WIDTH, HEIGHT);
 	}
 	
-
-	/**
-	 * Sets the lighting with a provided LightSet (relative to world space)
-	 */
-	private void setLighting (/*insert a LightSet class here*/){
-		
-	}
-	
-	public void rotateCamera(int deltaX, int deltaY){
-		cameraVerticalAngle += deltaY * cameraSensitivity;
-		cameraHorizontalAngle += deltaX * cameraSensitivity;
-		
-		cameraDirection.x = (float)(Math.cos(cameraVerticalAngle) * Math.sin(cameraHorizontalAngle));
-		cameraDirection.y = (float)(Math.sin(cameraVerticalAngle));
-		cameraDirection.z = (float)(Math.cos(cameraVerticalAngle) * Math.cos(cameraHorizontalAngle));
-		
-		cameraRight.x = (float)(Math.sin(cameraHorizontalAngle - 3.14f/2.0f));
-		cameraRight.y = (float)(Math.sin(cameraVerticalAngle));
-		cameraRight.z = (float)(Math.cos(cameraVerticalAngle - 3.14f/2.0f));
-		
-		
-		/*
-		 * Update matrices here?
-		 */
-	}
-	
 	
 	public static void main(String [] args){
 		/*
@@ -296,12 +232,22 @@ public class Renderer {
 		Renderer test = new Renderer(600, 600); //full screen
 		DebugWindow.show();
 		try{
-			test.bindNewModel(ModelFactory.loadModel(new File("res/obj/cow.obj")));	
+			test.bindNewModel(ModelFactory.loadModel(new File("res/obj/cube.obj")));	
 		}
 		catch(IOException e){
 			e.printStackTrace();
 		}
 		
+		Camera camera;
+		//Grab a reference to the camera
+		try{
+			camera = test.getCamera();
+		}
+		catch(NullPointerException e){
+			System.out.println("Camera not found!");
+			camera = new Camera();
+			e.printStackTrace();
+		}
 		
 		Mouse.setGrabbed(true); //hides the cursor
 		boolean loop = true;
@@ -313,7 +259,7 @@ public class Renderer {
 				int x = Mouse.getX();
 				int y = Mouse.getY();
 				
-				test.rotateCamera(300 - x, 300 - y);
+				camera.rotateCamera(300 - x, 300 - y);
 				
 				Mouse.setCursorPosition(300, 300); //Middle of the screen
 			}
@@ -321,16 +267,25 @@ public class Renderer {
 			if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
 				System.out.println("SPACE KEY IS DOWN");
 			}
+			
+			Keyboard.enableRepeatEvents(true);
 
 			while (Keyboard.next()) {
 				if (Keyboard.getEventKeyState()) {
+					if (Keyboard.getEventKey() == Keyboard.KEY_W) {
+						camera.moveForwards(0.1f);
+						System.out.println("A Key Pressed");
+					}
 					if (Keyboard.getEventKey() == Keyboard.KEY_A) {
+						camera.strafeLeft(0.1f);
 						System.out.println("A Key Pressed");
 					}
 					if (Keyboard.getEventKey() == Keyboard.KEY_S) {
+						camera.moveBackwards(0.1f);
 						System.out.println("S Key Pressed");
 					}
 					if (Keyboard.getEventKey() == Keyboard.KEY_D) {
+						camera.strafeRight(0.1f);
 						System.out.println("D Key Pressed");
 					}
 					if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE){

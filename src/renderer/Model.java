@@ -56,9 +56,6 @@ public class Model {
 	
 	
 	public Model(List<Face> f){	
-		/*
-		 * Set up shit here
-		 */
 		// Put each 'Vertex' in one FloatBuffer
 		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(f.size() * 3 *  VertexData.stride);            
 		FloatBuffer verticesFloatBuffer = verticesByteBuffer.asFloatBuffer();
@@ -67,11 +64,13 @@ public class Model {
 		VertexData tempVertexData;
 		
 		byte index = 0;
-		int count = 0;
 		int common = 0;
 		int newC = 0;
 		
+		//For each face in the list...
 		for(Face face: f){
+			//... process the data and add to the byte buffer
+			
 			//Add first vertex of the face
 			tempVertexData = face.faceData.get(0);
 			if(!vboIndexMap.containsKey(tempVertexData)){
@@ -112,6 +111,7 @@ public class Model {
 			}
 			
 		}
+		
 		verticesFloatBuffer.flip();
 		byte [] indices = new byte[vboIndex.size()];
 		indicesCount = vboIndex.size();
@@ -124,7 +124,6 @@ public class Model {
 		indicesBuffer.put(indices);
 		indicesBuffer.flip();
 		 
-		
 		// Create a new Vertex Array Object in memory and select it (bind)
 		vaoID = GL30.glGenVertexArrays();
 		GL30.glBindVertexArray(vaoID);
