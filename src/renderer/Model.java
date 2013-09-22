@@ -117,7 +117,7 @@ public class Model {
 		indicesCount = vboIndex.size();
 		
 		for(int i = 0; i < vboIndex.size(); i++){
-			indices[i] = vboIndex.get(vboIndex.size() - 1 - i); //must be flipped
+			indices[i] = vboIndex.get(i); 
 		}
 		
 		ByteBuffer indicesBuffer = BufferUtils.createByteBuffer(vboIndex.size());
