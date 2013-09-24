@@ -22,6 +22,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
 import debugger.DebugWindow;
+import debugger.FontRenderer;
 
 import system.Settings;
 
@@ -49,7 +50,10 @@ public class Renderer {
 	
 	//Camera variables (TODO: will be moved to a camera class in the future)
 	private Camera camera = null;
-	
+
+    private static final FloatBuffer perspectiveProjectionMatrix = BufferUtils.createFloatBuffer(16);
+    private static final FloatBuffer orthographicProjectionMatrix = BufferUtils.createFloatBuffer(16);
+    
 	/*
 	 * Initializes OpenGL. If zero is passed in for both the width and height,
 	 * we call this.initOpenGL with a true "fullscreen" flag.
@@ -155,7 +159,7 @@ public class Renderer {
 			// Draw the vertices
 			GL11.glDrawElements(GL11.GL_TRIANGLES, m.getIndicesCount(), GL11.GL_UNSIGNED_BYTE, 0);
 		}
-
+        		
 		// Deselect
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		GL20.glDisableVertexAttribArray(0);
@@ -164,7 +168,11 @@ public class Renderer {
 		GL20.glDisableVertexAttribArray(3);
 		GL30.glBindVertexArray(0);
 		GL20.glUseProgram(0);
-		
+
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        FontRenderer.draw();
+        
 		// Force a maximum FPS of about 60
 		Display.sync(60);
 		// Let the CPU synchronize with the GPU if GPU is tagging behind (I think update refreshs the display)
@@ -206,6 +214,8 @@ public class Renderer {
 		}
 		
 		//XNA like background color
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+		FontRenderer.init();
 		GL11.glClearColor(0.4f, 0.6f, 0.9f, 0f);		
 		GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE ); //for debug
 		GL11.glEnable(GL11.GL_CULL_FACE);
