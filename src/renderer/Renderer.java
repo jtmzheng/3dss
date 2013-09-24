@@ -22,7 +22,6 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
 import debugger.DebugWindow;
-import debugger.FontRenderer;
 
 import system.Settings;
 
@@ -49,11 +48,7 @@ public class Renderer {
 	private FloatBuffer matrix44Buffer = null;
 	
 	//Camera variables (TODO: will be moved to a camera class in the future)
-	private Camera camera = null;
-
-    private static final FloatBuffer perspectiveProjectionMatrix = BufferUtils.createFloatBuffer(16);
-    private static final FloatBuffer orthographicProjectionMatrix = BufferUtils.createFloatBuffer(16);
-    
+	private Camera camera = null;    
 	/*
 	 * Initializes OpenGL. If zero is passed in for both the width and height,
 	 * we call this.initOpenGL with a true "fullscreen" flag.
@@ -169,17 +164,6 @@ public class Renderer {
 		GL30.glBindVertexArray(0);
 		GL20.glUseProgram(0);
 
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glShadeModel(GL11.GL_SMOOTH);        
-		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		GL11.glDisable(GL11.GL_LIGHTING);                    
-        GL11.glClearDepth(1);                                       
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-        FontRenderer.draw();
-        
 		// Force a maximum FPS of about 60
 		Display.sync(60);
 		// Let the CPU synchronize with the GPU if GPU is tagging behind (I think update refreshs the display)
@@ -221,8 +205,6 @@ public class Renderer {
 		}
 		
 		//XNA like background color
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-		FontRenderer.init();
 		GL11.glClearColor(0.4f, 0.6f, 0.9f, 0f);		
 		GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE ); //for debug
 		GL11.glEnable(GL11.GL_CULL_FACE);
