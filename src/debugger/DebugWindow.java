@@ -97,7 +97,6 @@ public class DebugWindow {
             // The cell's y-coordinate is the greatest integer smaller than the ASCII-code divided by the amount of
             // cells on the y-axis.
             float cellY = ((int) asciiCode / gridSize) * cellSize;
-            System.out.println(cellX + " " + cellY);
             GL11.glTexCoord2f(cellX, cellY + cellSize);
             GL11.glVertex2f(i * characterWidth / 3, y);
             GL11.glTexCoord2f(cellX + cellSize, cellY + cellSize);

@@ -53,7 +53,8 @@ public class Renderer {
 	 * Initializes OpenGL. If zero is passed in for both the width and height,
 	 * we call this.initOpenGL with a true "fullscreen" flag.
 	 */
-	public Renderer(int width, int height){
+	public Renderer(int width, int height, Camera camera){
+		this.camera = camera;
 		this.WIDTH = width;
 		this.HEIGHT = height;
 		
@@ -94,9 +95,6 @@ public class Renderer {
 		
 		// Create a FloatBuffer with the proper size to store our matrices later
 		matrix44Buffer = BufferUtils.createFloatBuffer(16);
-		
-		//Initilize camera
-		camera = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
 	}
 	
 	/**
@@ -217,85 +215,5 @@ public class Renderer {
 	 */
 	private void setViewPort (int x, int y, int width, int height){
 		GL11.glViewport(0, 0, WIDTH, HEIGHT);
-	}
-	
-	
-	public static void main(String [] args){
-		/*
-		 * 1. Bind a few models
-		 * 2. renderScene
-		 */
-		Renderer test = new Renderer(600, 600); //full screen
-		try{
-			test.bindNewModel(ModelFactory.loadModel(new File("res/obj/cube.obj")));	
-		}
-		catch(IOException e){
-			e.printStackTrace();
-		}
-		
-		Camera camera;
-		//Grab a reference to the camera
-		try{
-			camera = test.getCamera();
-		}
-		catch(NullPointerException e){
-			System.out.println("Camera not found!");
-			camera = new Camera();
-			e.printStackTrace();
-		}
-		
-		Mouse.setGrabbed(true); //hides the cursor
-		boolean loop = true;
-		
-		while(!Display.isCloseRequested() && loop){
-			
-			//POLL FOR INPUT
-			if (Mouse.isInsideWindow()) {
-				int x = Mouse.getX();
-				int y = Mouse.getY();
-				
-				camera.rotateCamera(300 - x, 300 - y);
-				
-				Mouse.setCursorPosition(300, 300); //Middle of the screen
-			}
-
-			if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
-				System.out.println("SPACE KEY IS DOWN");
-			}
-			
-			Keyboard.enableRepeatEvents(true);
-
-			while (Keyboard.next()) {
-				if (Keyboard.getEventKeyState()) {
-					if (Keyboard.getEventKey() == Keyboard.KEY_W) {
-						camera.moveForwards(0.1f);
-						System.out.println("A Key Pressed");
-					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_A) {
-						camera.strafeLeft(0.1f);
-						System.out.println("A Key Pressed");
-					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_S) {
-						camera.moveBackwards(0.1f);
-						System.out.println("S Key Pressed");
-					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_D) {
-						camera.strafeRight(0.1f);
-						System.out.println("D Key Pressed");
-					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE){
-						loop = false; //exit (TODO: make this cleaner/use break?)
-						Mouse.setGrabbed(false);
-					}
-				} 
-			}
-			//END POLL FOR INPUT
-			
-			test.renderScene();
-			//System.out.println("RENDER");
-		}
-	}
-
-
-
+	}	
 }
