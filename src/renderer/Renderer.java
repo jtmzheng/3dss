@@ -125,11 +125,12 @@ public class Renderer {
 		// Render
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
+		DebugWindow.write("A");
+		
 		GL20.glUseProgram(shader.getCurrentProgram());
 		
 		/*INSERT altering variables*/
 		viewMatrix = camera.getViewMatrix(); //Vector3f.cross(cameraRight, cameraDirection, null)
-		System.out.println("VIEW: " + viewMatrix);
 		
 		projectionMatrix.store(matrix44Buffer); matrix44Buffer.flip();
 		GL20.glUniformMatrix4(shader.getProjectionMatrixLocation(), false, matrix44Buffer);
@@ -183,18 +184,13 @@ public class Renderer {
 	 */
 	private void initOpenGL(boolean fullscreen){
 		try{
-			PixelFormat pixelFormat = new PixelFormat();
-			ContextAttribs contextAtr = new ContextAttribs(3, 2) 
-				.withForwardCompatible(true)
-				.withProfileCore(true);
-			
 			if (fullscreen) 
 				Display.setFullscreen(true);
 			else 
 				Display.setDisplayMode(new DisplayMode(this.WIDTH, this.HEIGHT));
 			
 			Display.setTitle("Game the Name 2.0");
-			Display.create(pixelFormat, contextAtr);
+			Display.create();
 			
 			if (WIDTH != 0 && HEIGHT != 0)
 				setViewPort(0, 0, this.WIDTH, this.HEIGHT);
@@ -210,6 +206,7 @@ public class Renderer {
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glCullFace(GL11.GL_BACK);
 		
+		DebugWindow.init();
 		//GL11.glEnable(GL11.GL_DEPTH_TEST);
 		// Accept fragment if it closer to the camera than the former one
 		//GL11.glDepthFunc(GL11.GL_LEQUAL);
@@ -229,7 +226,6 @@ public class Renderer {
 		 * 2. renderScene
 		 */
 		Renderer test = new Renderer(600, 600); //full screen
-		DebugWindow.show();
 		try{
 			test.bindNewModel(ModelFactory.loadModel(new File("res/obj/cube.obj")));	
 		}
@@ -290,7 +286,6 @@ public class Renderer {
 					if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE){
 						loop = false; //exit (TODO: make this cleaner/use break?)
 						Mouse.setGrabbed(false);
-						DebugWindow.destroy();
 					}
 				} 
 			}
