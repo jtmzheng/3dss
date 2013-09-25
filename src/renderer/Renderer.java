@@ -75,7 +75,7 @@ public class Renderer {
 		
 		//Set up view and projection matrices
 		projectionMatrix = new Matrix4f();
-		float fieldOfView = 60f;
+		float fieldOfView = 45f;
 		float aspectRatio = (float)WIDTH / (float)HEIGHT;
 		float near_plane = 0.1f;
 		float far_plane = 100f;

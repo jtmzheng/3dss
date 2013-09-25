@@ -169,7 +169,7 @@ public class Camera {
 	}
 	
 	public void rotateCamera(int deltaX, int deltaY){
-		cameraVerticalAngle += deltaY * cameraSensitivity;
+		cameraVerticalAngle -= deltaY * cameraSensitivity;
 		cameraHorizontalAngle += deltaX * cameraSensitivity;
 		
 		cameraDirection.x = (float)(Math.cos(cameraVerticalAngle) * Math.sin(cameraHorizontalAngle));
@@ -179,6 +179,8 @@ public class Camera {
 		cameraRight.x = (float)(Math.sin(cameraHorizontalAngle - 3.14f/2.0f));
 		cameraRight.y = (float)(Math.sin(cameraVerticalAngle));
 		cameraRight.z = (float)(Math.cos(cameraHorizontalAngle - 3.14f/2.0f));
+		
+		up = Vector3f.cross(cameraRight, cameraDirection, null);
 		
 		lookAt(cameraPosition, Vector3f.add(cameraPosition, cameraDirection, null), up);
 	}
@@ -190,7 +192,7 @@ public class Camera {
 		Vector3f f = normalize(Vector3f.sub(center, cam, null));
 		Vector3f u = normalize(up);
 		Vector3f s = normalize(Vector3f.cross(f, u, null));
-		u = Vector3f.cross(s, f, null);
+		//u = Vector3f.cross(s, f, null);
 
 		Matrix4f result = new Matrix4f();
 		result.m00 = s.x;
