@@ -103,34 +103,9 @@ public class Camera {
 			return null;
 		}
 		
-		System.out.println("POSITION: " + cameraPosition);
-		System.out.println("DIRECTION: " + cameraDirection);
 		return viewMatrix;
 	}
-	
-	/*
-	 * Moves the camera in the specified (normalized) direction with a given speed.
-	 */
-	public void move (Vector3f normalizedDirection, float speed) {
-		cameraPosition.x += normalizedDirection.x * speed;
-		cameraPosition.y += normalizedDirection.y * speed;
-		cameraPosition.z += normalizedDirection.z * speed;
-		
-		lookAt(cameraPosition, Vector3f.add(cameraPosition, cameraDirection, null), up);
-	}
-	
-	/*
-	 * Translates the camera by a certain vector
-	 */
-	public void translate (Vector3f translation) {
-		cameraPosition.x += translation.x;
-		cameraPosition.y += translation.y;
-		cameraPosition.z += translation.z;
-		
-		lookAt(cameraPosition, Vector3f.add(cameraPosition, cameraDirection, null), up);
-	}
-	
-	
+
 	//NOTE THESE BELOW METHODS ARE FOR TESTING. THEY WILL BE MOVED TO A PLAYER CLASS (EVENTUALLY)
 	public void strafeLeft(float speed){
 		cameraPosition = Vector3f.add(cameraPosition, 

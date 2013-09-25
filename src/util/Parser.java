@@ -1,4 +1,4 @@
-package renderer;
+package util;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,9 +11,11 @@ import java.util.List;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
+import renderer.Face;
+import renderer.VertexData;
+
 import debugger.DebugWindow;
 
-import util.StringUtilities;
 
 /**
  * This class parses obj/mtl files.

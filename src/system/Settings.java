@@ -63,6 +63,13 @@ public class Settings {
 		return val.floatValue();
 	}
 	
+	public static HashMap<String, Integer> getDefaultPlayerAttributes () {
+		HashMap<String, Integer> playerAttributes = new HashMap<String, Integer>();
+		playerAttributes.put("HP", 100);
+		playerAttributes.put("SHIELD", 100);
+		return playerAttributes;
+	}
+	
 	public static String getStringRepresentation () {
 		String ret = "";
 		for (String str : settings.keySet()) {

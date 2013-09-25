@@ -48,13 +48,13 @@ public class Renderer {
 	private FloatBuffer matrix44Buffer = null;
 	
 	//Camera variables (TODO: will be moved to a camera class in the future)
-	private Camera camera = null;
-	
+	private Camera camera = null;    
 	/*
 	 * Initializes OpenGL. If zero is passed in for both the width and height,
 	 * we call this.initOpenGL with a true "fullscreen" flag.
 	 */
-	public Renderer(int width, int height){
+	public Renderer(int width, int height, Camera camera){
+		this.camera = camera;
 		this.WIDTH = width;
 		this.HEIGHT = height;
 		
@@ -95,9 +95,6 @@ public class Renderer {
 		
 		// Create a FloatBuffer with the proper size to store our matrices later
 		matrix44Buffer = BufferUtils.createFloatBuffer(16);
-		
-		//Initilize camera
-		camera = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
 	}
 	
 	/**
@@ -126,11 +123,12 @@ public class Renderer {
 		// Render
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
+		DebugWindow.write("A");
+		
 		GL20.glUseProgram(shader.getCurrentProgram());
 		
 		/*INSERT altering variables*/
 		viewMatrix = camera.getViewMatrix(); //Vector3f.cross(cameraRight, cameraDirection, null)
-		System.out.println("VIEW: " + viewMatrix);
 		
 		projectionMatrix.store(matrix44Buffer); matrix44Buffer.flip();
 		GL20.glUniformMatrix4(shader.getProjectionMatrixLocation(), false, matrix44Buffer);
@@ -155,7 +153,7 @@ public class Renderer {
 			// Draw the vertices
 			GL11.glDrawElements(GL11.GL_TRIANGLES, m.getIndicesCount(), GL11.GL_UNSIGNED_BYTE, 0);
 		}
-
+        		
 		// Deselect
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		GL20.glDisableVertexAttribArray(0);
@@ -164,7 +162,7 @@ public class Renderer {
 		GL20.glDisableVertexAttribArray(3);
 		GL30.glBindVertexArray(0);
 		GL20.glUseProgram(0);
-		
+
 		// Force a maximum FPS of about 60
 		Display.sync(60);
 		// Let the CPU synchronize with the GPU if GPU is tagging behind (I think update refreshs the display)
@@ -184,18 +182,13 @@ public class Renderer {
 	 */
 	private void initOpenGL(boolean fullscreen){
 		try{
-			PixelFormat pixelFormat = new PixelFormat();
-			ContextAttribs contextAtr = new ContextAttribs(3, 2) 
-				.withForwardCompatible(true)
-				.withProfileCore(true);
-			
 			if (fullscreen) 
 				Display.setFullscreen(true);
 			else 
 				Display.setDisplayMode(new DisplayMode(this.WIDTH, this.HEIGHT));
 			
 			Display.setTitle("Game the Name 2.0");
-			Display.create(pixelFormat, contextAtr);
+			Display.create();
 			
 			if (WIDTH != 0 && HEIGHT != 0)
 				setViewPort(0, 0, this.WIDTH, this.HEIGHT);
@@ -211,6 +204,7 @@ public class Renderer {
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glCullFace(GL11.GL_BACK);
 		
+		DebugWindow.init();
 		//GL11.glEnable(GL11.GL_DEPTH_TEST);
 		// Accept fragment if it closer to the camera than the former one
 		//GL11.glDepthFunc(GL11.GL_LEQUAL);
@@ -221,87 +215,5 @@ public class Renderer {
 	 */
 	private void setViewPort (int x, int y, int width, int height){
 		GL11.glViewport(0, 0, WIDTH, HEIGHT);
-	}
-	
-	
-	public static void main(String [] args){
-		/*
-		 * 1. Bind a few models
-		 * 2. renderScene
-		 */
-		Renderer test = new Renderer(600, 600); //full screen
-		DebugWindow.show();
-		try{
-			test.bindNewModel(ModelFactory.loadModel(new File("res/obj/cube.obj")));	
-		}
-		catch(IOException e){
-			e.printStackTrace();
-		}
-		
-		Camera camera;
-		//Grab a reference to the camera
-		try{
-			camera = test.getCamera();
-		}
-		catch(NullPointerException e){
-			System.out.println("Camera not found!");
-			camera = new Camera();
-			e.printStackTrace();
-		}
-		
-		Mouse.setGrabbed(true); //hides the cursor
-		boolean loop = true;
-		
-		while(!Display.isCloseRequested() && loop){
-			
-			//POLL FOR INPUT
-			if (Mouse.isInsideWindow()) {
-				int x = Mouse.getX();
-				int y = Mouse.getY();
-				
-				camera.rotateCamera(300 - x, 300 - y);
-				
-				Mouse.setCursorPosition(300, 300); //Middle of the screen
-			}
-
-			if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
-				System.out.println("SPACE KEY IS DOWN");
-			}
-			
-			Keyboard.enableRepeatEvents(true);
-
-			while (Keyboard.next()) {
-				if (Keyboard.getEventKeyState()) {
-					if (Keyboard.getEventKey() == Keyboard.KEY_W) {
-						camera.moveForwards(0.1f);
-						System.out.println("A Key Pressed");
-					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_A) {
-						camera.strafeLeft(0.1f);
-						System.out.println("A Key Pressed");
-					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_S) {
-						camera.moveBackwards(0.1f);
-						System.out.println("S Key Pressed");
-					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_D) {
-						camera.strafeRight(0.1f);
-						System.out.println("D Key Pressed");
-					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE){
-						loop = false; //exit (TODO: make this cleaner/use break?)
-						Mouse.setGrabbed(false);
-						DebugWindow.destroy();
-					}
-				} 
-			}
-			//END POLL FOR INPUT
-			
-			test.renderScene();
-			//System.out.println("RENDER");
-		}
-	}
-
-
-
+	}	
 }
