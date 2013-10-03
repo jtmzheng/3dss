@@ -229,7 +229,7 @@ public class Parser {
     
     /**
      * Gets the list of vertices that this parser parsed.
-     * @return vertices
+     * @return the list of vertices
      */
     public List<Vector3f> getVertices () {
     	return vertices;
@@ -237,7 +237,7 @@ public class Parser {
     
     /**
      * Gets the list of texture that this parser parsed.
-     * @return textures
+     * @return the list of textures
      */
     public List<Vector2f> getTextures () {
     	return textures;
@@ -245,7 +245,7 @@ public class Parser {
     
     /**
      * Gets the list of normals that this parser parsed.
-     * @return normals
+     * @return the list of normals
      */
     public List<Vector3f> getNormals () {
     	return normals;
@@ -253,7 +253,7 @@ public class Parser {
     
     /**
      * Gets the list of faces that this parser parsed.
-     * @return faces
+     * @return the list of faces
      */
     public List<Face> getFaces () {
     	return faces;

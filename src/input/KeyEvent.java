@@ -20,7 +20,6 @@ public class KeyEvent extends InputEvent {
 	/**
 	 * 
 	 * @param code The keycode.
-	 * @param charPressed The character which was pressed.
 	 * @param press If the key event is a key press or release.
 	 */
 	public KeyEvent(int code, boolean press) {
@@ -30,7 +29,7 @@ public class KeyEvent extends InputEvent {
 	
 	/**
 	 * Gets the keycode.
-	 * @return code
+	 * @return the keycode of this press
 	 */
 	public int getKeyCode() {
 		return keyCode;
@@ -38,7 +37,7 @@ public class KeyEvent extends InputEvent {
 	
 	/**
 	 * Gets if this is a press or a release event.
-	 * @return boolean
+	 * @return if this is a press or release event
 	 */
 	public boolean isPress () {
 		return press;

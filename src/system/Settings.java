@@ -54,7 +54,7 @@ public class Settings {
 	/**
 	 * Gets an integer.
 	 * @param key
-	 * @return intValue
+	 * @return the integer value
 	 */
 	public static int getInteger (String key) {
 		Integer val = (Integer) settings.get(key);
@@ -68,7 +68,7 @@ public class Settings {
 	/**
 	 * Gets a String.
 	 * @param key
-	 * @return val
+	 * @return the string value
 	 */
 	public static String getString (String key) {
 		String val = (String) settings.get(key);
@@ -82,7 +82,7 @@ public class Settings {
 	/**
 	 * Gets a float.
 	 * @param key
-	 * @return floatValue
+	 * @return the float value
 	 */
 	public static float getFloat (String key) {
 		Float val = (Float) settings.get(key);
@@ -95,7 +95,7 @@ public class Settings {
 	
 	/**
 	 * Gets the default player attributes for our game.
-	 * @return playerAttributes The default settings.
+	 * @return the default settings for our player
 	 */
 	public static HashMap<String, Float> getDefaultPlayerAttributes () {
 		HashMap<String, Float> playerAttributes = new HashMap<String, Float>();
@@ -106,7 +106,7 @@ public class Settings {
 	
 	/**
 	 * Gets a string representation of our settings.
-	 * @return ret The string representation.
+	 * @return the string representation
 	 */
 	public static String getStringRepresentation () {
 		String ret = "";

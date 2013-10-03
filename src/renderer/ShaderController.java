@@ -73,7 +73,7 @@ public class ShaderController {
 	/**
 	 * Getter function for the current program.
 	 * 
-	 * @return An integer defining the current program.
+	 * @return an integer defining the current program
 	 */
 	public int getCurrentProgram(){
 		return currentProgram;
@@ -81,7 +81,7 @@ public class ShaderController {
 	
 	/**
 	 * Gets the model matrix location.
-	 * @return modelMatrixLocation
+	 * @return the location of the model matrix
 	 */
 	public int getModelMatrixLocation(){
 		return modelMatrixLocation;
@@ -89,7 +89,7 @@ public class ShaderController {
 	
 	/**
 	 * Gets the projection matrix location
-	 * @return projectionMatrixLocation
+	 * @return the location of the projection matrix
 	 */
 	public int getProjectionMatrixLocation(){
 		return projectionMatrixLocation;
@@ -97,7 +97,7 @@ public class ShaderController {
 	
 	/**
 	 * Gets the view matrix location.
-	 * @return viewMatrixLocation
+	 * @return the location of the view matrix
 	 */
 	public int getViewMatrixLocation(){
 		return viewMatrixLocation;
@@ -107,7 +107,7 @@ public class ShaderController {
 	 * Loads a shader from a file.
 	 * @param filename Name of shader file.
 	 * @param type The shader type.
-	 * @return shaderID The shader UID.
+	 * @return the shader UID
 	 */
 	private int loadShader(String filename, int type) {
 		StringBuilder shaderSource = new StringBuilder();

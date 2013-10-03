@@ -9,6 +9,13 @@ public class MouseMoveEvent extends InputEvent {
 	
 	private int x, y, dx, dy;
 	
+	/**
+	 * Constructs a MouseMove event.
+	 * @param x x location of mouse.
+	 * @param y y location of mouse.
+	 * @param dx Change in x.
+	 * @param dy Change in y.
+	 */
 	public MouseMoveEvent(int x, int y, int dx, int dy) {
 		this.x = x;
 		this.y = y;
@@ -18,7 +25,7 @@ public class MouseMoveEvent extends InputEvent {
 	
 	/**
 	 * Get change in x
-	 * @return dx
+	 * @return change in x
 	 */
 	public int getdx() {
 		return dx;
@@ -26,7 +33,7 @@ public class MouseMoveEvent extends InputEvent {
 	
 	/**
 	 * Get change in y
-	 * @return dy
+	 * @return change in y
 	 */
 	public int getdy() {
 		return dy;
@@ -34,7 +41,7 @@ public class MouseMoveEvent extends InputEvent {
 	
 	/**
 	 * Returns current x position
-	 * @return x
+	 * @return x position
 	 */
 	public int getX() {
 		return x;
@@ -42,7 +49,7 @@ public class MouseMoveEvent extends InputEvent {
 	
 	/**
 	 * Returns current y position
-	 * @return y
+	 * @return y position
 	 */
 	public int getY() {
 		return y;

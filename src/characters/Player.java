@@ -121,7 +121,7 @@ public class Player implements InputListener {
 	/**
 	 * This event handler fires whenever a key event is triggered.
 	 * Key events are triggered on press of a key and on release of a key.
-	 * @param KeyEvent A KeyEvent object.
+	 * @param evt A KeyEvent object.
 	 */
 	@Override
 	public void onKeyEvent(KeyEvent evt) {

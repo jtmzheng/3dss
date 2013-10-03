@@ -12,7 +12,7 @@ public class FloatUtilities {
 	/**
 	 * Converts a 3 float array to a Vector3f object.
 	 * @param f
-	 * @return Vector3f
+	 * @return the converted vector
 	 */
 	public static Vector3f FTV3 (float [] f) {
 		return new Vector3f (f[0], f[1], f[2]);
@@ -21,7 +21,7 @@ public class FloatUtilities {
 	/**
 	 * Converts a 2 float array to a Vector2f object.
 	 * @param f
-	 * @return Vector2f
+	 * @return the converted vector
 	 */
 	public static Vector2f FTV2 (float [] f) {
 		return new Vector2f (f[0], f[1]);

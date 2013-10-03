@@ -24,8 +24,8 @@ public class MouseClickEvent extends InputEvent{
 	 * 
 	 * @param button Which button was pressed/released
 	 * @param pressed Was it pressed or released
-	 * @param x X location of event
-	 * @param y Y location of event
+	 * @param x x location of event
+	 * @param y y location of event
 	 */
 	public MouseClickEvent (int button, boolean pressed, int x, int y) {
 		this.button = button;
@@ -44,14 +44,14 @@ public class MouseClickEvent extends InputEvent{
 	
 	/**
 	 * Determines whether its a press or release event.
-	 * @return bool
+	 * @return a boolean to determine whether it's a press or release.
 	 */
 	public boolean isPress () {
 		return pressed;
 	}
 	/**
 	 * Gets the X location of the event.
-	 * @return
+	 * @return x location of mouse click.
 	 */
 	public int getX() {
 		return x;
@@ -59,7 +59,7 @@ public class MouseClickEvent extends InputEvent{
 	
 	/**
 	 * Gets the y location of the event.
-	 * @return
+	 * @return y location of mouse click.
 	 */
 	public int getY() {
 		return y;

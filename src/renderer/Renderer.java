@@ -166,7 +166,7 @@ public class Renderer {
 	
 	/**
 	 * Get the camera associated with this renderer.
-	 * @return camera The camera.
+	 * @return the camera
 	 * @throws NullPointerException
 	 */
 	public Camera getCamera() throws NullPointerException{

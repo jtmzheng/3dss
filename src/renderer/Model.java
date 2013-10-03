@@ -150,7 +150,7 @@ public class Model {
 	
 	/**
 	 * Get the index VBO.
-	 * @return vboiID
+	 * @return the VBO ID
 	 */
 	public int getIndexVBO(){
 		return vboiID;
@@ -158,7 +158,7 @@ public class Model {
 	
 	/**
 	 * Get the vertex array object ID.
-	 * @return vaoID
+	 * @return the VAO ID
 	 */
 	public int getVAO(){
 		return vaoID;
@@ -166,7 +166,7 @@ public class Model {
 	
 	/**
 	 * Gets the number of indices.
-	 * @return indicesCount
+	 * @return the number of indices
 	 */
 	public int getIndicesCount(){
 		return indicesCount;
@@ -222,7 +222,7 @@ public class Model {
 	
 	/**
 	 * Get the model matrix associated with this model.
-	 * @return modelMatrix The model matrix.
+	 * @return the model matrix
 	 */
 	public Matrix4f getModelMatrix(){
 		return modelMatrix;

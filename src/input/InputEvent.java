@@ -13,7 +13,7 @@ public abstract class InputEvent {
 	/**
 	 * The time when the event occured.
 	 * 
-	 * @return system time when the event happened
+	 * @return system time when the event happened.
 	 */
 	public long getTime() {
 		return timeStart;
@@ -32,7 +32,7 @@ public abstract class InputEvent {
 	 * Determines whether this event is valid and should be
 	 * transmitted to our event listeners.
 	 * 
-	 * @return true if the event is valid
+	 * @return true if the event is valid, false if it isn't.
 	 */
 	public boolean isValid() {
 		return valid;

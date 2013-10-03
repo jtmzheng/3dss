@@ -24,7 +24,7 @@ public class ModelFactory {
 	
 	/**
 	 * Loads a 3D model.
-	 * @param file
+	 * @param file The OBJ file.
 	 * @return m The Model object.
 	 * @throws FileNotFoundException
 	 * @throws IOException

@@ -33,7 +33,7 @@ public class Face {
     
     /**
      * Returns a String representation of this face.
-     * @return result The string representation.
+     * @return the string representation
      */
     public String toString() { 
         String result = "\nVertices: " + faceData.size() + "\n-----------\n";

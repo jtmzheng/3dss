@@ -19,8 +19,8 @@ public class Timer {
 	}
 	
 	/**
-	 * Gets the time elapsed since last resetl
-	 * @return time
+	 * Gets the time elapsed since last reset
+	 * @return the time since the last reset
 	 */
 	public long getTimeSinceReset () {
 		return System.nanoTime() - initialTime;
@@ -28,7 +28,7 @@ public class Timer {
 	
 	/**
 	 * Gets the initial time
-	 * @return initialTime Time when the Timer was created.
+	 * @return time when the Timer was created
 	 */
 	public long getInitialTime () {
 		return initialTime;

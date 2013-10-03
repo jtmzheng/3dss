@@ -13,7 +13,7 @@ public class StringUtilities {
 	/**
 	 * Parses a list of two floats.
 	 * @param str
-	 * @return ret A Vector2f with our results.
+	 * @return a Vector2f with our results
 	 */
 	public static Vector2f parse2FloatList (String str) {
 		Vector2f ret = new Vector2f();
@@ -27,7 +27,7 @@ public class StringUtilities {
 	/**
 	 * Parses a list of three floats.
 	 * @param str
-	 * @return ret A Vector3f with our results.
+	 * @return a Vector3f with our results
 	 */
 	public static Vector3f parse3FloatList (String str) {
 		Vector3f ret = new Vector3f();

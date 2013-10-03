@@ -26,6 +26,7 @@ public interface Input {
 	/**
 	 * Sets the object (which implements InputListener) that is
 	 * listening to this input. In most cases, this will be 'Player'
+	 * @param input The InputListener listening to updates from this Input.
 	 */
 	public void setListener(InputListener input);
 }

@@ -38,7 +38,7 @@ public class Camera {
 	
 	/**
 	 *  Constructor with a given position.
-	 *  @param Vector3f pos The initial position of the camera.
+	 *  @param pos The initial position of the camera.
 	 */
 	public Camera (Vector3f pos) {
 		cameraPosition = pos;
@@ -49,7 +49,7 @@ public class Camera {
 	
 	/**
 	 * Gets the location of the camera in world space.
-	 * @return cameraPosition the location of the camera in world space.
+	 * @return the location of the camera in world space.
 	 */
 	public Vector3f getLocation () {
 		return cameraPosition;
@@ -65,7 +65,7 @@ public class Camera {
 	
 	/**
 	 * Gets the direction where the camera is looking at.
-	 * @return Vector3f cameraDirection The direction vector of the camera.
+	 * @return the direction vector of the camera
 	 */
 	public Vector3f getDirection () {
 		return cameraDirection;
@@ -73,7 +73,7 @@ public class Camera {
 	
 	/**
 	 * Returns the view matrix the Camera controls.
-	 * @return Matrix4f The view matrix.
+	 * @return the view matrix
 	 */
 	public Matrix4f getViewMatrix(){
 		if(viewMatrix == null){
