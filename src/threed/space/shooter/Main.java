@@ -51,6 +51,9 @@ public class Main {
 				i.poll();
 			}
 			
+			// Move the player.
+			gamePlayer.move();
+			
 			// Render a new frame.
 			gameRenderer.renderScene();
 		}

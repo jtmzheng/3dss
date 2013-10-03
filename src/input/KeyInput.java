@@ -31,13 +31,11 @@ public class KeyInput implements Input{
 	public void poll() {
 		while (Keyboard.next()) {
 			int code = Keyboard.getEventKey();
-			char charPressed = Keyboard.getEventCharacter();
-			boolean holding = Keyboard.isRepeatEvent();
 			boolean pressed = Keyboard.getEventKeyState();
 			
-			KeyPressEvent evt = new KeyPressEvent(code, charPressed, pressed, holding);
+			KeyEvent evt = new KeyEvent(code, pressed);
 			evt.setTime(System.currentTimeMillis());
-			listener.onKeyPressEvent(evt);
+			listener.onKeyEvent(evt);
 		}
 	}
 

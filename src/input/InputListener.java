@@ -23,8 +23,8 @@ public interface InputListener {
 	public void onMouseMoveEvent(MouseMoveEvent evt);
 	
 	/**
-	 * Listens to key press events.
+	 * Listens to key press/release events.
 	 * @param evt
 	 */
-	public void onKeyPressEvent(KeyPressEvent evt);
+	public void onKeyEvent(KeyEvent evt);
 }
