@@ -21,8 +21,6 @@ import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
-import debugger.DebugWindow;
-
 import system.Settings;
 
 /**
@@ -122,20 +120,17 @@ public class Renderer {
 		
 		// Render
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-
-		DebugWindow.write("A");
 		
 		GL20.glUseProgram(shader.getCurrentProgram());
 		
 		/*INSERT altering variables*/
 		viewMatrix = camera.getViewMatrix(); //Vector3f.cross(cameraRight, cameraDirection, null)
 		
-		projectionMatrix.store(matrix44Buffer); matrix44Buffer.flip();
-		GL20.glUniformMatrix4(shader.getProjectionMatrixLocation(), false, matrix44Buffer);
 		viewMatrix.store(matrix44Buffer); matrix44Buffer.flip();
 		GL20.glUniformMatrix4(shader.getViewMatrixLocation(), false, matrix44Buffer);
+		projectionMatrix.store(matrix44Buffer); matrix44Buffer.flip();
+		GL20.glUniformMatrix4(shader.getProjectionMatrixLocation(), false, matrix44Buffer);
 		
-
 		for(Model m: models){
 			m.getModelMatrix().store(matrix44Buffer); matrix44Buffer.flip();
 			GL20.glUniformMatrix4(shader.getModelMatrixLocation(), false, matrix44Buffer);
@@ -204,7 +199,6 @@ public class Renderer {
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glCullFace(GL11.GL_BACK);
 		
-		DebugWindow.init();
 		//GL11.glEnable(GL11.GL_DEPTH_TEST);
 		// Accept fragment if it closer to the camera than the former one
 		//GL11.glDepthFunc(GL11.GL_LEQUAL);

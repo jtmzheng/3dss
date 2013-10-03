@@ -14,8 +14,6 @@ import org.lwjgl.util.vector.Vector3f;
 import renderer.Face;
 import renderer.VertexData;
 
-import debugger.DebugWindow;
-
 
 /**
  * This class parses obj/mtl files.
