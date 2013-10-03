@@ -24,18 +24,38 @@ public class Settings {
 		settings.put("fragment_path",  "src/shaders/fragment.frag");
 	}
 	
+	/**
+	 * Adds an integer value to our settings.
+	 * @param key
+	 * @param val
+	 */
 	public static void putInteger (String key, int val) {
 		settings.put(key, new Integer(val));
 	}
 	
+	/**
+	 * Adds a string value to our settings.
+	 * @param key
+	 * @param val
+	 */
 	public static void putString (String key, String val) {
 		settings.put(key, val);
 	}
 	
+	/**
+	 * Adds a float value to our settings.
+	 * @param key
+	 * @param val
+	 */
 	public static void putFloat (String key, float val) {
 		settings.put(key, new Float(val));
 	}
 	
+	/**
+	 * Gets an integer.
+	 * @param key
+	 * @return intValue
+	 */
 	public static int getInteger (String key) {
 		Integer val = (Integer) settings.get(key);
 		
@@ -45,6 +65,11 @@ public class Settings {
 		return val.intValue();
 	}
 	
+	/**
+	 * Gets a String.
+	 * @param key
+	 * @return val
+	 */
 	public static String getString (String key) {
 		String val = (String) settings.get(key);
 		
@@ -54,6 +79,11 @@ public class Settings {
 		return val;
 	}
 	
+	/**
+	 * Gets a float.
+	 * @param key
+	 * @return floatValue
+	 */
 	public static float getFloat (String key) {
 		Float val = (Float) settings.get(key);
 		
@@ -63,6 +93,10 @@ public class Settings {
 		return val.floatValue();
 	}
 	
+	/**
+	 * Gets the default player attributes for our game.
+	 * @return playerAttributes The default settings.
+	 */
 	public static HashMap<String, Float> getDefaultPlayerAttributes () {
 		HashMap<String, Float> playerAttributes = new HashMap<String, Float>();
 		playerAttributes.put("HP", 100f);
@@ -70,6 +104,10 @@ public class Settings {
 		return playerAttributes;
 	}
 	
+	/**
+	 * Gets a string representation of our settings.
+	 * @return ret The string representation.
+	 */
 	public static String getStringRepresentation () {
 		String ret = "";
 		for (String str : settings.keySet()) {

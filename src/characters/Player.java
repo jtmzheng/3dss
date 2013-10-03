@@ -24,12 +24,14 @@ import system.Settings;
  */
 public class Player implements InputListener {
 	
-	// Default player attributes
+	// Default player attributes.
 	private HashMap<String, Float> attributes = new HashMap<String, Float>();
+	
+	// Camera object that the player uses.
 	private Camera playerCam;
 	
 	// Movement fields.
-	// TODO: once these are finalized, move to defaultPlayerAttributes
+	// TODO: once these are finalized, move to defaultPlayerAttributes.
 	private float speed_x = 0.0f;
 	private float speed_y = 0.0f;
 
@@ -43,24 +45,40 @@ public class Player implements InputListener {
 	private boolean sPress = false;
 	private boolean dPress = false;
 	
+	/**
+	 * Constructs a Player with a Camera.
+	 * @param c The Camera object that abstracts out the view matrix logic.
+	 */
 	public Player(Camera c) {
 		this.playerCam = c;
 		setup();
 	}
 	
+	/**
+	 * Sets up all necessary player attributes.
+	 */
 	public void setup() {
 		this.attributes.putAll(Settings.getDefaultPlayerAttributes());
 	}
 
+	/**
+	 * Strafes the player (uses playerCam).
+	 */
 	private void strafe(){
 		playerCam.strafe(speed_x);
 	}
 	
+	/**
+	 * Moves the player forward and backwards (uses playerCam).
+	 */
 	private void moveFrontBack(){
 		playerCam.moveFrontBack(speed_y);
 	}
 	
-	
+	/**
+	 * Moves the player.
+	 * This should be called in the game loop.
+	 */
 	public void move () {
 		// Apply movement from key presses.
 		if (wPress && speed_y < MAX_SPEED)  speed_y += acceleration;
@@ -79,6 +97,10 @@ public class Player implements InputListener {
 		moveFrontBack();
 	}
 	
+	/**
+	 * This event handler fires whenever a mouse button is clicked.
+	 * @param evt A MouseClickEvent object.
+	 */
 	@Override
 	public void onMouseClickedEvent(MouseClickEvent evt) {
 		if (evt.isPress())
@@ -86,6 +108,10 @@ public class Player implements InputListener {
 		else System.out.println("BUTTON RELEASED");
 	}
 
+	/**
+	 * This event handler fires whenever the mouse is moved.
+	 * @param evt A MouseMoveEvent object.
+	 */
 	@Override
 	public void onMouseMoveEvent(MouseMoveEvent evt) {	
 		playerCam.rotateCamera(Display.getWidth()/2 - evt.getX(),
@@ -95,10 +121,13 @@ public class Player implements InputListener {
 	/**
 	 * This event handler fires whenever a key event is triggered.
 	 * Key events are triggered on press of a key and on release of a key.
+	 * @param KeyEvent A KeyEvent object.
 	 */
 	@Override
 	public void onKeyEvent(KeyEvent evt) {
 		int code = evt.getKeyCode();
+		
+		// Determine whether this is a press or a release event.
 		boolean pressed = evt.isPress() ? true : false;
 		
 		// Set the appropriate movement flag.

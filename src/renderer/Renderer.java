@@ -25,7 +25,6 @@ import system.Settings;
 
 /**
  * The renderer class should set up OpenGL.
- * In progress.
  * @author Adi
  * @author Max
  */
@@ -47,9 +46,13 @@ public class Renderer {
 	
 	//Camera variables (TODO: will be moved to a camera class in the future)
 	private Camera camera = null;    
-	/*
-	 * Initializes OpenGL. If zero is passed in for both the width and height,
-	 * we call this.initOpenGL with a true "fullscreen" flag.
+
+	/**
+	 * Creates the renderer.
+	 * If zero is passed in for width and height, it runs fullscreen.
+	 * @param width The width of the renderer.
+	 * @param height The height of the renderer.
+	 * @param camera The camera associated with the renderer.
 	 */
 	public Renderer(int width, int height, Camera camera){
 		this.camera = camera;
@@ -105,26 +108,23 @@ public class Renderer {
 	 * @see Model
 	 */
 	public boolean bindNewModel(Model model){
-		/*
-		 * Initialize model
-		 */
+
 		models.add(model);
 		return true;
 	}
 	
-	/*
+	/**
 	 * Renders the new scene.
 	 */
 	public void renderScene (){		
-		/*INSERT rendering*/
-		
-		// Render
+		// Render.
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		
+		// Select our shader program.
 		GL20.glUseProgram(shader.getCurrentProgram());
 		
-		/*INSERT altering variables*/
-		viewMatrix = camera.getViewMatrix(); //Vector3f.cross(cameraRight, cameraDirection, null)
+		// Get the view matrix from the camera.
+		viewMatrix = camera.getViewMatrix();
 		
 		viewMatrix.store(matrix44Buffer); matrix44Buffer.flip();
 		GL20.glUniformMatrix4(shader.getViewMatrixLocation(), false, matrix44Buffer);
@@ -164,6 +164,11 @@ public class Renderer {
 		Display.update();
 	}
 	
+	/**
+	 * Get the camera associated with this renderer.
+	 * @return camera The camera.
+	 * @throws NullPointerException
+	 */
 	public Camera getCamera() throws NullPointerException{
 		if(camera == null){
 			throw new NullPointerException();
@@ -172,8 +177,9 @@ public class Renderer {
 		return camera;
 	}
 	
-	/*
+	/**
 	 * Initializes OpenGL (currently using 3.2).
+	 * @param fullscreen Determines whether we should run in fullscreen.
 	 */
 	private void initOpenGL(boolean fullscreen){
 		try{
@@ -198,14 +204,14 @@ public class Renderer {
 		GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE ); //for debug
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glCullFace(GL11.GL_BACK);
-		
-		//GL11.glEnable(GL11.GL_DEPTH_TEST);
-		// Accept fragment if it closer to the camera than the former one
-		//GL11.glDepthFunc(GL11.GL_LEQUAL);
 	}
 	
 	/**
-	 * Sets our view port with a given width and height.
+	 * Sets our view port at (x,y) given a width and height.
+	 * @param x
+	 * @param y
+	 * @param width
+	 * @param height
 	 */
 	private void setViewPort (int x, int y, int width, int height){
 		GL11.glViewport(0, 0, WIDTH, HEIGHT);

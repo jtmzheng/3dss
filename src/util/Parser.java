@@ -54,6 +54,9 @@ public class Parser {
     
     private List<Face> faces;
     
+    /**
+     * Initializes our parser.
+     */
     public Parser() {
     	vertices = new ArrayList<Vector3f>();
     	textures = new ArrayList<Vector2f>();
@@ -61,6 +64,12 @@ public class Parser {
     	faces = new ArrayList<Face>();
     }
     
+    /**
+     * Parses an OBJ file.
+     * @param file
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     public void parseOBJFile (File file) throws FileNotFoundException, IOException {
     	String line = null;
     	
@@ -84,22 +93,34 @@ public class Parser {
     	}
     	
     	bin.close();
-    	dump();
     }
     
+    /**
+     * Parses a texture.
+     * @param line
+     */
     private void parseTexture (String line) {
     	textures.add(StringUtilities.parse2FloatList(line));
     }
     
+    /**
+     * Parses a normal.
+     * @param line
+     */
     private void parseNormal (String line) {
     	normals.add(StringUtilities.parse3FloatList(line));
     }
     
+    /**
+     * Parses a vertex.
+     * @param line
+     */
     private void parseVertex (String line) {
     	vertices.add(StringUtilities.parse3FloatList(line));
     }
     
     /**
+     * Parses a face.
      * From the OBJ spec, faces can be specified as:
      * f int int int ...
      * OR
@@ -173,32 +194,67 @@ public class Parser {
     	}
     }
     
-    private void parseLine (String line) {
-    	//DebugWindow.write("Parser::parseLine", "Parser::parseLine called. Lines are not supported yet.");
-    }
-    private void parseGroup (String line) {
-    }
-    private void parsePoint (String line) {
-    }
-    private void parseMTL (String line) {
-    }
     
-    private void dump () {
+    /**
+     * Parses a line.
+     * @param line
+     */
+    private void parseLine (String line) {
 
     }
     
+    /**
+     * Parses a group.
+     * @param line
+     */
+    private void parseGroup (String line) {
+    	
+    }
+    
+    /**
+     * Parses a point.
+     * @param line
+     */
+    private void parsePoint (String line) {
+    	
+    }
+    
+    /**
+     * Parses an mtl tag.
+     * @param line
+     */
+    private void parseMTL (String line) {
+    	
+    }
+    
+    /**
+     * Gets the list of vertices that this parser parsed.
+     * @return vertices
+     */
     public List<Vector3f> getVertices () {
     	return vertices;
     }
     
+    /**
+     * Gets the list of texture that this parser parsed.
+     * @return textures
+     */
     public List<Vector2f> getTextures () {
     	return textures;
     }
     
+    /**
+     * Gets the list of normals that this parser parsed.
+     * @return normals
+     */
     public List<Vector3f> getNormals () {
     	return normals;
     }
     
+    /**
+     * Gets the list of faces that this parser parsed.
+     * @return faces
+     */
     public List<Face> getFaces () {
     	return faces;
     }

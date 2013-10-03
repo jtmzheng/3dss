@@ -17,6 +17,11 @@ import renderer.ModelFactory;
 import renderer.Renderer;
 import characters.Player;
 
+/**
+ * Main class for our game.
+ * Contains the game loop.
+ * @author Adi
+ */
 public class Main {
 
 	/**
