@@ -41,8 +41,8 @@ public class Model {
 		// Put each 'Vertex' in one FloatBuffer
 		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(f.size() * 3 *  VertexData.stride);            
 		FloatBuffer verticesFloatBuffer = verticesByteBuffer.asFloatBuffer();
-		HashMap<VertexData, Byte> vboIndexMap = new HashMap<>();
-		List<Byte> vboIndex = new ArrayList<>();
+		HashMap<VertexData, Byte> vboIndexMap = new HashMap<VertexData, Byte>();
+		List<Byte> vboIndex = new ArrayList<Byte>();
 		VertexData tempVertexData;
 		
 		byte index = 0;

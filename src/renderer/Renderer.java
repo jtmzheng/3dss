@@ -64,11 +64,11 @@ public class Renderer {
 		else
 			this.initOpenGL(false);
 		
-		models = new ArrayList<>();
+		models = new ArrayList<Model>();
 		shader = new ShaderController();
 		
 		//Initialize shaders
-		HashMap<String, Integer> sh = new HashMap<>();
+		HashMap<String, Integer> sh = new HashMap<String, Integer>();
 		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		
@@ -183,13 +183,18 @@ public class Renderer {
 	 */
 	private void initOpenGL(boolean fullscreen){
 		try{
+			PixelFormat pixelFormat = new PixelFormat();
+			ContextAttribs contextAtr = new ContextAttribs(3, 2)
+				.withForwardCompatible(true)
+				.withProfileCore(true);
+
 			if (fullscreen) 
 				Display.setFullscreen(true);
 			else 
 				Display.setDisplayMode(new DisplayMode(this.WIDTH, this.HEIGHT));
-			
+
 			Display.setTitle("Game the Name 2.0");
-			Display.create();
+			Display.create(pixelFormat, contextAtr);
 			
 			if (WIDTH != 0 && HEIGHT != 0)
 				setViewPort(0, 0, this.WIDTH, this.HEIGHT);

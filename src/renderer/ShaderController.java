@@ -28,8 +28,8 @@ public class ShaderController {
 	 * Creates our ShaderController.
 	 */
 	public ShaderController() {
-		shaderNameToID = new HashMap<>();
-		shaderIDToType = new HashMap<>();
+		shaderNameToID = new HashMap<String, Integer>();
+		shaderIDToType = new HashMap<Integer, Integer>();
 		currentProgram = 0;
 	}
 
