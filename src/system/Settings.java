@@ -63,10 +63,10 @@ public class Settings {
 		return val.floatValue();
 	}
 	
-	public static HashMap<String, Integer> getDefaultPlayerAttributes () {
-		HashMap<String, Integer> playerAttributes = new HashMap<String, Integer>();
-		playerAttributes.put("HP", 100);
-		playerAttributes.put("SHIELD", 100);
+	public static HashMap<String, Float> getDefaultPlayerAttributes () {
+		HashMap<String, Float> playerAttributes = new HashMap<String, Float>();
+		playerAttributes.put("HP", 100f);
+		playerAttributes.put("SHIELD", 100f);
 		return playerAttributes;
 	}
 	

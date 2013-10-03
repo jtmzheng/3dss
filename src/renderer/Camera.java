@@ -72,25 +72,19 @@ public class Camera {
 		
 		return viewMatrix;
 	}
-
-	public void strafeLeft(float speed){
-		applyTranslation(new Vector3f(-cameraRight.x * speed,
-				-cameraRight.y * speed,
-				-cameraRight.z * speed));
-	}
 	
-	public void strafeRight(float speed){
+	public void strafe (float speed) {
 		applyTranslation(new Vector3f(cameraRight.x * speed,
 				cameraRight.y * speed,
 				cameraRight.z * speed));
 	}
 	
-	public void moveForwards(float speed){
+	public void moveFrontBack (float speed) {
 		applyTranslation(new Vector3f(cameraDirection.x * speed,
 				cameraDirection.y * speed,
 				cameraDirection.z * speed));
 	}
-	
+
 	public void moveBackwards(float speed){
 		applyTranslation(new Vector3f(-cameraDirection.x * speed,
 				-cameraDirection.y * speed,

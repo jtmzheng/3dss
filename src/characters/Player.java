@@ -24,16 +24,24 @@ import system.Settings;
  */
 public class Player implements InputListener {
 	
-	private HashMap<String, Integer> attributes = new HashMap<String, Integer>();
+	// Default player attributes
+	private HashMap<String, Float> attributes = new HashMap<String, Float>();
 	private Camera playerCam;
 	
-	private float speed = 0.1f;
-	
-	// Movement flags.
-	private boolean movingForward  = false;
-	private boolean movingBackward = false;
-	private boolean movingLeft     = false;
-	private boolean movingRight    = false;
+	// Movement fields.
+	// TODO: once these are finalized, move to defaultPlayerAttributes
+	private float speed_x = 0.0f;
+	private float speed_y = 0.0f;
+
+	private float acceleration = 0.01f;
+	private float MAX_SPEED = 0.17f;
+	private float drag = 0.001f;
+
+	// Key press flags.
+	private boolean wPress = false;
+	private boolean aPress = false;
+	private boolean sPress = false;
+	private boolean dPress = false;
 	
 	public Player(Camera c) {
 		this.playerCam = c;
@@ -44,27 +52,31 @@ public class Player implements InputListener {
 		this.attributes.putAll(Settings.getDefaultPlayerAttributes());
 	}
 
-	private void strafeLeft(){
-		playerCam.strafeLeft(speed);
+	private void strafe(){
+		playerCam.strafe(speed_x);
 	}
 	
-	private void strafeRight(){
-		playerCam.strafeRight(speed);
+	private void moveFrontBack(){
+		playerCam.moveFrontBack(speed_y);
 	}
 	
-	private void moveForwards(){
-		playerCam.moveForwards(speed);
-	}
-	
-	private void moveBackwards(){
-		playerCam.moveBackwards(speed);
-	}
 	
 	public void move () {
-		if (movingForward)  moveForwards();
-		if (movingBackward) moveBackwards();
-		if (movingLeft)     strafeLeft();
-		if (movingRight)    strafeRight();
+		// Apply movement from key presses.
+		if (wPress && speed_y < MAX_SPEED)  speed_y += acceleration;
+		if (aPress && speed_x > -MAX_SPEED) speed_x -= acceleration;
+		if (sPress && speed_y > -MAX_SPEED) speed_y -= acceleration;
+		if (dPress && speed_x < MAX_SPEED)  speed_x += acceleration;
+				
+		// Apply drag.
+		if (speed_x > 0) speed_x -= drag;
+		if (speed_x < 0) speed_x += drag;
+		if (speed_y > 0) speed_y -= drag;
+		if (speed_y < 0) speed_y += drag;
+		
+		// Move our player.
+		strafe();
+		moveFrontBack();
 	}
 	
 	@Override
@@ -80,19 +92,19 @@ public class Player implements InputListener {
 							   Display.getHeight()/2 - evt.getY());
 	}
 
+	/**
+	 * This event handler fires whenever a key event is triggered.
+	 * Key events are triggered on press of a key and on release of a key.
+	 */
 	@Override
 	public void onKeyEvent(KeyEvent evt) {
 		int code = evt.getKeyCode();
 		boolean pressed = evt.isPress() ? true : false;
 		
-		if (code == Keyboard.KEY_W) {
-			movingForward = pressed;
-		} else if (code == Keyboard.KEY_A) {
-			movingLeft = pressed;
-		} else if (code == Keyboard.KEY_S) {
-			movingBackward = pressed;
-		} else if (code == Keyboard.KEY_D) {
-			movingRight = pressed;
-		}
+		// Set the appropriate movement flag.
+		if (code == Keyboard.KEY_W) wPress = pressed;
+		if (code == Keyboard.KEY_A) aPress = pressed;
+		if (code == Keyboard.KEY_S) sPress = pressed;
+		if (code == Keyboard.KEY_D) dPress = pressed;
 	}
 }
