@@ -76,7 +76,6 @@ public class Parser {
     	FileReader fin = new FileReader(file);
     	BufferedReader bin = new BufferedReader (fin);
     	
-    	//DebugWindow.write("Parser::parseOBJFile", "Parsing " + file.getAbsolutePath() + "...\n");
     	while ((line = bin.readLine()) != null) {
     		line = line.trim();
     		if (line.length() == 0) continue;
@@ -92,6 +91,7 @@ public class Parser {
     		else if (line.startsWith(OBJ_USEMTL)) parseMTL (line);
     	}
     	
+    	Logger.flush();
     	bin.close();
     }
     
@@ -138,6 +138,7 @@ public class Parser {
      * @param line
      */
     private void parseFace (String line) {
+    	Logger.write(line);
     	String[] tokens = line.split("\\s+");
     	List<VertexData> faceData = new ArrayList<VertexData>();
     	

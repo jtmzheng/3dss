@@ -22,6 +22,8 @@ public class Settings {
 		settings.put("in_Normal", 3);
 		settings.put("vertex_path", "src/shaders/vertex.vert");
 		settings.put("fragment_path",  "src/shaders/fragment.frag");
+		settings.put("log_folder", "logs/");
+		settings.put("pwd", System.getProperty("user.dir"));
 	}
 	
 	/**
