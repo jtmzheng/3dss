@@ -114,8 +114,7 @@ public class Player implements InputListener {
 	 */
 	@Override
 	public void onMouseMoveEvent(MouseMoveEvent evt) {	
-		playerCam.rotateCamera(Display.getWidth()/2 - evt.getX(),
-							   Display.getHeight()/2 - evt.getY());
+		playerCam.rotateCamera(evt.getdx(), evt.getdy());
 	}
 
 	/**

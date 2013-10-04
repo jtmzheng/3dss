@@ -112,7 +112,7 @@ public class Camera {
 	 */
 	public void rotateCamera(int deltaX, int deltaY){
 		pitch -= deltaY * cameraSensitivity;
-		yaw -= deltaX * cameraSensitivity;
+		yaw += deltaX * cameraSensitivity;
 
 		cameraDirection.x = -(float)(Math.cos(pitch) * Math.sin(yaw));
 		cameraDirection.y = (float)(Math.sin(pitch));
