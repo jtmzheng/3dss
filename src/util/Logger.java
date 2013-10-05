@@ -19,7 +19,6 @@ public class Logger {
 	private Logger (String dateTime) {
 		try {
 			File writeDir = new File(pwd+"/"+folder);
-			writeDir.mkdirs();
 			File writeFile = new File(folder+dateTime+".txt");
 			FileWriter fw = new FileWriter(writeFile);
 			bw = new BufferedWriter(fw);
