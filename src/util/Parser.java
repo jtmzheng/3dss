@@ -91,7 +91,7 @@ public class Parser {
     		else if (line.startsWith(OBJ_USEMTL)) parseMTL (line);
     	}
     	
-    	Logger.flush();
+    	//Logger.flush();
     	bin.close();
     }
     

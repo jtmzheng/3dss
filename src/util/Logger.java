@@ -28,12 +28,7 @@ public class Logger {
 	}
 	
 	public static void write(String toWrite) {
-		setInstance();
-		try {
-			bw.append(toWrite+"\n");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		
 	}
 	
 	public static void flush() {
