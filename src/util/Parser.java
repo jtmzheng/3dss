@@ -22,15 +22,6 @@ import renderer.VertexData;
  */
 public class Parser {
 
-	// Testing our parser with cube.obj
-	public static void main (String[] args) {
-		Parser cubeParser = new Parser();
-		try {
-			cubeParser.parseOBJFile(new File("res/obj/cow.obj"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 	// Parsing token in OBJ/MTL files. 
 	private final static String OBJ_COMMENT = "#";
     private final static String OBJ_VERTEX_TEXTURE = "vt";
@@ -90,8 +81,6 @@ public class Parser {
     		else if (line.startsWith(OBJ_LINE)) parseLine(line);
     		else if (line.startsWith(OBJ_USEMTL)) parseMTL (line);
     	}
-    	
-    	//Logger.flush();
     	bin.close();
     }
     
@@ -141,55 +130,50 @@ public class Parser {
     	Logger.write(line);
     	String[] tokens = line.split("\\s+");
     	List<VertexData> faceData = new ArrayList<VertexData>();
-    	
     	if (!line.contains("/")) {
     		for (int x = 1; x < tokens.length; x++) {
     			VertexData v = new VertexData (vertices.get(Integer.parseInt(tokens[x])-1));
     			faceData.add(v);
     		}
-    		
     		faces.add(new Face(faceData));
     		return;
     	}
     	
     	// We should have trimmed whitespace and stuff by this point.
-    	if (tokens[1].matches("^[1-9]/[0-9]$")) {
+    	if (tokens[1].matches("^[1-9]+/[1-9]+$")) {
     		for (int x = 1; x < tokens.length; x++) {
     			String[] indices = tokens[x].split("/");
     			VertexData v = new VertexData (vertices.get(Integer.parseInt(indices[0]) - 1),
-    										   textures.get(Integer.parseInt(indices[1]) - 1));
+    					textures.get(Integer.parseInt(indices[1]) - 1));
     			
     			faceData.add(v);
     		}
-    		
     		faces.add(new Face(faceData));
     		return;
     	}
     	
-    	if (tokens[1].matches("^[1-9]/[1-9]/[1-9]$")) {
+    	if (tokens[1].matches("^[1-9]+/[1-9]+/[1-9]+$")) {
     		for (int x = 1; x < tokens.length; x++) {
     			String[] indices = tokens[x].split("/");
     			VertexData v = new VertexData (vertices.get(Integer.parseInt(indices[0]) - 1),
-    										   textures.get(Integer.parseInt(indices[1]) - 1),
-    					 					   normals.get(Integer.parseInt(indices[2]) - 1));
+    					textures.get(Integer.parseInt(indices[1]) - 1),
+    					normals.get(Integer.parseInt(indices[2]) - 1));
     			
     			faceData.add(v);
     		}
-    		
     		faces.add(new Face(faceData));
     		return;
     	}
     	
-    	if (tokens[1].matches("^[1-9]//[0-9]$")) {
+    	if (tokens[1].matches("^[1-9]+//[1-9]+$")) {
     		for (int x = 1; x < tokens.length; x++) {
     			String[] indices = tokens[x].split("//");
     			VertexData v = new VertexData (vertices.get(Integer.parseInt(indices[0]) - 1),
-    					 					   new Vector2f(0f, 0f),
-    					 					   normals.get(Integer.parseInt(indices[1]) - 1));
+    					new Vector2f(0f, 0f),
+    					normals.get(Integer.parseInt(indices[1]) - 1));
     			
     			faceData.add(v);
     		}
-    		
     		faces.add(new Face(faceData));
     		return;
     	}

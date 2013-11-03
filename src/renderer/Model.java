@@ -15,6 +15,8 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
+import util.Logger;
+
 
 /**
  * Model class is an abstraction used by Renderer. This will use interleaving for vertex properties.
@@ -42,7 +44,7 @@ public class Model {
 	 */
 	public Model(List<Face> f){	
 		// Put each 'Vertex' in one FloatBuffer
-		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(f.size() *  VertexData.stride);            
+		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(f.size() *  4 * VertexData.stride);
 		FloatBuffer verticesFloatBuffer = verticesByteBuffer.asFloatBuffer();
 		HashMap<VertexData, Integer> vboIndexMap = new HashMap<VertexData, Integer>();
 		List<Integer> vboIndex = new ArrayList<Integer>();
@@ -53,9 +55,7 @@ public class Model {
 		// For each face in the list, process the data and add to
 		// the byte buffer.
 		for(Face face: f){			
-			//Add first vertex of the face
-			System.out.println(face.toString());
-			
+			//Add first vertex of the face			
 			tempVertexData = face.faceData.get(0);
 			if(!vboIndexMap.containsKey(tempVertexData)){
 				vboIndexMap.put(tempVertexData, index);
@@ -89,9 +89,7 @@ public class Model {
 			}
 					
 		}
-		
-		System.out.println(vboIndex);
-		
+				
 		//Create VBO Index buffer
 		verticesFloatBuffer.flip();
 		int [] indices = new int[vboIndex.size()];

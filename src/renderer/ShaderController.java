@@ -49,7 +49,6 @@ public class ShaderController {
 			GL20.glAttachShader(currentProgram, shaderID);
 			shaderNameToID.put(file, shaderID);
 			shaderIDToType.put(shaderID, shaders.get(file));
-			System.out.println(shaderID);
 		}
 		
 		
