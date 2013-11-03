@@ -2,6 +2,7 @@ package renderer;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,36 +34,36 @@ public class Model {
 	// The model matrix assosciated with this model.
 	private Matrix4f modelMatrix = null;
 	
+	private Model () {} 
+	
 	/**
 	 * Creates a model with a list of faces.
 	 * @param f The list of faces.
 	 */
 	public Model(List<Face> f){	
 		// Put each 'Vertex' in one FloatBuffer
-		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(f.size() * 3 *  VertexData.stride);            
+		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(f.size() *  VertexData.stride);            
 		FloatBuffer verticesFloatBuffer = verticesByteBuffer.asFloatBuffer();
-		HashMap<VertexData, Byte> vboIndexMap = new HashMap<VertexData, Byte>();
-		List<Byte> vboIndex = new ArrayList<Byte>();
+		HashMap<VertexData, Integer> vboIndexMap = new HashMap<VertexData, Integer>();
+		List<Integer> vboIndex = new ArrayList<Integer>();
 		VertexData tempVertexData;
 		
-		byte index = 0;
-		int common = 0;
-		int newC = 0;
+		int index = 0;
 		
 		// For each face in the list, process the data and add to
 		// the byte buffer.
 		for(Face face: f){			
 			//Add first vertex of the face
+			System.out.println(face.toString());
+			
 			tempVertexData = face.faceData.get(0);
 			if(!vboIndexMap.containsKey(tempVertexData)){
 				vboIndexMap.put(tempVertexData, index);
 				verticesFloatBuffer.put(tempVertexData.getElements());
 				vboIndex.add(index++);
-				newC++;
 			}
 			else{
 				vboIndex.add(vboIndexMap.get(tempVertexData));
-				common++;
 			}
 			
 			//Add second vertex of the face
@@ -71,11 +72,9 @@ public class Model {
 				vboIndexMap.put(tempVertexData, index);
 				verticesFloatBuffer.put(tempVertexData.getElements());
 				vboIndex.add(index++);
-				newC++;
 			}
 			else{
 				vboIndex.add(vboIndexMap.get(tempVertexData));
-				common++;
 			}
 
 			//Add third vertex of the face
@@ -84,25 +83,26 @@ public class Model {
 				vboIndexMap.put(tempVertexData, index);
 				verticesFloatBuffer.put(tempVertexData.getElements());
 				vboIndex.add(index++);
-				newC++;
 			}
 			else{
 				vboIndex.add(vboIndexMap.get(tempVertexData));
-				common++;
 			}
-			
+					
 		}
 		
+		System.out.println(vboIndex);
+		
+		//Create VBO Index buffer
 		verticesFloatBuffer.flip();
-		byte [] indices = new byte[vboIndex.size()];
+		int [] indices = new int[vboIndex.size()];
 		indicesCount = vboIndex.size();
 		
 		for(int i = 0; i < vboIndex.size(); i++){
 			indices[i] = vboIndex.get(i); 
 		}
 		
-		ByteBuffer indicesBuffer = BufferUtils.createByteBuffer(vboIndex.size());
-		indicesBuffer.put(indices);
+		IntBuffer indicesBuffer = BufferUtils.createIntBuffer( vboIndex.size() );
+		indicesBuffer.put( indices );
 		indicesBuffer.flip();
 		 
 		// Create a new Vertex Array Object in memory and select it (bind)
@@ -127,24 +127,22 @@ public class Model {
 				false, VertexData.stride, VertexData.textureByteOffset);
 		
 		// Put the normal coordinates in attribute list 3
-		GL20.glVertexAttribPointer(3, VertexData.textureElementCount, GL11.GL_FLOAT,
+		GL20.glVertexAttribPointer(3, VertexData.normalElementCount, GL11.GL_FLOAT,
 				false, VertexData.stride, VertexData.normalByteOffset);
 		
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-		
-		// Deselect (bind to 0) the VAO
-		GL30.glBindVertexArray(0);
-		
+				
 		// Create a new VBO for the indices and select it (bind) - INDICES
 		vboiID = GL15.glGenBuffers();
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiID);
 		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-		System.out.println("COMMON: " + common);
-		System.out.println("NEWC: " + newC);
 		
 		//Initialize model matrix
 		modelMatrix = new Matrix4f(); //Initialized to the identity in the constructor
+		
+		// Deselect (bind to 0) the VAO
+		GL30.glBindVertexArray(0);
 				
 	}
 	

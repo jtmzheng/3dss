@@ -29,6 +29,8 @@ public class ModelFactory {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
+	private ModelFactory() {}	
+	
 	public static Model loadModel(File file) throws FileNotFoundException, IOException{
 		List<Face> faces;
 

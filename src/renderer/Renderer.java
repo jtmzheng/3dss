@@ -117,7 +117,7 @@ public class Renderer {
 	 * Renders the new scene.
 	 */
 	public void renderScene (){		
-		// Render.
+		// Clear the color buffer
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		
 		// Select our shader program.
@@ -146,7 +146,7 @@ public class Renderer {
 			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, m.getIndexVBO());
 			
 			// Draw the vertices
-			GL11.glDrawElements(GL11.GL_TRIANGLES, m.getIndicesCount(), GL11.GL_UNSIGNED_BYTE, 0);
+			GL11.glDrawElements(GL11.GL_TRIANGLES, m.getIndicesCount(), GL11.GL_UNSIGNED_INT, 0);
 		}
         		
 		// Deselect
