@@ -14,6 +14,7 @@ import org.lwjgl.util.vector.Vector3f;
 import renderer.Camera;
 import renderer.ModelFactory;
 import renderer.Renderer;
+import util.Logger;
 import characters.Player;
 
 /**
@@ -61,6 +62,8 @@ public class Main {
 			// Render a new frame.
 			gameRenderer.renderScene();
 		}
+		
+		cleanUp();
 	}
 	
 	/**
@@ -95,5 +98,12 @@ public class Main {
 			i.initialize();
 			i.setListener(gamePlayer);
 		}
+	}
+	
+	/**
+	 * Cleans up, frees memory, flushes streams.
+	 */
+	public static void cleanUp() {
+		Logger.flush();
 	}
 }
