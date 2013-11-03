@@ -4,6 +4,9 @@
 *.ear
 *.class
 
+# Logs
+logs/**
+
 # eclipse specific git ignore
 *.pydevproject
 .project
