@@ -140,7 +140,7 @@ public class Parser {
     	}
     	
     	// We should have trimmed whitespace and stuff by this point.
-    	if (tokens[1].matches("^[1-9]+/[1-9]+$")) {
+    	if (tokens[1].matches("^[0-9]+/[0-9]+$")) {
     		for (int x = 1; x < tokens.length; x++) {
     			String[] indices = tokens[x].split("/");
     			VertexData v = new VertexData (vertices.get(Integer.parseInt(indices[0]) - 1),
@@ -152,7 +152,7 @@ public class Parser {
     		return;
     	}
     	
-    	if (tokens[1].matches("^[1-9]+/[1-9]+/[1-9]+$")) {
+    	if (tokens[1].matches("^[0-9]+/[0-9]+/[0-9]+$")) {
     		for (int x = 1; x < tokens.length; x++) {
     			String[] indices = tokens[x].split("/");
     			VertexData v = new VertexData (vertices.get(Integer.parseInt(indices[0]) - 1),
@@ -165,7 +165,7 @@ public class Parser {
     		return;
     	}
     	
-    	if (tokens[1].matches("^[1-9]+//[1-9]+$")) {
+    	if (tokens[1].matches("^[0-9]+//[0-9]+$")) {
     		for (int x = 1; x < tokens.length; x++) {
     			String[] indices = tokens[x].split("//");
     			VertexData v = new VertexData (vertices.get(Integer.parseInt(indices[0]) - 1),
