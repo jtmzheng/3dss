@@ -44,7 +44,7 @@ public class Model {
 	 */
 	public Model(List<Face> f){	
 		// Put each 'Vertex' in one FloatBuffer
-		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(f.size() *  4 * VertexData.stride);
+		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(f.size() * 3 * VertexData.stride);
 		FloatBuffer verticesFloatBuffer = verticesByteBuffer.asFloatBuffer();
 		HashMap<VertexData, Integer> vboIndexMap = new HashMap<VertexData, Integer>();
 		List<Integer> vboIndex = new ArrayList<Integer>();
