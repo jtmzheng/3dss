@@ -127,7 +127,6 @@ public class Parser {
      * @param line
      */
     private void parseFace (String line) {
-    	Logger.write(line);
     	String[] tokens = line.split("\\s+");
     	List<VertexData> faceData = new ArrayList<VertexData>();
     	if (!line.contains("/")) {

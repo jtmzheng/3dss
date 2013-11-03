@@ -35,11 +35,13 @@ public class Logger {
 	}
 	
 	public static void flush() {
-		instance = null;
-		try {
-			bw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (instance != null) {
+			instance = null;
+			try {
+				bw.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
