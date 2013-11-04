@@ -10,7 +10,7 @@ import org.lwjgl.opengl.GL20;
 import system.Settings;
 
 /**
- * ShaderController will manage shaders.
+ * ShaderController will manage our shaders.
  * @author Max 
  */
 public class ShaderController {
@@ -24,9 +24,12 @@ public class ShaderController {
 	
 	private int currentProgram;
 
+	/**
+	 * Creates our ShaderController.
+	 */
 	public ShaderController() {
-		shaderNameToID = new HashMap<>();
-		shaderIDToType = new HashMap<>();
+		shaderNameToID = new HashMap<String, Integer>();
+		shaderIDToType = new HashMap<Integer, Integer>();
 		currentProgram = 0;
 	}
 
@@ -38,10 +41,7 @@ public class ShaderController {
 	 * @return <code>true</code> if the program was successfully set, and false otherwise.
 	 */
 	public boolean setProgram(HashMap<String, Integer> shaders){
-		if(currentProgram != 0){
-			//TO DO: Cleanup
-		}
-		
+
 		currentProgram = GL20.glCreateProgram();
 		
 		for(String file : shaders.keySet()){
@@ -49,7 +49,6 @@ public class ShaderController {
 			GL20.glAttachShader(currentProgram, shaderID);
 			shaderNameToID.put(file, shaderID);
 			shaderIDToType.put(shaderID, shaders.get(file));
-			System.out.println(shaderID);
 		}
 		
 		
@@ -67,45 +66,49 @@ public class ShaderController {
 		viewMatrixLocation = GL20.glGetUniformLocation(currentProgram,  "viewMatrix");
 		modelMatrixLocation = GL20.glGetUniformLocation(currentProgram,  "modelMatrix");
 		
-		
-		System.out.println("PROJECTION: " + projectionMatrixLocation);
-		System.out.println("VIEW: " + viewMatrixLocation);
-		System.out.println("MODEL: " + modelMatrixLocation);
-		System.out.println("SHADER: " + currentProgram);
-		
-		
 		return true;
 	}
 	
 	/**
 	 * Getter function for the current program.
 	 * 
-	 * @return An integer defining the current program.
+	 * @return an integer defining the current program
 	 */
 	public int getCurrentProgram(){
 		return currentProgram;
 	}
 	
+	/**
+	 * Gets the model matrix location.
+	 * @return the location of the model matrix
+	 */
 	public int getModelMatrixLocation(){
 		return modelMatrixLocation;
 	}
 	
+	/**
+	 * Gets the projection matrix location
+	 * @return the location of the projection matrix
+	 */
 	public int getProjectionMatrixLocation(){
 		return projectionMatrixLocation;
 	}
 	
+	/**
+	 * Gets the view matrix location.
+	 * @return the location of the view matrix
+	 */
 	public int getViewMatrixLocation(){
 		return viewMatrixLocation;
 	}
 	
 	/**
-	 * 
+	 * Loads a shader from a file.
 	 * @param filename Name of shader file.
-	 * @param type 
-	 * @return The shader UID.
+	 * @param type The shader type.
+	 * @return the shader UID
 	 */
 	private int loadShader(String filename, int type) {
-		
 		StringBuilder shaderSource = new StringBuilder();
 		int shaderID = 0;
 		try {
@@ -126,6 +129,4 @@ public class ShaderController {
 		GL20.glCompileShader(shaderID);
 		return shaderID;
 	}
-
-
 }

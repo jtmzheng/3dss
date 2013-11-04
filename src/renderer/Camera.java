@@ -1,118 +1,163 @@
 package renderer;
 
-import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
-// TODO: Need some kind of rotation mechanism that works with user mouse movement.
+/**
+ * Camera class takes care of the view matrix.
+ * @author Max 
+ * @author Adi
+ */
 public class Camera {
 	
-	/*
-	 * Location of our camera in world space
-	 */
-	protected Vector3f location;
-	
-	/*
-	 * "Up" vector for context
-	 */
-	protected Vector3f up;
-	
-	/*
-	 * Direction the camera is looking at
-	 */
-	protected Vector3f direction;
-	
-	/*
-	 * View and projection matrices
-	 * I know I put this in... but do we need references to the actual matrices?
-	 */
-	protected Matrix4f modelMatrix;
+	// View matrix the camera maintains.
 	protected Matrix4f viewMatrix;
-	protected Matrix4f projMatrix;
+		
+	// Location of our camera.
+	private Vector3f cameraPosition = null;
 	
-	/*
-	 * Camera ID
-	 */
-	protected String ID;
+	// Euler angles to keep track of our orientation.
+	private float yaw = 3.14f;
+	private float pitch = 0.0f; 
+	private float roll = 0.0f;
 	
-	/*
-	 * Default camera constructor.
-	 * Sets location to origin, up to (0,1,0), direction to (1, 0, 0)
+	// Direction vector of our camera.
+	private Vector3f cameraDirection = new Vector3f(
+			(float)(Math.cos(pitch) * Math.sin(yaw)),
+			(float)(Math.sin(pitch)),
+			(float)(Math.cos(pitch) * Math.cos(yaw))); 
+	
+	// Right vector of our camera.
+	private Vector3f cameraRight = new Vector3f(
+			(float)(Math.sin(yaw - 3.14f/2.0f)),
+			(float)(0f),
+			(float)(Math.cos(yaw - 3.14f/2.0f)));
+	
+	// Sensitivity of our camera to mouse movements.
+	private float cameraSensitivity = 0.005f;
+	
+	/**
+	 *  Constructor with a given position.
+	 *  @param pos The initial position of the camera.
 	 */
-	public Camera () {
-		location = new Vector3f (0,0,0);
-		direction = new Vector3f (1, 0, 0);
-		up = new Vector3f (0, 1, 0);
-		this.lookAt (direction);
+	public Camera (Vector3f pos) {
+		cameraPosition = pos;
+		viewMatrix = new Matrix4f();
+		applyTransformations();
 	}
 	
-	/*
-	 * Sets a new camera to the specified (x,y,0) location.
-	 * Sets direction to (1, 0, 0), up vector to (0, 1, 0)
-	 */
-	public Camera (float x, float y) {
-		location = new Vector3f (x,y,0);
-		direction = new Vector3f (1, 0, 0);
-		up = new Vector3f (0, 1, 0);
-		this.lookAt (direction);
-	}
 	
-	/*
-	 * Sets the new camera to the specified (x,y,z) location with a given up & direction vector.
-	 */
-	public Camera (float x, float y, float z, Vector3f dir, Vector3f up) {
-		location = new Vector3f (x, y, z);
-		this.direction = dir;
-		this.up = up;
-		this.lookAt (direction);
-	}
-	
-	/*
-	 * Gets the location of the camera in world space
+	/**
+	 * Gets the location of the camera in world space.
+	 * @return the location of the camera in world space.
 	 */
 	public Vector3f getLocation () {
-		return location;
+		return cameraPosition;
 	}
 	
-	/*
-	 * Sets the location of the camera in world space
+	/**
+	 * Sets the location of the camera in world space.
 	 */
 	public void setLocation (Vector3f loc) {
-		this.location = loc;
+		this.cameraPosition = loc;
+		applyTransformations();
 	}
 	
-	/*
-	 * Gets the direction where the camera is looking at 
+	/**
+	 * Gets the direction where the camera is looking at.
+	 * @return the direction vector of the camera
 	 */
 	public Vector3f getDirection () {
-		return direction;
+		return cameraDirection;
 	}
 	
-	/*
-	 * Looks at the specified location in world space.
-	 * Only rotates the camera, doesn't translate.
+	/**
+	 * Returns the view matrix the Camera controls.
+	 * @return the view matrix
 	 */
-	public void lookAt (Vector3f loc) {
-		this.direction = loc;
-		GLU.gluLookAt(location.x, location.y, location.z, 
-				loc.x, loc.y, loc.z, up.x, up.y, up.z);
+	public Matrix4f getViewMatrix(){
+		if(viewMatrix == null){
+			return null;
+		}
+		
+		return viewMatrix;
 	}
 	
-	/*
-	 * Moves the camera in the specified (normalized) direction with a given speed.
+	/**
+	 * Strafes the camera (left and right movement).
+	 * Negative speed for left, positive speed for right.
+	 * @param speed Speed to move the camera at.
 	 */
-	public void move (Vector3f normalizedDirection, float speed) {
-		location.x += normalizedDirection.x * speed;
-		location.y += normalizedDirection.y * speed;
-		location.z += normalizedDirection.z * speed;
+	public void strafe (float speed) {
+		applyTranslation(new Vector3f(cameraRight.x * speed,
+				cameraRight.y * speed,
+				cameraRight.z * speed));
 	}
 	
-	/*
-	 * Translates the camera by a certain vector
+	/**
+	 * Moves the camera forwards and backwards.
+	 * Negative speed for back, positive speed for forward.
+	 * @param speed Speed to move the camera at.
 	 */
-	public void translate (Vector3f translation) {
-		location.x += translation.x;
-		location.y += translation.y;
-		location.z += translation.z;
+	public void moveFrontBack (float speed) {
+		applyTranslation(new Vector3f(cameraDirection.x * speed,
+				cameraDirection.y * speed,
+				cameraDirection.z * speed));
+	}
+
+	/**
+	 * Rotates the camera given a change in mouse position.
+	 * @param deltaX The change in x.
+	 * @param deltaY The change in y.
+	 */
+	public void rotateCamera(int deltaX, int deltaY){
+		pitch -= deltaY * cameraSensitivity;
+		yaw += deltaX * cameraSensitivity;
+
+		cameraDirection.x = -(float)(Math.cos(pitch) * Math.sin(yaw));
+		cameraDirection.y = (float)(Math.sin(pitch));
+		cameraDirection.z = (float)(Math.cos(pitch) * Math.cos(yaw));
+		
+		cameraRight.x = (float)(Math.sin(yaw - 3.14f/2.0f));
+		cameraRight.z = -(float)(Math.cos(yaw - 3.14f/2.0f));
+				
+		applyTransformations();
+	}
+	
+	/**
+	 * Applies matrix transformations based on our pitch, yaw, and roll.
+	 * This first creates a new matrix (at origin), applies the rotations, 
+	 * then applies the translation to return it back to its position.
+	 */
+	public void applyTransformations() {
+		viewMatrix = new Matrix4f();
+	    Matrix4f.rotate(pitch, new Vector3f(1, 0, 0), viewMatrix, viewMatrix);
+	    Matrix4f.rotate(yaw, new Vector3f(0, 1, 0), viewMatrix, viewMatrix);
+	    Matrix4f.rotate(roll, new Vector3f(0, 0, 1), viewMatrix, viewMatrix);
+	    
+	    Matrix4f.translate(new Vector3f(cameraPosition.x,
+	    		cameraPosition.y,
+	    		cameraPosition.z),
+	    		viewMatrix,
+	    		viewMatrix);
+	}
+	
+	/**
+	 * Translates the camera position by a given vector.
+	 * This also handles the view matrix logic associated with the translation.
+	 * @param translationVector The vector to translate cameraPosition by.
+	 */
+	public void applyTranslation(Vector3f translationVector) {
+		cameraPosition = Vector3f.add(cameraPosition,
+				new Vector3f(translationVector.x,
+						translationVector.y,
+						translationVector.z),
+						null);
+		
+		Matrix4f.translate(new Vector3f(translationVector.x,
+				translationVector.y,
+				translationVector.z),
+				viewMatrix,
+				viewMatrix);
 	}
 }

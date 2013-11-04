@@ -21,13 +21,10 @@ import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
-import debugger.DebugWindow;
-
 import system.Settings;
 
 /**
  * The renderer class should set up OpenGL.
- * In progress.
  * @author Adi
  * @author Max
  */
@@ -48,27 +45,17 @@ public class Renderer {
 	private FloatBuffer matrix44Buffer = null;
 	
 	//Camera variables (TODO: will be moved to a camera class in the future)
-	private Vector3f cameraPosition = null;
-	private float cameraFOV = 45f;
-	private float cameraHorizontalAngle = 3.14f; //arbitrarily defined right now
-	private float cameraVerticalAngle = 0.0f; 
-	private Vector3f cameraDirection = new Vector3f(
-			(float)(Math.cos(cameraVerticalAngle) * Math.sin(cameraHorizontalAngle)),
-			(float)(Math.sin(cameraVerticalAngle)),
-			(float)(Math.cos(cameraVerticalAngle) * Math.cos(cameraHorizontalAngle))); 
-	private Vector3f cameraRight = new Vector3f(
-			(float)(Math.sin(cameraHorizontalAngle - 3.14f/2.0f)),
-			(float)(0f),
-			(float)(Math.cos(cameraHorizontalAngle - 3.14f/2.0f))); //NOTE: Vector3f has built in cross product
-	
-	private float cameraSensitivity = 0.005f; //Larger equals more sensitive
-	
-	
-	/*
-	 * Initializes OpenGL. If zero is passed in for both the width and height,
-	 * we call this.initOpenGL with a true "fullscreen" flag.
+	private Camera camera = null;    
+
+	/**
+	 * Creates the renderer.
+	 * If zero is passed in for width and height, it runs fullscreen.
+	 * @param width The width of the renderer.
+	 * @param height The height of the renderer.
+	 * @param camera The camera associated with the renderer.
 	 */
-	public Renderer(int width, int height){
+	public Renderer(int width, int height, Camera camera){
+		this.camera = camera;
 		this.WIDTH = width;
 		this.HEIGHT = height;
 		
@@ -77,13 +64,11 @@ public class Renderer {
 		else
 			this.initOpenGL(false);
 		
-		models = new ArrayList<>();
+		models = new ArrayList<Model>();
 		shader = new ShaderController();
 		
-		/*
-		 * Initialize shaders
-		 */
-		HashMap<String, Integer> sh = new HashMap<>();
+		//Initialize shaders
+		HashMap<String, Integer> sh = new HashMap<String, Integer>();
 		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		
@@ -91,7 +76,7 @@ public class Renderer {
 		
 		//Set up view and projection matrices
 		projectionMatrix = new Matrix4f();
-		float fieldOfView = 60f;
+		float fieldOfView = 45f;
 		float aspectRatio = (float)WIDTH / (float)HEIGHT;
 		float near_plane = 0.1f;
 		float far_plane = 100f;
@@ -105,16 +90,12 @@ public class Renderer {
 		projectionMatrix.m22 = -((far_plane + near_plane) / frustum_length);
 		projectionMatrix.m23 = -1;
 		projectionMatrix.m32 = -((2 * near_plane * far_plane) / frustum_length);
-                projectionMatrix.m33 = 0;
-		
+		projectionMatrix.m33 = 0;
 		
 		viewMatrix = new Matrix4f();
 		
 		// Create a FloatBuffer with the proper size to store our matrices later
 		matrix44Buffer = BufferUtils.createFloatBuffer(16);
-		
-		//Initilize camera
-		cameraPosition = new Vector3f(0f, 0f, 5f);
 	}
 	
 	/**
@@ -126,34 +107,30 @@ public class Renderer {
 	 * @return <code>true</code> if the binding was successful and false otherwise.
 	 * @see Model
 	 */
-	public synchronized boolean bindNewModel(Model model){
-		/*
-		 * Initialize model
-		 */
+	public boolean bindNewModel(Model model){
+
 		models.add(model);
 		return true;
 	}
 	
-	/*
+	/**
 	 * Renders the new scene.
 	 */
 	public void renderScene (){		
-		/*INSERT rendering*/
-		
-		// Render
+		// Clear the color buffer
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-
+		
+		// Select our shader program.
 		GL20.glUseProgram(shader.getCurrentProgram());
 		
-		/*INSERT altering variables*/
-		viewMatrix = lookAt(cameraPosition, Vector3f.add(cameraPosition, cameraDirection, null), new Vector3f(0f,1f,0f)); //Vector3f.cross(cameraRight, cameraDirection, null)
+		// Get the view matrix from the camera.
+		viewMatrix = camera.getViewMatrix();
 		
-		projectionMatrix.store(matrix44Buffer); matrix44Buffer.flip();
-		GL20.glUniformMatrix4(shader.getProjectionMatrixLocation(), false, matrix44Buffer);
 		viewMatrix.store(matrix44Buffer); matrix44Buffer.flip();
 		GL20.glUniformMatrix4(shader.getViewMatrixLocation(), false, matrix44Buffer);
+		projectionMatrix.store(matrix44Buffer); matrix44Buffer.flip();
+		GL20.glUniformMatrix4(shader.getProjectionMatrixLocation(), false, matrix44Buffer);
 		
-
 		for(Model m: models){
 			m.getModelMatrix().store(matrix44Buffer); matrix44Buffer.flip();
 			GL20.glUniformMatrix4(shader.getModelMatrixLocation(), false, matrix44Buffer);
@@ -169,69 +146,53 @@ public class Renderer {
 			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, m.getIndexVBO());
 			
 			// Draw the vertices
-			GL11.glDrawElements(GL11.GL_TRIANGLES, m.getIndicesCount(), GL11.GL_UNSIGNED_BYTE, 0);
+			GL11.glDrawElements(GL11.GL_TRIANGLES, m.getIndicesCount(), GL11.GL_UNSIGNED_INT, 0);
 		}
-
-		// Put everything back to default (deselect)
+        		
+		// Deselect
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		GL20.glDisableVertexAttribArray(0);
 		GL20.glDisableVertexAttribArray(1);
 		GL20.glDisableVertexAttribArray(2);
 		GL20.glDisableVertexAttribArray(3);
 		GL30.glBindVertexArray(0);
-
-
 		GL20.glUseProgram(0);
-		
+
 		// Force a maximum FPS of about 60
 		Display.sync(60);
 		// Let the CPU synchronize with the GPU if GPU is tagging behind (I think update refreshs the display)
 		Display.update();
 	}
 	
-	/*
-	 * TODO: Should be moved to camera class
+	/**
+	 * Get the camera associated with this renderer.
+	 * @return the camera
+	 * @throws NullPointerException
 	 */
-	private Matrix4f lookAt(Vector3f cam, Vector3f center, Vector3f up) {
-		Vector3f f = normalize(Vector3f.sub(center, cam, null));
-		Vector3f u = normalize(up);
-		Vector3f s = normalize(Vector3f.cross(f, u, null));
-		u = Vector3f.cross(s, f, null);
-
-		Matrix4f result = new Matrix4f();
-		result.m00 = s.x;
-		result.m10 = s.y;
-		result.m20 = s.z;
-		result.m01 = u.x;
-		result.m11 = u.y;
-		result.m21 = u.z;
-		result.m02 = -f.x;
-		result.m12 = -f.y;
-		result.m22 = -f.z;
+	public Camera getCamera() throws NullPointerException{
+		if(camera == null){
+			throw new NullPointerException();
+		}
 		
-		return Matrix4f.translate(new Vector3f(-cam.x, -cam.y, -cam.z),  result, result);
-	}
-
-	private Vector3f normalize(Vector3f v){
-		float mag = (float)(Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z));
-		return new Vector3f(v.x/mag, v.y/mag, v.z/mag);
+		return camera;
 	}
 	
-	/*
+	/**
 	 * Initializes OpenGL (currently using 3.2).
+	 * @param fullscreen Determines whether we should run in fullscreen.
 	 */
 	private void initOpenGL(boolean fullscreen){
 		try{
 			PixelFormat pixelFormat = new PixelFormat();
-			ContextAttribs contextAtr = new ContextAttribs(3, 2) 
+			ContextAttribs contextAtr = new ContextAttribs(3, 2)
 				.withForwardCompatible(true)
 				.withProfileCore(true);
-			
+
 			if (fullscreen) 
 				Display.setFullscreen(true);
 			else 
 				Display.setDisplayMode(new DisplayMode(this.WIDTH, this.HEIGHT));
-			
+
 			Display.setTitle("Game the Name 2.0");
 			Display.create(pixelFormat, contextAtr);
 			
@@ -248,105 +209,16 @@ public class Renderer {
 		GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE ); //for debug
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glCullFace(GL11.GL_BACK);
-		
-		//GL11.glEnable(GL11.GL_DEPTH_TEST);
-		// Accept fragment if it closer to the camera than the former one
-		//GL11.glDepthFunc(GL11.GL_LEQUAL);
 	}
 	
 	/**
-	 * Sets our view port with a given width and height.
+	 * Sets our view port at (x,y) given a width and height.
+	 * @param x
+	 * @param y
+	 * @param width
+	 * @param height
 	 */
 	private void setViewPort (int x, int y, int width, int height){
 		GL11.glViewport(0, 0, WIDTH, HEIGHT);
-	}
-	
-
-	/**
-	 * Sets the lighting with a provided LightSet (relative to world space)
-	 */
-	private void setLighting (/*insert a LightSet class here*/){
-		
-	}
-	
-	public void rotateCamera(int deltaX, int deltaY){
-		cameraVerticalAngle += deltaY * cameraSensitivity;
-		cameraHorizontalAngle += deltaX * cameraSensitivity;
-		
-		cameraDirection.x = (float)(Math.cos(cameraVerticalAngle) * Math.sin(cameraHorizontalAngle));
-		cameraDirection.y = (float)(Math.sin(cameraVerticalAngle));
-		cameraDirection.z = (float)(Math.cos(cameraVerticalAngle) * Math.cos(cameraHorizontalAngle));
-		
-		cameraRight.x = (float)(Math.sin(cameraHorizontalAngle - 3.14f/2.0f));
-		cameraRight.y = (float)(Math.sin(cameraVerticalAngle));
-		cameraRight.z = (float)(Math.cos(cameraVerticalAngle - 3.14f/2.0f));
-		
-		
-		/*
-		 * Update matrices here?
-		 */
-	}
-	
-	
-	public static void main(String [] args){
-		/*
-		 * 1. Bind a few models
-		 * 2. renderScene
-		 */
-		Renderer test = new Renderer(600, 600); //full screen
-		DebugWindow.show();
-		try{
-			test.bindNewModel(ModelFactory.loadModel(new File("res/obj/cow.obj")));	
-		}
-		catch(IOException e){
-			e.printStackTrace();
-		}
-		
-		
-		Mouse.setGrabbed(true); //hides the cursor
-		boolean loop = true;
-		
-		while(!Display.isCloseRequested() && loop){
-			
-			//POLL FOR INPUT
-			if (Mouse.isInsideWindow()) {
-				int x = Mouse.getX();
-				int y = Mouse.getY();
-				
-				test.rotateCamera(300 - x, 300 - y);
-				
-				Mouse.setCursorPosition(300, 300); //Middle of the screen
-			}
-
-			if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
-				System.out.println("SPACE KEY IS DOWN");
-			}
-
-			while (Keyboard.next()) {
-				if (Keyboard.getEventKeyState()) {
-					if (Keyboard.getEventKey() == Keyboard.KEY_A) {
-						System.out.println("A Key Pressed");
-					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_S) {
-						System.out.println("S Key Pressed");
-					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_D) {
-						System.out.println("D Key Pressed");
-					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE){
-						loop = false; //exit (TODO: make this cleaner/use break?)
-						Mouse.setGrabbed(false);
-						DebugWindow.destroy();
-					}
-				} 
-			}
-			//END POLL FOR INPUT
-			
-			test.renderScene();
-			//System.out.println("RENDER");
-		}
-	}
-
-
-
+	}	
 }

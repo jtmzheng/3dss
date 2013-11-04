@@ -4,6 +4,9 @@
 *.ear
 *.class
 
+# Logs
+logs/**
+
 # eclipse specific git ignore
 *.pydevproject
 .project
@@ -16,7 +19,6 @@ tmp/**/*
 *.swp
 *~.nib
 local.properties
-.classpath
 .settings/
 .loadpath
 
@@ -33,7 +35,6 @@ local.properties
 
 # eclipse specific git ignore
 *.pydevproject
-.project
 .metadata
 bin/**
 tmp/**

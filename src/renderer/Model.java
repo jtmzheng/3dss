@@ -2,6 +2,7 @@ package renderer;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,75 +15,55 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
+import util.Logger;
 
-/*
+
+/**
  * Model class is an abstraction used by Renderer. This will use interleaving for vertex properties.
  * @author Max
  * @author Adi
  */
 public class Model {
 	
-	private int vboiID; //vertex indices VBO (GL_ELEMENT_ARRAY_BUFFER)
-	private int vaoID; //vertex array object 
+	// VBO (GL_ELEMENT_ARRAY_BUFFER).
+	private int vboiID;
+	
+	// Vertex Array Object.
+	private int vaoID;
+	
 	private int indicesCount = 0;
+	
+	// The model matrix assosciated with this model.
 	private Matrix4f modelMatrix = null;
 	
-//	private VertexData[] vertices = null;
-//	private ByteBuffer verticesByteBuffer = null;
+	private Model () {} 
 	
-	/*
-	 * Generate a model from an array of vertex data
-	 * Still not sure how glDrawElements is supposed to work...
+	/**
+	 * Creates a model with a list of faces.
+	 * @param f The list of faces.
 	 */
-	public Model(VertexData[] vd, byte [] idx){
-		/*
-		 * TO DO: Take in vertices and process them
-		 * @return vboiID and vaoID
-		 */
-		
-//		vertices = vd;
-//		
-//		// Put each 'Vertex' in one FloatBuffer
-//		verticesByteBuffer = BufferUtils.createByteBuffer(vertices.length
-//				* VertexData.stride);
-//		FloatBuffer verticesFloatBuffer = verticesByteBuffer.asFloatBuffer();
-//		for (int i = 0; i < vertices.length; i++) {
-//			// Add position, color and texture floats to the buffer
-//			verticesFloatBuffer.put(vertices[i].getElements());
-//		}
-//		verticesFloatBuffer.flip();
-		
-	}
-	
-	
 	public Model(List<Face> f){	
-		/*
-		 * Set up shit here
-		 */
 		// Put each 'Vertex' in one FloatBuffer
-		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(f.size() * 3 *  VertexData.stride);            
+		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(f.size() * 3 * VertexData.stride);
 		FloatBuffer verticesFloatBuffer = verticesByteBuffer.asFloatBuffer();
-		HashMap<VertexData, Byte> vboIndexMap = new HashMap<>();
-		List<Byte> vboIndex = new ArrayList<>();
+		HashMap<VertexData, Integer> vboIndexMap = new HashMap<VertexData, Integer>();
+		List<Integer> vboIndex = new ArrayList<Integer>();
 		VertexData tempVertexData;
 		
-		byte index = 0;
-		int count = 0;
-		int common = 0;
-		int newC = 0;
+		int index = 0;
 		
-		for(Face face: f){
-			//Add first vertex of the face
+		// For each face in the list, process the data and add to
+		// the byte buffer.
+		for(Face face: f){			
+			//Add first vertex of the face			
 			tempVertexData = face.faceData.get(0);
 			if(!vboIndexMap.containsKey(tempVertexData)){
 				vboIndexMap.put(tempVertexData, index);
 				verticesFloatBuffer.put(tempVertexData.getElements());
 				vboIndex.add(index++);
-				newC++;
 			}
 			else{
 				vboIndex.add(vboIndexMap.get(tempVertexData));
-				common++;
 			}
 			
 			//Add second vertex of the face
@@ -91,11 +72,9 @@ public class Model {
 				vboIndexMap.put(tempVertexData, index);
 				verticesFloatBuffer.put(tempVertexData.getElements());
 				vboIndex.add(index++);
-				newC++;
 			}
 			else{
 				vboIndex.add(vboIndexMap.get(tempVertexData));
-				common++;
 			}
 
 			//Add third vertex of the face
@@ -104,27 +83,26 @@ public class Model {
 				vboIndexMap.put(tempVertexData, index);
 				verticesFloatBuffer.put(tempVertexData.getElements());
 				vboIndex.add(index++);
-				newC++;
 			}
 			else{
 				vboIndex.add(vboIndexMap.get(tempVertexData));
-				common++;
 			}
-			
+					
 		}
+				
+		//Create VBO Index buffer
 		verticesFloatBuffer.flip();
-		byte [] indices = new byte[vboIndex.size()];
+		int [] indices = new int[vboIndex.size()];
 		indicesCount = vboIndex.size();
 		
 		for(int i = 0; i < vboIndex.size(); i++){
-			indices[i] = vboIndex.get(vboIndex.size() - 1 - i); //must be flipped
+			indices[i] = vboIndex.get(i); 
 		}
 		
-		ByteBuffer indicesBuffer = BufferUtils.createByteBuffer(vboIndex.size());
-		indicesBuffer.put(indices);
+		IntBuffer indicesBuffer = BufferUtils.createIntBuffer( vboIndex.size() );
+		indicesBuffer.put( indices );
 		indicesBuffer.flip();
 		 
-		
 		// Create a new Vertex Array Object in memory and select it (bind)
 		vaoID = GL30.glGenVertexArrays();
 		GL30.glBindVertexArray(vaoID);
@@ -147,74 +125,100 @@ public class Model {
 				false, VertexData.stride, VertexData.textureByteOffset);
 		
 		// Put the normal coordinates in attribute list 3
-		GL20.glVertexAttribPointer(3, VertexData.textureElementCount, GL11.GL_FLOAT,
+		GL20.glVertexAttribPointer(3, VertexData.normalElementCount, GL11.GL_FLOAT,
 				false, VertexData.stride, VertexData.normalByteOffset);
 		
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-		
-		// Deselect (bind to 0) the VAO
-		GL30.glBindVertexArray(0);
-		
+				
 		// Create a new VBO for the indices and select it (bind) - INDICES
 		vboiID = GL15.glGenBuffers();
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiID);
 		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-		System.out.println("COMMON: " + common);
-		System.out.println("NEWC: " + newC);
 		
 		//Initialize model matrix
 		modelMatrix = new Matrix4f(); //Initialized to the identity in the constructor
+		
+		// Deselect (bind to 0) the VAO
+		GL30.glBindVertexArray(0);
 				
 	}
 	
+	/**
+	 * Get the index VBO.
+	 * @return the VBO ID
+	 */
 	public int getIndexVBO(){
 		return vboiID;
 	}
 	
+	/**
+	 * Get the vertex array object ID.
+	 * @return the VAO ID
+	 */
 	public int getVAO(){
 		return vaoID;
 	}
 	
+	/**
+	 * Gets the number of indices.
+	 * @return the number of indices
+	 */
 	public int getIndicesCount(){
 		return indicesCount;
 	}
 	
-	/*
-	 * Translate the model
+	/**
+	 * Translate the model by a given vector.
+	 * @param s The translation vector.
 	 */
 	public void translate(Vector3f s){
 		Matrix4f.translate(s, modelMatrix, modelMatrix);
 	}
 	
-	/*
-	 * Rotate axis
+	/**
+	 * Rotate Y axis.
+	 * @param angle The angle to rotate by.
 	 */
 	public void rotateY(float angle){
 		Matrix4f.rotate(angle, new Vector3f(0f, 1f, 0f), modelMatrix, modelMatrix);
 	}
 	
+	/**
+	 * Rotate X axis.
+	 * @param angle The angle to rotate by.
+	 */	
 	public void rotateX(float angle){
 		Matrix4f.rotate(angle, new Vector3f(1f, 0f, 0f), modelMatrix, modelMatrix);
 	}
 	
+	/**
+	 * Rotate Z axis.
+	 * @param angle The angle to rotate by.
+	 */
 	public void rotateZ(float angle){
 		Matrix4f.rotate(angle, new Vector3f(0f, 0f, 1f), modelMatrix, modelMatrix);
 	}
 	
-	/*
-	 * Scale the model
+	/**
+	 * Scale the model by a given vector.
+	 * @param scale The scale vector to scale by.
 	 */
 	public void scale(Vector3f scale){
 		Matrix4f.scale(scale, modelMatrix, modelMatrix);
 	}
 	
+	/**
+	 * Scale the model by a scalar.
+	 * @param scale The scalar to scale by.
+	 */
 	public void scale(float scale){
 		Matrix4f.scale(new Vector3f(scale, scale, scale), modelMatrix, modelMatrix);
 	}
 	
-	/*
-	 * Get the model matrix
+	/**
+	 * Get the model matrix associated with this model.
+	 * @return the model matrix
 	 */
 	public Matrix4f getModelMatrix(){
 		return modelMatrix;
