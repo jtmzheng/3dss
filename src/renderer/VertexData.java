@@ -5,12 +5,10 @@ import java.util.Arrays;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
-
 /*
  * VertexData is a structure for encapsulating vertex data for VBOs
  * @author Mathias Verboven
  */
-
 public class VertexData {
 	// Vertex data
 	private float[] xyzw = new float[] {0f, 0f, 0f, 1f};
@@ -177,6 +175,5 @@ public class VertexData {
 		code += Arrays.hashCode(st);
 		code += Arrays.hashCode(rgba);
 		return code;
-	}
-	
+	}	
 }

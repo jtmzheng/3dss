@@ -9,7 +9,6 @@ import java.util.List;
  * @author Adi
  */
 public class Face {
-
 	public List<VertexData> faceData;
 	
 	/*

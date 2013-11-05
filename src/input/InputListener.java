@@ -9,7 +9,6 @@ package input;
  *
  */
 public interface InputListener {
-	
 	/**
 	 * Listens to mouse click events.
 	 * @param evt

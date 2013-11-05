@@ -9,7 +9,6 @@ import org.lwjgl.input.Mouse;
  * @author Adi
  */
 public class MouseInput implements Input{
-
 	/**
 	 * Publicly exposed numbers to assign numbers to buttons.
 	 */

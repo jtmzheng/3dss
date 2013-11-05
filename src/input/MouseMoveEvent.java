@@ -6,7 +6,6 @@ package input;
  * @author Adi
  */
 public class MouseMoveEvent extends InputEvent {
-	
 	private int x, y, dx, dy;
 	
 	/**

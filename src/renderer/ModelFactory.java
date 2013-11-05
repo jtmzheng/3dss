@@ -19,8 +19,9 @@ import util.Parser;
  * @author Max
  * @author Adi
  */
-
 public class ModelFactory {
+
+	private ModelFactory() {}
 	
 	/**
 	 * Loads a 3D model.
@@ -29,9 +30,7 @@ public class ModelFactory {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	private ModelFactory() {}	
-	
-	public static Model loadModel(File file) throws FileNotFoundException, IOException{
+	public static Model loadModel(File file) throws FileNotFoundException, IOException {
 		List<Face> faces;
 
 		Parser parseFile = new Parser();
@@ -42,6 +41,5 @@ public class ModelFactory {
 		Model m = new Model(faces);
 		return m;
 	}
-	
 }
 
