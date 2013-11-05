@@ -6,6 +6,7 @@
 
 # Logs
 logs/**
+*.log
 
 # eclipse specific git ignore
 *.pydevproject
@@ -52,3 +53,6 @@ local.properties
 
 # Locally stored "Eclipse launch configurations"
 *.launch
+
+# classpath
+.classpath

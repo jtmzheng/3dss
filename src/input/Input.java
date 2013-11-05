@@ -7,6 +7,7 @@ package input;
  * @author Adi
  */
 public interface Input {
+	
 	/**
 	 * Any initialization code required for this device.
 	 */
