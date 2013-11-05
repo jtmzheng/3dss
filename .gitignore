@@ -6,6 +6,7 @@
 
 # Logs
 logs/**
+*.log
 
 # eclipse specific git ignore
 *.pydevproject
