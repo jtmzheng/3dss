@@ -1,8 +1,7 @@
 package renderer;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import org.lwjgl.util.vector.Vector3f;
 
 /**
  * Represents a face in a model.
@@ -13,7 +12,10 @@ public class Face {
 
 	public List<VertexData> faceData;
 	
-	public Face() {}
+	/*
+	 * Private default constructor to prevent use
+	 */
+	private Face() {}
 	
 	/**
 	 * Constructs a face given vertex data.
@@ -24,11 +26,38 @@ public class Face {
 	}
 	
 	/**
+	 * Constructs a triangular face from given VertexData
+	 * @param a VertexData of first vertex
+	 * @param b VertexData of second vertex
+	 * @param c VertexData of third vertex
+	 */
+	public Face(VertexData a, VertexData b, VertexData c) {
+		faceData = new ArrayList<VertexData>();
+		faceData.add(a);
+		faceData.add(b);
+		faceData.add(c);
+	}
+	
+	/**
 	 * Adds a vertex to this face.
 	 * @param vertex The VertexData describing the vertex to add.
 	 */
 	public void add (VertexData vertex) {
 		faceData.add(vertex);
+	}
+	
+	/**
+	 * Get a vertex from the face
+	 * @param index The index of the vertex to get
+	 * @return the VertexData 
+	 */
+	
+	public VertexData getVertex(int index){
+		if( index > faceData.size() ){
+			return null; //TODO: Add exception handling
+		}
+		
+		return faceData.get(index);
 	}
     
     /**

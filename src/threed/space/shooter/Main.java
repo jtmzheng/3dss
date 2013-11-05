@@ -73,7 +73,7 @@ public class Main {
 		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
 		gameRenderer = new Renderer(600, 600, gameCam);
 		try{
-			gameRenderer.bindNewModel(ModelFactory.loadModel(new File("res/obj/bunny.obj")));	
+			gameRenderer.bindNewModel(ModelFactory.loadModel(new File("res/obj/ATAT.obj")));	
 		}
 		catch(IOException e){
 			e.printStackTrace();

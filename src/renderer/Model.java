@@ -42,9 +42,13 @@ public class Model {
 	 * Creates a model with a list of faces.
 	 * @param f The list of faces.
 	 */
-	public Model(List<Face> f){	
+	public Model(List<Face> f){
+		
+		//Remove any quads / polygons 
+		Model.getTriangulatedFaces(f);
+		
 		// Put each 'Vertex' in one FloatBuffer
-		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(f.size() *  4 * VertexData.stride);
+		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(f.size() *  3 * VertexData.stride); //TODO : Allocating proper amount
 		FloatBuffer verticesFloatBuffer = verticesByteBuffer.asFloatBuffer();
 		HashMap<VertexData, Integer> vboIndexMap = new HashMap<VertexData, Integer>();
 		List<Integer> vboIndex = new ArrayList<Integer>();
@@ -224,5 +228,32 @@ public class Model {
 		return modelMatrix;
 	}
 	
+	/**
+	 * Remove the non-triangle faces from the model
+	 * @param List to remove non-triangles from
+	 */
+	
+	private static void getTriangulatedFaces ( List<Face> faces ){
+		List<Face> removeFaces = new ArrayList<Face>();
+		List<Face> addFaces = new ArrayList<Face>();
+		for ( Face face : faces ) {
+			if ( face.faceData.size() == 4 ) {
+				//Triangulate any quads
+				//System.out.println("Quad: " + face.faceData.size()); 
+				removeFaces.add(face);
+				addFaces.add(new Face( face.getVertex(0) , face.getVertex(1) , face.getVertex(2) ));
+				addFaces.add(new Face( face.getVertex(0) , face.getVertex(2) , face.getVertex(3) ));
+			}
+			else if( face.faceData.size() > 4 ){
+				//Ignore any polygons for now
+				//System.out.println("Polygon: " + face.faceData.size()); 
+				removeFaces.add(face);
+			}
+
+		}
+
+		faces.removeAll(removeFaces);
+		faces.addAll(addFaces); 
+	}
 	
 }
