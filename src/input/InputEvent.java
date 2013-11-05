@@ -6,7 +6,6 @@ package input;
  * @author Adi
  */
 public abstract class InputEvent {
-	
 	protected long timeStart;
 	protected boolean valid = true;
 	
@@ -45,5 +44,4 @@ public abstract class InputEvent {
 	public void invalidate() {
 		this.valid = false;
 	}
-	
 }

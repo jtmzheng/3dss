@@ -24,7 +24,6 @@ import util.Logger;
  * @author Adi
  */
 public class Model {
-	
 	// VBO (GL_ELEMENT_ARRAY_BUFFER).
 	private int vboiID;
 	
@@ -141,7 +140,6 @@ public class Model {
 		
 		// Deselect (bind to 0) the VAO
 		GL30.glBindVertexArray(0);
-				
 	}
 	
 	/**
@@ -223,6 +221,4 @@ public class Model {
 	public Matrix4f getModelMatrix(){
 		return modelMatrix;
 	}
-	
-	
 }

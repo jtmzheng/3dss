@@ -120,7 +120,5 @@ public class OBJLoader {
 		//Model m = new Model(vertices, normals, textures, faces);
 		//return m;
 		return null;
-	}
-	
+	}	
 }
-

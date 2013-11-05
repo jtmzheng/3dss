@@ -21,7 +21,6 @@ import renderer.VertexData;
  *
  */
 public class Parser {
-
 	// Parsing token in OBJ/MTL files. 
 	private final static String OBJ_COMMENT = "#";
     private final static String OBJ_VERTEX_TEXTURE = "vt";

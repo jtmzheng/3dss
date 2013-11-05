@@ -2,15 +2,12 @@ package renderer;
 
 import java.util.List;
 
-import org.lwjgl.util.vector.Vector3f;
-
 /**
  * Represents a face in a model.
  * @author Max
  * @author Adi
  */
 public class Face {
-
 	public List<VertexData> faceData;
 	
 	public Face() {}
@@ -30,18 +27,16 @@ public class Face {
 	public void add (VertexData vertex) {
 		faceData.add(vertex);
 	}
-    
-    /**
-     * Returns a String representation of this face.
-     * @return the string representation
-     */
-    public String toString() { 
-        String result = "\nVertices: " + faceData.size() + "\n-----------\n";
-        for(VertexData f : faceData) {
-            result += f.toString() + "\n";
-        }
-        return result;
-    }
-
+	
+	/**
+	 * Returns a String representation of this face.
+	 * @return the string representation
+	 */
+	public String toString() { 
+		String result = "\nVertices: " + faceData.size() + "\n-----------\n";
+		for(VertexData f : faceData) {
+			result += f.toString() + "\n";
+		}
+		return result;	
+	}	
 }
-

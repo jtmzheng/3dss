@@ -21,7 +21,6 @@ public class ShaderController {
 	private int projectionMatrixLocation = 0;
 	private int viewMatrixLocation = 0;
 	private int modelMatrixLocation = 0;
-	
 	private int currentProgram;
 
 	/**
@@ -32,7 +31,6 @@ public class ShaderController {
 		shaderIDToType = new HashMap<Integer, Integer>();
 		currentProgram = 0;
 	}
-
 	
 	/**
 	 * Currently setProgram is written like this so different shaders can be 

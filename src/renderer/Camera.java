@@ -4,12 +4,11 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
 /**
- * Camera class takes care of the view matrix.
+ * This class takes care of the view matrix.
  * @author Max 
  * @author Adi
  */
 public class Camera {
-	
 	// View matrix the camera maintains.
 	protected Matrix4f viewMatrix;
 		

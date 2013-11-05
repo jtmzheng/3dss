@@ -5,7 +5,6 @@ package system;
  * @author Adi
  */
 public class Timer {
-	
 	/**
 	 * Time when this timer was created.
 	 */

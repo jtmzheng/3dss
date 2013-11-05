@@ -6,7 +6,6 @@ package input;
  * @author Adi
  */
 public class KeyEvent extends InputEvent {
-
 	/**
 	 * Keycode representing the key pressed.
 	 */

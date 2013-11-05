@@ -108,7 +108,6 @@ public class Renderer {
 	 * @see Model
 	 */
 	public boolean bindNewModel(Model model){
-
 		models.add(model);
 		return true;
 	}

@@ -23,7 +23,6 @@ import system.Settings;
  * @author Adi
  */
 public class Player implements InputListener {
-	
 	// Default player attributes.
 	private HashMap<String, Float> attributes = new HashMap<String, Float>();
 	
@@ -31,7 +30,6 @@ public class Player implements InputListener {
 	private Camera playerCam;
 	
 	// Movement fields.
-	// TODO: once these are finalized, move to defaultPlayerAttributes.
 	private float speed_x = 0.0f;
 	private float speed_y = 0.0f;
 

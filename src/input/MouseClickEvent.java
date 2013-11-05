@@ -6,7 +6,6 @@ package input;
  * @author Adi
  */
 public class MouseClickEvent extends InputEvent{
-	
 	/**
 	 * Determines which button is clicked.
 	 */

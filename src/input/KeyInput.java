@@ -19,12 +19,12 @@ public class KeyInput implements Input{
 	
 	@Override
 	public void initialize() {
-        try {
-            Keyboard.create();
-            Keyboard.enableRepeatEvents(true);
-        } catch (LWJGLException e) {
-        	e.printStackTrace();
-        }		
+		try {
+		    Keyboard.create();
+		    Keyboard.enableRepeatEvents(true);
+		} catch (LWJGLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

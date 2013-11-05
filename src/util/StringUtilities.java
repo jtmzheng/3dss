@@ -9,7 +9,6 @@ import org.lwjgl.util.vector.Vector3f;
  *
  */
 public class StringUtilities {
-	
 	/**
 	 * Parses a list of two floats.
 	 * @param str
