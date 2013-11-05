@@ -35,6 +35,9 @@ public class Model {
 	// The model matrix assosciated with this model.
 	private Matrix4f modelMatrix = null;
 	
+	// Faces that make up this model.
+	private List<Face> faces = null;
+	
 	private Model () {} 
 	
 	/**
@@ -42,9 +45,10 @@ public class Model {
 	 * @param f The list of faces.
 	 */
 	public Model(List<Face> f){
+		this.faces = f;
 		
-		//Remove any quads / polygons 
-		Model.getTriangulatedFaces(f);
+		// Remove any quads / polygons. 
+		this.triangulate();
 		
 		// Put each 'Vertex' in one FloatBuffer
 		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(f.size() *  3 * VertexData.stride); //TODO : Allocating proper amount
@@ -57,7 +61,7 @@ public class Model {
 		
 		// For each face in the list, process the data and add to
 		// the byte buffer.
-		for(Face face: f){			
+		for(Face face: this.faces){			
 			//Add first vertex of the face			
 			tempVertexData = face.faceData.get(0);
 			if(!vboIndexMap.containsKey(tempVertexData)){
@@ -231,28 +235,22 @@ public class Model {
 	 * @param List to remove non-triangles from
 	 */
 	
-	private static void getTriangulatedFaces ( List<Face> faces ){
+	private void triangulate (){
 		List<Face> removeFaces = new ArrayList<Face>();
 		List<Face> addFaces = new ArrayList<Face>();
-		for ( Face face : faces ) {
-			if ( face.faceData.size() == 4 ) {
-				//Triangulate any quads
-				//System.out.println("Quad: " + face.faceData.size()); 
+		for (Face face : this.faces) {
+			if (face.faceData.size() == 4) {
 				removeFaces.add(face);
 				addFaces.add(new Face( face.getVertex(0) , face.getVertex(1) , face.getVertex(2) ));
 				addFaces.add(new Face( face.getVertex(0) , face.getVertex(2) , face.getVertex(3) ));
 			}
-			else if( face.faceData.size() > 4 ){
-				//Ignore any polygons for now
-				//System.out.println("Polygon: " + face.faceData.size()); 
+			else if(face.faceData.size() > 4){
 				removeFaces.add(face);
 			}
 
 		}
 
-		faces.removeAll(removeFaces);
-		faces.addAll(addFaces); 
-	}
-	
+		this.faces.removeAll(removeFaces);
+		this.faces.addAll(addFaces); 
+	}	
 }
-
