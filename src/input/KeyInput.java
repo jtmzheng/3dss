@@ -14,9 +14,7 @@ public class KeyInput implements Input{
 	 * changes to this device.
 	 */
 	private InputListener listener;
-	
-	public KeyInput () {}
-	
+		
 	@Override
 	public void initialize() {
 		try {

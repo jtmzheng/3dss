@@ -37,9 +37,7 @@ public class Model {
 	
 	// Faces that make up this model.
 	private List<Face> faces = null;
-	
-	private Model () {} 
-	
+		
 	/**
 	 * Creates a model with a list of faces.
 	 * @param f The list of faces.
@@ -234,7 +232,6 @@ public class Model {
 	 * Remove the non-triangle faces from the model
 	 * @param List to remove non-triangles from
 	 */
-	
 	private void triangulate (){
 		List<Face> removeFaces = new ArrayList<Face>();
 		List<Face> addFaces = new ArrayList<Face>();
@@ -244,10 +241,9 @@ public class Model {
 				addFaces.add(new Face( face.getVertex(0) , face.getVertex(1) , face.getVertex(2) ));
 				addFaces.add(new Face( face.getVertex(0) , face.getVertex(2) , face.getVertex(3) ));
 			}
-			else if(face.faceData.size() > 4){
+			else if (face.faceData.size() > 4){
 				removeFaces.add(face);
 			}
-
 		}
 
 		this.faces.removeAll(removeFaces);

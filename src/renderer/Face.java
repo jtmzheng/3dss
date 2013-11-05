@@ -11,11 +11,6 @@ import java.util.List;
 public class Face {
 	public List<VertexData> faceData;
 	
-	/*
-	 * Private default constructor to prevent use
-	 */
-	private Face() {}
-	
 	/**
 	 * Constructs a face given vertex data.
 	 * @param faceData List of vertex data.

@@ -21,9 +21,7 @@ public class MouseInput implements Input{
 	 * changes to this device.
 	 */
 	private InputListener listener;
-	
-	public MouseInput () {}
-	
+		
 	@Override
 	public void initialize() {
 		try {

@@ -20,7 +20,8 @@ import util.Parser;
  * @author Adi
  */
 public class ModelFactory {
-
+	
+	// Private constructor to prevent instantiation.
 	private ModelFactory() {}
 	
 	/**

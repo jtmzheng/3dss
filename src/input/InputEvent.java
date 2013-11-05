@@ -10,7 +10,7 @@ public abstract class InputEvent {
 	protected boolean valid = true;
 	
 	/**
-	 * The time when the event occured.
+	 * The time when the event occurred.
 	 * 
 	 * @return system time when the event happened.
 	 */
