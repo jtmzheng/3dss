@@ -22,6 +22,7 @@ tmp/**/*
 local.properties
 .settings/
 .loadpath
+.DS_Store
 
 # External tool builders
 .externalToolBuilders/
