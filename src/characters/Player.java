@@ -25,10 +25,6 @@ import system.Settings;
  * @author Adi
  */
 public class Player implements InputListener {
-	
-	// Default player attributes.
-	private HashMap<String, Float> attributes = new HashMap<String, Float>();
-	
 	// Camera object that the player uses.
 	private Camera playerCam;
 	
@@ -65,8 +61,6 @@ public class Player implements InputListener {
 	public void setup() {
 		// Subscribe the enemy death listener to the "enemy death" event.
 		Publisher.getInstance().bindSubscriber(new EnemyDeathListener(), "enemy death");
-		
-		this.attributes.putAll(Settings.getDefaultPlayerAttributes());
 	}
 
 	/**
