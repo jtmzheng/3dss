@@ -96,17 +96,6 @@ public class Settings {
 	}
 	
 	/**
-	 * Gets the default player attributes for our game.
-	 * @return the default settings for our player
-	 */
-	public static HashMap<String, Float> getDefaultPlayerAttributes () {
-		HashMap<String, Float> playerAttributes = new HashMap<String, Float>();
-		playerAttributes.put("HP", 100f);
-		playerAttributes.put("SHIELD", 100f);
-		return playerAttributes;
-	}
-	
-	/**
 	 * Gets a string representation of our settings.
 	 * @return the string representation
 	 */

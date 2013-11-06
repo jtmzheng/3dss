@@ -23,10 +23,6 @@ import system.Settings;
  * @author Adi
  */
 public class Player implements InputListener {
-	
-	// Default player attributes.
-	private HashMap<String, Float> attributes = new HashMap<String, Float>();
-	
 	// Camera object that the player uses.
 	private Camera playerCam;
 	
@@ -58,7 +54,6 @@ public class Player implements InputListener {
 	 * Sets up all necessary player attributes.
 	 */
 	public void setup() {
-		this.attributes.putAll(Settings.getDefaultPlayerAttributes());
 	}
 
 	/**
