@@ -10,6 +10,8 @@ import java.util.HashMap;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 
+import event.PubSubListener;
+import event.Publisher;
 import renderer.Camera;
 import system.Settings;
 
@@ -41,6 +43,9 @@ public class Player implements InputListener {
 	private boolean sPress = false;
 	private boolean dPress = false;
 	
+	// Player name.
+	private String name = "Jun Tao";
+	
 	/**
 	 * Constructs a Player with a Camera.
 	 * @param c The Camera object that abstracts out the view matrix logic.
@@ -51,9 +56,11 @@ public class Player implements InputListener {
 	}
 	
 	/**
-	 * Sets up all necessary player attributes.
+	 * Sets up all necessary player attributes and listeners.
 	 */
 	public void setup() {
+		// Subscribe the enemy death listener to the "enemy death" event.
+		Publisher.getInstance().bindSubscriber(new EnemyDeathListener(), "enemy death");
 	}
 
 	/**
@@ -129,5 +136,12 @@ public class Player implements InputListener {
 		if (code == Keyboard.KEY_A) aPress = pressed;
 		if (code == Keyboard.KEY_S) sPress = pressed;
 		if (code == Keyboard.KEY_D) dPress = pressed;
+	}
+	
+	private class EnemyDeathListener implements PubSubListener {
+		@Override
+		public void handleEvent() {
+			System.out.println("Congrats, " + name + ". You killed an enemy!");
+		}
 	}
 }
