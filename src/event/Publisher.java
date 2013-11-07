@@ -1,5 +1,6 @@
 package event;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +36,9 @@ public class Publisher {
 	 */
 	public void bindSubscriber (PubSubListener listener, String eventName) {
 		if (!bindings.containsKey(eventName)) {
-			bindings.put(eventName, Collections.singletonList(listener));
+			List<PubSubListener> listenerList = new ArrayList<PubSubListener>();
+			listenerList.add(listener);
+			bindings.put(eventName, listenerList);
 		} else {
 			bindings.get(eventName).add(listener);
 		}
