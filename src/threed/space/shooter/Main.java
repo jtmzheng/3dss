@@ -15,6 +15,7 @@ import renderer.Camera;
 import renderer.ModelFactory;
 import renderer.Renderer;
 import util.Logger;
+import characters.Character;
 import characters.Player;
 
 /**
@@ -30,9 +31,9 @@ public class Main {
 	static Renderer gameRenderer;
 	
 	/**
-	 * The player object.
+	 * The characters in the game.
 	 */
-	static Player gamePlayer;
+	static ArrayList<Character> gameCharacters = new ArrayList<Character>();
 	
 	/**
 	 * The camera object.
@@ -47,7 +48,6 @@ public class Main {
 	public static void main(String [] args){
 		setupRenderer();
 		setupPlayer();
-		setupInputs();
 		
 		// Game loop.
 		while(!Display.isCloseRequested()){
@@ -56,8 +56,9 @@ public class Main {
 				i.poll();
 			}
 			
-			// Move the player.
-			gamePlayer.move();
+			for (Character c : gameCharacters) {
+				c.move();
+			}
 			
 			// Render a new frame.
 			gameRenderer.renderScene();
@@ -84,13 +85,8 @@ public class Main {
 	 * Sets up the game player.
 	 */
 	public static void setupPlayer() {
-		gamePlayer = new Player(gameCam);
-	}
-	
-	/**
-	 * Sets up the raw inputs and binds them to player.
-	 */
-	public static void setupInputs() {
+		Player gamePlayer = new Player(gameCam);
+		
 		rawInputs.add(new MouseInput());
 		rawInputs.add(new KeyInput());
 		
@@ -98,6 +94,8 @@ public class Main {
 			i.initialize();
 			i.setListener(gamePlayer);
 		}
+		
+		gameCharacters.add(gamePlayer);
 	}
 	
 	/**

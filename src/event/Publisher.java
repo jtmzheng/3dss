@@ -16,8 +16,8 @@ import java.util.Map;
 public class Publisher {
 	private static Publisher instance = null;
 	
-	// One-to-many mapping of event names to listeners.
-	private Map<String, List<PubSubListener>> bindings = new HashMap<String, List<PubSubListener>>();
+	// One-to-many mapping of event type to listeners.
+	private Map<PublishEventType, List<PubSubListener>> bindings = new HashMap<PublishEventType, List<PubSubListener>>();
 	
 	private Publisher () {}
 	
@@ -32,39 +32,39 @@ public class Publisher {
 	 * Binds a listener to an event.
 	 * 
 	 * @param listener Event listener which listens to "eventName" type events.
-	 * @param eventName The name of the event.
+	 * @param eventType The type of the event.
 	 */
-	public void bindSubscriber (PubSubListener listener, String eventName) {
-		if (!bindings.containsKey(eventName)) {
+	public void bindSubscriber (PubSubListener listener, PublishEventType eventType) {
+		if (!bindings.containsKey(eventType)) {
 			List<PubSubListener> listenerList = new ArrayList<PubSubListener>();
 			listenerList.add(listener);
-			bindings.put(eventName, listenerList);
+			bindings.put(eventType, listenerList);
 		} else {
-			bindings.get(eventName).add(listener);
+			bindings.get(eventType).add(listener);
 		}
 	}
 	
 	/**
 	 * Triggers an event and notifies all listeners.
 	 * 
-	 * @param eventName The name of the event.
+	 * @param eventType The type of the event.
 	 */
-	public void trigger (String eventName) {
-		if (bindings.containsKey(eventName)) {
-			for (PubSubListener listener : bindings.get(eventName)) {
+	public void trigger (PublishEventType eventType) {
+		if (bindings.containsKey(eventType)) {
+			for (PubSubListener listener : bindings.get(eventType)) {
 				listener.handleEvent();
 			}
 		} else {
-			System.out.println("No subscribers are listening to event " + eventName);
+			System.out.println("No subscribers are listening to event " + eventType.toString());
 		}
 	}
 	
 	/**
 	 * De-subscribes all listeners to a given event.
 	 * 
-	 * @param eventName The name of the event.
+	 * @param PublishEventType The type of the event.
 	 */
-	public void unbindAllSubscribers (String eventName) {
+	public void unbindAllSubscribers (PublishEventType eventName) {
 		if (bindings.containsKey(eventName)) {
 			bindings.get(eventName).clear();
 		}
