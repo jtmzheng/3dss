@@ -120,19 +120,20 @@ public class Renderer {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		
 		// Select our shader program.
-		GL20.glUseProgram(shader.getCurrentProgram());
+		GL20.glUseProgram(ShaderController.getCurrentProgram());
 		
 		// Get the view matrix from the camera.
 		viewMatrix = camera.getViewMatrix();
 		
 		viewMatrix.store(matrix44Buffer); matrix44Buffer.flip();
-		GL20.glUniformMatrix4(shader.getViewMatrixLocation(), false, matrix44Buffer);
+		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
+		GL20.glUniformMatrix4(ShaderController.getViewMatrixFragLocation(), false, matrix44Buffer);
 		projectionMatrix.store(matrix44Buffer); matrix44Buffer.flip();
-		GL20.glUniformMatrix4(shader.getProjectionMatrixLocation(), false, matrix44Buffer);
+		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
 		
 		for(Model m: models){
 			m.getModelMatrix().store(matrix44Buffer); matrix44Buffer.flip();
-			GL20.glUniformMatrix4(shader.getModelMatrixLocation(), false, matrix44Buffer);
+			GL20.glUniformMatrix4(ShaderController.getModelMatrixLocation(), false, matrix44Buffer);
 			
 			// Bind to the VAO that has all the information about the vertices
 			GL30.glBindVertexArray(m.getVAO());
@@ -140,6 +141,9 @@ public class Renderer {
 			GL20.glEnableVertexAttribArray(1); //color
 			GL20.glEnableVertexAttribArray(2); //texture
 			GL20.glEnableVertexAttribArray(3); //normal
+			GL20.glEnableVertexAttribArray(4);
+			GL20.glEnableVertexAttribArray(5);
+			GL20.glEnableVertexAttribArray(6);
 
 			// Bind to the index VBO that has all the information about the order of the vertices
 			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, m.getIndexVBO());
@@ -154,6 +158,9 @@ public class Renderer {
 		GL20.glDisableVertexAttribArray(1);
 		GL20.glDisableVertexAttribArray(2);
 		GL20.glDisableVertexAttribArray(3);
+		GL20.glDisableVertexAttribArray(4);
+		GL20.glDisableVertexAttribArray(5);
+		GL20.glDisableVertexAttribArray(6);
 		GL30.glBindVertexArray(0);
 		GL20.glUseProgram(0);
 
@@ -205,7 +212,7 @@ public class Renderer {
 		
 		//XNA like background color
 		GL11.glClearColor(0.4f, 0.6f, 0.9f, 0f);		
-		GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE ); //for debug
+		//GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE ); //for debug
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glCullFace(GL11.GL_BACK);
 	}

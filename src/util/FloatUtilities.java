@@ -10,6 +10,11 @@ import org.lwjgl.util.vector.Vector3f;
 public class FloatUtilities {
 	
 	/**
+	 * Utilities class prevents instantiation
+	 */
+	private FloatUtilities() {}
+	
+	/**
 	 * Converts a 3 float array to a Vector3f object.
 	 * @param f
 	 * @return the converted vector

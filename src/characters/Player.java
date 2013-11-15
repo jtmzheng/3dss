@@ -9,11 +9,13 @@ import java.util.HashMap;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.util.vector.Vector3f;
 
 import event.PubSubListener;
 import event.PublishEventType;
 import event.Publisher;
 import renderer.Camera;
+import renderer.Light;
 import system.Settings;
 
 /**
@@ -28,6 +30,15 @@ import system.Settings;
 public class Player extends Character implements InputListener {
 	// Camera object that the player uses.
 	private Camera playerCam;
+	
+	//Light parameters
+	private Vector3f m_Ld;
+	private Vector3f m_Ls;
+	private Vector3f m_La;
+	
+	// Light associated with the camera
+	private Light cameraLight;
+	
 	
 	// Player attributes
 	private float shields = 100f;
@@ -55,6 +66,10 @@ public class Player extends Character implements InputListener {
 	 */
 	public Player(Camera c) {
 		this.playerCam = c;
+		m_Ls = new Vector3f(1.0f, 1.0f, 1.0f);
+		m_Ld = new Vector3f(0.7f, 0.7f, 0.7f);
+		m_La = new Vector3f(0.2f, 0.2f, 0.2f);
+		cameraLight = new Light(playerCam.getLocation(), m_Ls, m_Ld, m_La);
 		setup();
 	}
 	
@@ -101,6 +116,8 @@ public class Player extends Character implements InputListener {
 		// Move our player.
 		strafe();
 		moveFrontBack();
+		
+		cameraLight.updatePosition();
 	}
 	
 	@Override

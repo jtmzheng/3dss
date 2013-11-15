@@ -20,6 +20,9 @@ public class Settings {
 		settings.put("in_Color", 1);
 		settings.put("in_TextureCoord", 2);
 		settings.put("in_Normal", 3);
+		settings.put("Ks", 4);
+		settings.put("Ka", 5);
+		settings.put("specExp", 6);
 		settings.put("vertex_path", "src/shaders/vertex.vert");
 		settings.put("fragment_path",  "src/shaders/fragment.frag");
 		settings.put("log_folder", "logs/");

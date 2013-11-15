@@ -26,37 +26,37 @@ import util.Logger;
 public class Model {
 	// VBO (GL_ELEMENT_ARRAY_BUFFER).
 	private int vboiID;
-	
+
 	// Vertex Array Object.
 	private int vaoID;
-	
+
 	private int indicesCount = 0;
-	
+
 	// The model matrix assosciated with this model.
 	private Matrix4f modelMatrix = null;
-	
+
 	// Faces that make up this model.
 	private List<Face> faces = null;
-		
+
 	/**
 	 * Creates a model with a list of faces.
 	 * @param f The list of faces.
 	 */
 	public Model(List<Face> f){
 		this.faces = f;
-		
+
 		// Remove any quads / polygons. 
 		this.triangulate();
-		
+
 		// Put each 'Vertex' in one FloatBuffer
 		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(f.size() *  3 * VertexData.stride); //TODO : Allocating proper amount
 		FloatBuffer verticesFloatBuffer = verticesByteBuffer.asFloatBuffer();
 		HashMap<VertexData, Integer> vboIndexMap = new HashMap<VertexData, Integer>();
 		List<Integer> vboIndex = new ArrayList<Integer>();
 		VertexData tempVertexData;
-		
+
 		int index = 0;
-		
+
 		// For each face in the list, process the data and add to
 		// the byte buffer.
 		for(Face face: this.faces){			
@@ -71,6 +71,8 @@ public class Model {
 				vboIndex.add(vboIndexMap.get(tempVertexData));
 			}
 			
+			System.out.println(tempVertexData);
+
 			//Add second vertex of the face
 			tempVertexData = face.faceData.get(1);
 			if(!vboIndexMap.containsKey(tempVertexData)){
@@ -92,62 +94,74 @@ public class Model {
 			else{
 				vboIndex.add(vboIndexMap.get(tempVertexData));
 			}
-					
+
 		}
-				
+
 		//Create VBO Index buffer
 		verticesFloatBuffer.flip();
 		int [] indices = new int[vboIndex.size()];
 		indicesCount = vboIndex.size();
-		
+
 		for(int i = 0; i < vboIndex.size(); i++){
 			indices[i] = vboIndex.get(i); 
 		}
-		
-		IntBuffer indicesBuffer = BufferUtils.createIntBuffer( vboIndex.size() );
+
+		IntBuffer indicesBuffer = BufferUtils.createIntBuffer(vboIndex.size());
 		indicesBuffer.put( indices );
 		indicesBuffer.flip();
-		 
+
 		// Create a new Vertex Array Object in memory and select it (bind)
 		vaoID = GL30.glGenVertexArrays();
 		GL30.glBindVertexArray(vaoID);
-		
+
 		// Create a new Vertex Buffer Object in memory and select it (bind)
 		int vboId = GL15.glGenBuffers();
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId);
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, verticesFloatBuffer, GL15.GL_STATIC_DRAW);
-		
+
 		// Put the position coordinates in attribute list 0
 		GL20.glVertexAttribPointer(0, VertexData.positionElementCount, GL11.GL_FLOAT,
 				false, VertexData.stride, VertexData.positionByteOffset);
-		
+
 		// Put the color components in attribute list 1
 		GL20.glVertexAttribPointer(1, VertexData.colorElementCount, GL11.GL_FLOAT,
 				false, VertexData.stride, VertexData.colorByteOffset);
-		
+
 		// Put the texture coordinates in attribute list 2
 		GL20.glVertexAttribPointer(2, VertexData.textureElementCount, GL11.GL_FLOAT,
 				false, VertexData.stride, VertexData.textureByteOffset);
-		
+
 		// Put the normal coordinates in attribute list 3
 		GL20.glVertexAttribPointer(3, VertexData.normalElementCount, GL11.GL_FLOAT,
 				false, VertexData.stride, VertexData.normalByteOffset);
+
+		// Put the normal coordinates in attribute list 3
+		GL20.glVertexAttribPointer(4, VertexData.specularElementCount, GL11.GL_FLOAT,
+				false, VertexData.stride, VertexData.specularElementByteOffset);
 		
+		// Put the normal coordinates in attribute list 3
+		GL20.glVertexAttribPointer(5, VertexData.ambientElementCount, GL11.GL_FLOAT,
+				false, VertexData.stride, VertexData.ambientElementByteOffset);
+		
+		// Put the normal coordinates in attribute list 3
+		GL20.glVertexAttribPointer(6, VertexData.specularPowerElementCount, GL11.GL_FLOAT,
+				false, VertexData.stride, VertexData.specularPowerElementByteOffset);
+
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-				
+
 		// Create a new VBO for the indices and select it (bind) - INDICES
 		vboiID = GL15.glGenBuffers();
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiID);
 		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-		
+
 		//Initialize model matrix
 		modelMatrix = new Matrix4f(); //Initialized to the identity in the constructor
-		
+
 		// Deselect (bind to 0) the VAO
 		GL30.glBindVertexArray(0);
 	}
-	
+
 	/**
 	 * Get the index VBO.
 	 * @return the VBO ID
@@ -155,7 +169,7 @@ public class Model {
 	public int getIndexVBO(){
 		return vboiID;
 	}
-	
+
 	/**
 	 * Get the vertex array object ID.
 	 * @return the VAO ID
@@ -163,7 +177,7 @@ public class Model {
 	public int getVAO(){
 		return vaoID;
 	}
-	
+
 	/**
 	 * Gets the number of indices.
 	 * @return the number of indices
@@ -171,7 +185,7 @@ public class Model {
 	public int getIndicesCount(){
 		return indicesCount;
 	}
-	
+
 	/**
 	 * Translate the model by a given vector.
 	 * @param s The translation vector.
@@ -179,7 +193,7 @@ public class Model {
 	public void translate(Vector3f s){
 		Matrix4f.translate(s, modelMatrix, modelMatrix);
 	}
-	
+
 	/**
 	 * Rotate Y axis.
 	 * @param angle The angle to rotate by.
@@ -187,7 +201,7 @@ public class Model {
 	public void rotateY(float angle){
 		Matrix4f.rotate(angle, new Vector3f(0f, 1f, 0f), modelMatrix, modelMatrix);
 	}
-	
+
 	/**
 	 * Rotate X axis.
 	 * @param angle The angle to rotate by.
@@ -195,7 +209,7 @@ public class Model {
 	public void rotateX(float angle){
 		Matrix4f.rotate(angle, new Vector3f(1f, 0f, 0f), modelMatrix, modelMatrix);
 	}
-	
+
 	/**
 	 * Rotate Z axis.
 	 * @param angle The angle to rotate by.
@@ -203,7 +217,7 @@ public class Model {
 	public void rotateZ(float angle){
 		Matrix4f.rotate(angle, new Vector3f(0f, 0f, 1f), modelMatrix, modelMatrix);
 	}
-	
+
 	/**
 	 * Scale the model by a given vector.
 	 * @param scale The scale vector to scale by.
@@ -211,7 +225,7 @@ public class Model {
 	public void scale(Vector3f scale){
 		Matrix4f.scale(scale, modelMatrix, modelMatrix);
 	}
-	
+
 	/**
 	 * Scale the model by a scalar.
 	 * @param scale The scalar to scale by.
@@ -219,7 +233,7 @@ public class Model {
 	public void scale(float scale){
 		Matrix4f.scale(new Vector3f(scale, scale, scale), modelMatrix, modelMatrix);
 	}
-	
+
 	/**
 	 * Get the model matrix associated with this model.
 	 * @return the model matrix
@@ -227,7 +241,7 @@ public class Model {
 	public Matrix4f getModelMatrix(){
 		return modelMatrix;
 	}
-	
+
 	/**
 	 * Remove the non-triangle faces from the model
 	 * @param List to remove non-triangles from

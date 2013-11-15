@@ -10,6 +10,11 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class StringUtilities {
 	/**
+	 * Utility class prevents instantiation
+	 */
+	private StringUtilities() {}
+	
+	/**
 	 * Parses a list of two floats.
 	 * @param str
 	 * @return a Vector2f with our results

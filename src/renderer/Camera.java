@@ -13,8 +13,8 @@ public class Camera {
 	protected Matrix4f viewMatrix;
 		
 	// Location of our camera.
-	private Vector3f cameraPosition = null;
-	
+	private Vector3f cameraPosition;
+
 	// Euler angles to keep track of our orientation.
 	private float yaw = 3.14f;
 	private float pitch = 0.0f; 
@@ -40,7 +40,7 @@ public class Camera {
 	 *  @param pos The initial position of the camera.
 	 */
 	public Camera (Vector3f pos) {
-		cameraPosition = pos;
+		cameraPosition = pos;	
 		viewMatrix = new Matrix4f();
 		applyTransformations();
 	}

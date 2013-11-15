@@ -12,10 +12,15 @@ import org.lwjgl.util.vector.Vector3f;
 public class VertexData {
 	// Vertex data
 	private float[] xyzw = new float[] {0f, 0f, 0f, 1f};
-	private float[] rgba = new float[] {1f, 1f, 1f, 1f};
+	private float[] rgba = new float[] {1.0f, 0.5f, 0f, 1.0f}; //diffuse
+	private float[] specRefl = new float[] {1f, 1f, 1f}; //specular
+	private float[] ambRefl = new float[] {1f, 1f, 1f}; //ambient
 	private float[] st = new float[] {0f, 0f};
 	private float[] norm = new float[]{0f, 0f, 0f, 1f};
 	
+	//Specular power 
+	private float specPower = 100.0f;
+
 	// The amount of bytes an element has
 	public static final int elementBytes = 4;
 	
@@ -24,25 +29,36 @@ public class VertexData {
 	public static final int colorElementCount = 4;
 	public static final int textureElementCount = 2;
 	public static final int normalElementCount = 4;
+	public static final int specularElementCount = 3;
+	public static final int ambientElementCount = 3;
+	public static final int specularPowerElementCount = 1;
 	
 	// Bytes per parameter
 	public static final int positionBytesCount = positionElementCount * elementBytes;
 	public static final int colorByteCount = colorElementCount * elementBytes;
 	public static final int textureByteCount = textureElementCount * elementBytes;
 	public static final int normalByteCount = normalElementCount *elementBytes;
+	public static final int specularElementByteCount = specularElementCount * elementBytes;
+	public static final int ambientElementByteCount = ambientElementCount * elementBytes;
+	public static final int specularPowerElementByteCount = specularPowerElementCount * elementBytes;
 	
 	// Byte offsets per parameter
 	public static final int positionByteOffset = 0;
 	public static final int colorByteOffset = positionByteOffset + positionBytesCount;
 	public static final int textureByteOffset = colorByteOffset + colorByteCount;
 	public static final int normalByteOffset = textureByteOffset + textureByteCount;
+	public static final int specularElementByteOffset = normalByteOffset + normalByteCount;
+	public static final int ambientElementByteOffset = specularElementByteOffset + specularElementByteCount;
+	public static final int specularPowerElementByteOffset = ambientElementByteOffset + ambientElementByteCount;
 	
 	// The amount of elements that a vertex has
 	public static final int elementCount = positionElementCount + 
-			colorElementCount + textureElementCount + normalElementCount;	
+			colorElementCount + textureElementCount + normalElementCount + 
+			specularElementCount + ambientElementCount + specularPowerElementCount;	
 	// The size of a vertex in bytes, like in C/C++: sizeof(Vertex)
 	public static final int stride = positionBytesCount + colorByteCount + 
-			textureByteCount + normalByteCount;
+			textureByteCount + normalByteCount + specularElementByteCount + 
+			ambientElementByteCount + specularPowerElementByteCount;
 	
 	public VertexData(Vector3f v, Vector3f c, Vector2f vt, Vector3f vn){
 		this.xyzw = new float[]{v.x, v.y, v.z, 1f};
@@ -114,6 +130,16 @@ public class VertexData {
 		out[i++] = this.norm[1];
 		out[i++] = this.norm[2];
 		out[i++] = this.norm[3];
+		//Insert lighting surface data
+		out[i++] = this.specRefl[0];
+		out[i++] = this.specRefl[1];
+		out[i++] = this.specRefl[2];
+		out[i++] = this.ambRefl[0];
+		out[i++] = this.ambRefl[1];
+		out[i++] = this.ambRefl[2];
+		out[i++] = this.specPower;
+		
+		
 		
 		return out;
 	}

@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import system.Settings;
@@ -18,10 +19,16 @@ public class ShaderController {
 	private HashMap<String, Integer> shaderNameToID = null;
 	private HashMap<Integer, Integer> shaderIDToType = null;
 	
-	private int projectionMatrixLocation = 0;
-	private int viewMatrixLocation = 0;
-	private int modelMatrixLocation = 0;
-	private int currentProgram;
+	private static int projectionMatrixLocation = 0;
+	private static int viewMatrixLocation = 0;
+	private static int modelMatrixLocation = 0;
+	private static int lightPositionLocation = 0;
+	private static int specularLocation = 0;
+	private static int diffuseLocation = 0;
+	private static int ambientLocation = 0;
+	private static int viewMatrixFragLocation = 0;
+	
+	private static int currentProgram = 0;
 
 	/**
 	 * Creates our ShaderController.
@@ -29,7 +36,6 @@ public class ShaderController {
 	public ShaderController() {
 		shaderNameToID = new HashMap<String, Integer>();
 		shaderIDToType = new HashMap<Integer, Integer>();
-		currentProgram = 0;
 	}
 	
 	/**
@@ -40,6 +46,7 @@ public class ShaderController {
 	 */
 	public boolean setProgram(HashMap<String, Integer> shaders){
 
+		//Sets the new current program
 		currentProgram = GL20.glCreateProgram();
 		
 		for(String file : shaders.keySet()){
@@ -55,24 +62,33 @@ public class ShaderController {
 		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("in_Color"), "in_Color");
 		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("in_TextureCoord"), "in_TextureCoord");
 		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("in_Normal"), "in_Normal");
-		
+		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("Ks"), "Ks");
+		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("Ka"), "Ka");
+		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("specExp"), "specExp");
+
 		GL20.glLinkProgram(currentProgram);
 		GL20.glValidateProgram(currentProgram);
-		
+
 		// Get matrices uniform locations
 		projectionMatrixLocation = GL20.glGetUniformLocation(currentProgram, "projectionMatrix");
 		viewMatrixLocation = GL20.glGetUniformLocation(currentProgram,  "viewMatrix");
 		modelMatrixLocation = GL20.glGetUniformLocation(currentProgram,  "modelMatrix");
+		viewMatrixFragLocation = GL20.glGetUniformLocation(currentProgram, "viewMatrixFrag");
+		lightPositionLocation = GL20.glGetUniformLocation(currentProgram,  "light_position");
+		specularLocation = GL20.glGetUniformLocation(currentProgram,  "Ls");
+		diffuseLocation = GL20.glGetUniformLocation(currentProgram,  "Ld");
+		ambientLocation = GL20.glGetUniformLocation(currentProgram,  "La");
+		viewMatrixFragLocation = GL20.glGetUniformLocation(currentProgram, "viewMatrixFragLocation");
 		
 		return true;
 	}
 	
+	
 	/**
-	 * Getter function for the current program.
-	 * 
+	 * Gets the current program
 	 * @return an integer defining the current program
 	 */
-	public int getCurrentProgram(){
+	public static int getCurrentProgram(){
 		return currentProgram;
 	}
 	
@@ -80,7 +96,7 @@ public class ShaderController {
 	 * Gets the model matrix location.
 	 * @return the location of the model matrix
 	 */
-	public int getModelMatrixLocation(){
+	public static int getModelMatrixLocation(){
 		return modelMatrixLocation;
 	}
 	
@@ -88,7 +104,7 @@ public class ShaderController {
 	 * Gets the projection matrix location
 	 * @return the location of the projection matrix
 	 */
-	public int getProjectionMatrixLocation(){
+	public static int getProjectionMatrixLocation(){
 		return projectionMatrixLocation;
 	}
 	
@@ -96,8 +112,28 @@ public class ShaderController {
 	 * Gets the view matrix location.
 	 * @return the location of the view matrix
 	 */
-	public int getViewMatrixLocation(){
+	public static int getViewMatrixLocation(){
 		return viewMatrixLocation;
+	}
+	
+	public static int getLightPositionLocation(){
+		return lightPositionLocation;
+	}
+	
+	public static int getSpecularLocation(){
+		return specularLocation;
+	}
+	
+	public static int getDiffuseLocation(){
+		return diffuseLocation;
+	}
+	
+	public static int getAmbientLocation(){
+		return ambientLocation;
+	}
+	
+	public static int getViewMatrixFragLocation(){
+		return viewMatrixFragLocation;
 	}
 	
 	/**
