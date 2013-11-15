@@ -25,12 +25,13 @@ import system.Settings;
  * 
  * @author Adi
  */
-public class Player extends Character implements InputListener {
+public class Player implements InputListener {
 	// Camera object that the player uses.
 	private Camera playerCam;
 	
 	// Player attributes
 	private float shields = 100f;
+	private float HP = 100F;
 	
 	// Movement fields.
 	private float speed_x = 0.0f;
@@ -84,7 +85,6 @@ public class Player extends Character implements InputListener {
 	 * Moves the player.
 	 * This should be called in the game loop.
 	 */
-	@Override
 	public void move () {
 		// Apply movement from key presses.
 		if (wPress && speed_y < MAX_SPEED)  speed_y += acceleration;
@@ -102,19 +102,7 @@ public class Player extends Character implements InputListener {
 		strafe();
 		moveFrontBack();
 	}
-	
-	@Override
-	public void damage (float damageAmt) {
-		if (shields > damageAmt) shields -= damageAmt;
-		else if (shields > 0) {
-			damageAmt -= shields;
-			shields = 0;
-			HP -= damageAmt;
-		} else {
-			HP -= damageAmt;
-		}
-	}
-	
+
 	/**
 	 * This event handler fires whenever a mouse button is clicked.
 	 * @param evt A MouseClickEvent object.
