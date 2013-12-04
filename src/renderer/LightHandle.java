@@ -50,6 +50,14 @@ public class LightHandle {
 		m_lightManager.removeLight(m_owner);
 		m_light = null;
 		m_owner = null;
+		m_valid = false;
+	}
+	
+	/*
+	 * Resets the light handle
+	 */
+	public void reset() {
+		// TODO
 	}
 
 }

@@ -81,11 +81,15 @@ public class LightManager {
 	public boolean removeLight(Object owner){
 		synchronized(LightManagerLock){
 			if(m_lightMap.size() > 0){
+				GL20.glUseProgram(ShaderController.getCurrentProgram());
+	
 				Light toRemove = m_lightMap.remove(owner);
 				toRemove.updateIsUsed(m_lightToGLMap.get(toRemove), false);
 				
 				LightGL ret = m_lightToGLMap.remove(toRemove);
 				returnLightID(ret.getIndex()); // return the GL light to available lights
+				GL20.glUseProgram(0);
+
 				return true;
 			}
 			else{
@@ -97,9 +101,9 @@ public class LightManager {
 	/**
 	 * Update the GL uniform variables for all the active lights
 	 */
-	public void updateAllLights(){
-		synchronized(LightManagerLock){
-			for(Light l : m_lightMap.values()){
+	public void updateAllLights() {
+		synchronized(LightManagerLock) {
+			for(Light l : m_lightMap.values()) {
 				GL20.glUseProgram(ShaderController.getCurrentProgram());
 				l.updatePosition(m_lightToGLMap.get(l));
 				GL20.glUseProgram(0);

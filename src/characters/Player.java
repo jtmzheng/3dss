@@ -80,6 +80,7 @@ public class Player implements InputListener {
 		m_La = new Vector3f(0.2f, 0.2f, 0.2f);
 		cameraLight = new LightHandle(this, new Light(playerCam.getLocation(), m_Ls, m_Ld, m_La, playerCam.getDirection()));
 		lightManager = LightManager.getLightManagerHandle();
+		
 		// Subscribe the enemy death listener to the "enemy death" event.
 		Publisher.getInstance().bindSubscriber(new EnemyDeathListener(), PublishEventType.ENEMY_DEATH);
 	}
@@ -128,8 +129,16 @@ public class Player implements InputListener {
 	 */
 	@Override
 	public void onMouseClickedEvent(MouseClickEvent evt) {
-		if (evt.isPress())
+		if (evt.isPress()) {
 			System.out.println("BUTTON CLICKED: " + evt.getButtonType());
+			if(cameraLight.isValid()) {
+				cameraLight.invalidate();
+			}
+			else {
+				cameraLight = new LightHandle(this, new Light(playerCam.getLocation(), m_Ls, m_Ld, m_La, playerCam.getDirection()));
+			}
+			lightManager.updateAllLights();
+		}
 		else System.out.println("BUTTON RELEASED");
 	}
 

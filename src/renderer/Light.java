@@ -21,7 +21,7 @@ public class Light {
 	private Vector3f m_Ld; // dull white diffuse light colour
 	private Vector3f m_La; // grey ambient colour
 	
-	//CURRENTLY NOT SUPPORTED
+	// TODO: Currently not supported
 	private Vector3f m_spot = null; // spot light direction
 	private float m_attentuation; // attentuation of the light
 	

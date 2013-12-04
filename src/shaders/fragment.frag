@@ -53,6 +53,9 @@ void main(void) {
 			Id += Id + lights[index].Ld * sKd * dotLightEye;	
 			Is += Is + lights[index].Ls * sKs * specFactor;	
 	    } 
+	    else {
+	    	// Testing code
+	    }
 	}
 	
 	out_Color = vec4(Is + Id + Ia, 1.0);
