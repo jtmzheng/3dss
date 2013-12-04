@@ -88,6 +88,7 @@ public class LightManager {
 				
 				LightGL ret = m_lightToGLMap.remove(toRemove);
 				returnLightID(ret.getIndex()); // return the GL light to available lights
+				
 				GL20.glUseProgram(0);
 
 				return true;

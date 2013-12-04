@@ -79,7 +79,6 @@ public class Light {
 	}
 	
 	public void updateIsUsed(LightGL lgl, boolean isUsed){
-		System.out.println("lgl = " + lgl.getIsUsed());
 		if(isUsed)
 			GL20.glUniform1f(lgl.getIsUsed(), 1.0f);
 		else 

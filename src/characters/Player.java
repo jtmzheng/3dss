@@ -130,12 +130,11 @@ public class Player implements InputListener {
 	@Override
 	public void onMouseClickedEvent(MouseClickEvent evt) {
 		if (evt.isPress()) {
-			System.out.println("BUTTON CLICKED: " + evt.getButtonType());
 			if(cameraLight.isValid()) {
 				cameraLight.invalidate();
 			}
 			else {
-				cameraLight = new LightHandle(this, new Light(playerCam.getLocation(), m_Ls, m_Ld, m_La, playerCam.getDirection()));
+				cameraLight.reset(new Light(playerCam.getLocation(), m_Ls, m_Ld, m_La, playerCam.getDirection()));
 			}
 			lightManager.updateAllLights();
 		}

@@ -54,10 +54,30 @@ public class LightHandle {
 	}
 	
 	/*
-	 * Resets the light handle
+	 * Resets the light handle 
+	 * @brief Owner doesn't change with reset
 	 */
-	public void reset() {
-		// TODO
+	public boolean reset(Light light) {
+		// Invalidate first
+		Object owner = m_owner;
+		
+		if(m_valid) {
+			invalidate();
+		}
+		
+		m_light = light;
+		m_owner = owner;
+		
+		// Add the light to the light manager
+		if(!m_lightManager.addLight(m_owner, m_light)){
+			m_owner = null; //Invalid light handle
+			m_light = null;
+			m_valid = false;
+		}
+		
+		m_valid = true;		
+		
+		return m_valid;
 	}
 
 }
