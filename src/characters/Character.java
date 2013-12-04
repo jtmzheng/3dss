@@ -2,6 +2,7 @@ package characters;
 
 /**
  * Abstract character class for the player and enemies.
+ * TODO: Character should extend model
  * 
  * @author Adi
  */

@@ -31,7 +31,7 @@ public class ModelFactory {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public static Model loadModel(File file) throws FileNotFoundException, IOException {
+	public static Model loadModel(File file) throws InterruptedException, IOException {
 		List<Face> faces;
 
 		Parser parseFile = new Parser();

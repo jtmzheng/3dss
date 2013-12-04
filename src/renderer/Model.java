@@ -29,23 +29,55 @@ public class Model {
 
 	// Vertex Array Object.
 	private int vaoID;
-
 	private int indicesCount = 0;
 
 	// The model matrix assosciated with this model.
-	private Matrix4f modelMatrix = null;
+	private Matrix4f modelMatrix;
 
 	// Faces that make up this model.
-	private List<Face> faces = null;
+	private List<Face> faces;
+	
+	// LightHandle of the model
+	private LightHandle m_LightHandle = null;
 
+	public Model(List<Face> f, Vector3f pos, Vector3f ld, Vector3f ls, Vector3f la){
+		// Setup the model 
+		setup(f);
+
+		// Transform
+		this.translate(pos);
+
+		// Setup the light associated with this model
+		m_LightHandle = new LightHandle(this, new Light(pos, ls, ld, la, null)); 
+	}
+	
+	public Model(List<Face> f, Vector3f pos){
+		// Setup the model 
+		setup(f);
+		
+		// Transform
+		this.translate(pos);
+
+	}
+	
 	/**
 	 * Creates a model with a list of faces.
 	 * @param f The list of faces.
 	 */
 	public Model(List<Face> f){
+		setup(f);
+	}
+
+	
+	/**
+	 * Common setup for constructor
+	 * @param f
+	 */
+	public void setup(List<Face> f){
+		long curTime = System.currentTimeMillis();
 		this.faces = f;
 
-		// Remove any quads / polygons. 
+		// Strip any quads / polygons. 
 		this.triangulate();
 
 		// Put each 'Vertex' in one FloatBuffer
@@ -71,8 +103,6 @@ public class Model {
 				vboIndex.add(vboIndexMap.get(tempVertexData));
 			}
 			
-			System.out.println(tempVertexData);
-
 			//Add second vertex of the face
 			tempVertexData = face.faceData.get(1);
 			if(!vboIndexMap.containsKey(tempVertexData)){
@@ -160,8 +190,9 @@ public class Model {
 
 		// Deselect (bind to 0) the VAO
 		GL30.glBindVertexArray(0);
+		System.out.println("Model loading to GPU: " + (System.currentTimeMillis() - curTime));
 	}
-
+	
 	/**
 	 * Get the index VBO.
 	 * @return the VBO ID
@@ -241,6 +272,18 @@ public class Model {
 	public Matrix4f getModelMatrix(){
 		return modelMatrix;
 	}
+	
+	/**
+	 * Add a light to this model 
+	 * @param light
+	 */
+	public void addLight(Light light){
+		if(m_LightHandle != null){
+			m_LightHandle.invalidate();
+		}
+		
+		m_LightHandle = new LightHandle(this, light);
+	}
 
 	/**
 	 * Remove the non-triangle faces from the model
@@ -263,4 +306,5 @@ public class Model {
 		this.faces.removeAll(removeFaces);
 		this.faces.addAll(addFaces); 
 	}	
+	
 }

@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
@@ -38,11 +39,17 @@ public class Parser {
     private final static String MTL_KS = "Ks";
     private final static String MTL_TF = "Tf";
     
+    // List of obj properties that are used 
     private List<Vector3f> vertices;
     private List<Vector2f> textures;
     private List<Vector3f> normals;
     
+    // List of faces 
     private List<Face> faces;
+    
+    // DataParser is used to slightly improve performance (does actual parsing)
+    private ArrayBlockingQueue<String> parsedData;
+    private volatile boolean isDone;
     
     /**
      * Initializes our parser.
@@ -52,6 +59,7 @@ public class Parser {
     	textures = new ArrayList<Vector2f>();
     	normals = new ArrayList<Vector3f>();
     	faces = new ArrayList<Face>();
+    	parsedData = new ArrayBlockingQueue<String>(10000);
     }
     
     /**
@@ -60,17 +68,19 @@ public class Parser {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public void parseOBJFile (File file) throws FileNotFoundException, IOException {
+    public void parseOBJFile (File file) throws IOException, InterruptedException {
+    	long curTime = System.currentTimeMillis();
     	String line = null;
+    	Runnable parser = new DataParser(file);
+    	Thread parserThread = new Thread(parser);
+    	isDone = false;
+    	parserThread.start();
     	
-    	FileReader fin = new FileReader(file);
-    	BufferedReader bin = new BufferedReader (fin);
-    	
-    	while ((line = bin.readLine()) != null) {
-    		line = line.trim();
-    		if (line.length() == 0) continue;
-    		if (line.startsWith(OBJ_COMMENT)) continue;
+    	while (!isDone || !parsedData.isEmpty()) {
+    		line = parsedData.poll();
+    		if(line == null) continue;
     
+			line = line.trim();
     		if (line.startsWith(OBJ_VERTEX_TEXTURE)) parseTexture(line);
     		else if (line.startsWith(OBJ_VERTEX_NORMAL)) parseNormal(line);
     		else if (line.startsWith(OBJ_VERTEX)) parseVertex(line);
@@ -79,8 +89,45 @@ public class Parser {
     		else if (line.startsWith(OBJ_POINT)) parsePoint(line);
     		else if (line.startsWith(OBJ_LINE)) parseLine(line);
     		else if (line.startsWith(OBJ_USEMTL)) parseMTL (line);
+    	}    	
+    	System.out.println("New OBJ Loading Time: " + (System.currentTimeMillis() - curTime));
+    }
+    
+    private class DataParser implements Runnable {
+    	
+    	private File m_file; //file to read
+    	
+    	public DataParser(File file){
+    		m_file = file;
     	}
-    	bin.close();
+    	
+    	@Override
+    	public void run(){
+    		String line = null;
+
+    		try {
+    			FileReader fin = new FileReader(m_file);
+        		BufferedReader bin = new BufferedReader (fin);
+				while ((line = bin.readLine()) != null) {
+
+					if (line.length() == 0) continue;
+					if (line.startsWith(OBJ_COMMENT)) continue;
+					
+					parsedData.put(line);
+					//System.out.println(parsedData.size());
+				}
+				
+				bin.close();
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e){ //Allows failure
+				e.printStackTrace();
+			} finally {
+				isDone = true;
+			}
+
+    	}
     }
     
     /**

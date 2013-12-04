@@ -5,18 +5,16 @@ import input.KeyEvent;
 import input.MouseClickEvent;
 import input.MouseMoveEvent;
 
-import java.util.HashMap;
-
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 
+import renderer.Camera;
+import renderer.Light;
+import renderer.LightHandle;
+import renderer.LightManager;
 import event.PubSubListener;
 import event.PublishEventType;
 import event.Publisher;
-import renderer.Camera;
-import renderer.Light;
-import system.Settings;
 
 /**
  * Player class which contains a camera,
@@ -24,6 +22,7 @@ import system.Settings;
  * 
  * The player implements InputListener, and responds to events from raw inputs.
  * See Main.java and the "input" package to see how the binding works.
+ * TODO: Character will eventually extend model
  * 
  * @author Adi
  */
@@ -37,7 +36,8 @@ public class Player extends Character implements InputListener {
 	private Vector3f m_La;
 	
 	// Light associated with the camera
-	private Light cameraLight;
+	private LightHandle cameraLight;
+	private LightManager lightManager = null; 
 	
 	
 	// Player attributes
@@ -66,10 +66,6 @@ public class Player extends Character implements InputListener {
 	 */
 	public Player(Camera c) {
 		this.playerCam = c;
-		m_Ls = new Vector3f(1.0f, 1.0f, 1.0f);
-		m_Ld = new Vector3f(0.7f, 0.7f, 0.7f);
-		m_La = new Vector3f(0.2f, 0.2f, 0.2f);
-		cameraLight = new Light(playerCam.getLocation(), m_Ls, m_Ld, m_La);
 		setup();
 	}
 	
@@ -77,6 +73,12 @@ public class Player extends Character implements InputListener {
 	 * Sets up all necessary player attributes and listeners.
 	 */
 	public void setup() {
+		// Setup the player light (spotlight)
+		m_Ls = new Vector3f(1.0f, 1.0f, 1.0f);
+		m_Ld = new Vector3f(0.7f, 0.7f, 0.7f);
+		m_La = new Vector3f(0.2f, 0.2f, 0.2f);
+		cameraLight = new LightHandle(this, new Light(playerCam.getLocation(), m_Ls, m_Ld, m_La, playerCam.getDirection()));
+		lightManager = LightManager.getLightManagerHandle();
 		// Subscribe the enemy death listener to the "enemy death" event.
 		Publisher.getInstance().bindSubscriber(new EnemyDeathListener(), PublishEventType.ENEMY_DEATH);
 	}
@@ -117,7 +119,7 @@ public class Player extends Character implements InputListener {
 		strafe();
 		moveFrontBack();
 		
-		cameraLight.updatePosition();
+		lightManager.updateAllLights();
 	}
 	
 	@Override

@@ -20,7 +20,9 @@ public class Light {
 	private Vector3f m_Ls; //white specular colour
 	private Vector3f m_Ld; // dull white diffuse light colour
 	private Vector3f m_La; // grey ambient colour
-	private Vector3f m_spot; // spot light direction
+	
+	//CURRENTLY NOT SUPPORTED
+	private Vector3f m_spot = null; // spot light direction
 	private float m_attentuation; // attentuation of the light
 	
 	private FloatBuffer m_DataBuffer = BufferUtils.createFloatBuffer(3);
@@ -33,7 +35,7 @@ public class Light {
 		m_Ls = spec;
 		m_Ld = diff;
 		m_La = ambi;
-		m_spot = dir;
+		m_spot = dir; //TODO: Can be null
 
 		//Bind to uniform variables
 		m_position.store(m_DataBuffer); m_DataBuffer.flip();
@@ -47,6 +49,7 @@ public class Light {
 		
 		//Unbind
 		GL20.glUseProgram(0);
+		
 	}
 
 	public void updatePosition(){
@@ -54,7 +57,33 @@ public class Light {
 		m_position.store(m_DataBuffer); m_DataBuffer.flip();
 		GL20.glUniform3(ShaderController.getLightPositionLocation(), m_DataBuffer);
 		GL20.glUseProgram(0);
-
+	}
+	
+	public void updatePosition(LightGL lgl){
+		m_position.store(m_DataBuffer); m_DataBuffer.flip();
+		GL20.glUniform3(lgl.getPosition(), m_DataBuffer);
+	}
+	
+	public void updateSpecular(LightGL lgl){
+		m_Ls.store(m_DataBuffer); m_DataBuffer.flip();
+		GL20.glUniform3(lgl.getSpecular(), m_DataBuffer);
+	}
+	
+	public void updateDiffuse(LightGL lgl){
+		m_Ld.store(m_DataBuffer); m_DataBuffer.flip();
+		GL20.glUniform3(lgl.getDiffuse(), m_DataBuffer);
+	}
+	
+	public void updateSpecExp(LightGL lgl){
+		GL20.glUniform1f(lgl.getSpecExp(), 100.0f);
+	}
+	
+	public void updateIsUsed(LightGL lgl, boolean isUsed){
+		System.out.println("lgl = " + lgl.getIsUsed());
+		if(isUsed)
+			GL20.glUniform1f(lgl.getIsUsed(), 1.0f);
+		else 
+			GL20.glUniform1f(lgl.getIsUsed(), 0.0f);
 	}
 
 }
