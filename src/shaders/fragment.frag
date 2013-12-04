@@ -22,7 +22,6 @@ struct lightSrc
 uniform lightSrc lights[MAX_NUM_LIGHTS];
 
 in vec3 sKs, sKd, sKa;
-in float sSpecExp;
 in vec4 pass_Color;
 in vec3 position_eye, normal_eye;
 

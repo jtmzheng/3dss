@@ -11,14 +11,12 @@ in vec4 in_Normal;
 
 in vec3 Ks; 
 in vec3 Ka;
-in float specExp; //specular "power"
 
 out vec4 pass_Color;
 out vec3 position_eye, normal_eye;
 out vec3 sKs;
 out vec3 sKd;
 out vec3 sKa;
-out float sSpecExp;
 
 void main(void) {
 
@@ -29,7 +27,6 @@ void main(void) {
 	sKs = Ks;
 	sKd = vec3(pass_Color); //TODO should be pass_Color
 	sKa = Ka;
-	sSpecExp = specExp;
 	
     gl_Position = projectionMatrix * vm * in_Position;
 	pass_Color = in_Color;
