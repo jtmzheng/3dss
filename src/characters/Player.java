@@ -129,6 +129,7 @@ public class Player implements InputListener {
 	 */
 	@Override
 	public void onMouseClickedEvent(MouseClickEvent evt) {
+		// Turn the camera light on and off 
 		if (evt.isPress()) {
 			if(cameraLight.isValid()) {
 				cameraLight.invalidate();
@@ -138,7 +139,7 @@ public class Player implements InputListener {
 			}
 			lightManager.updateAllLights();
 		}
-		else System.out.println("BUTTON RELEASED");
+		else {}
 	}
 
 	/**

@@ -58,9 +58,9 @@ public class LightHandle {
 	 * @brief Owner doesn't change with reset
 	 */
 	public boolean reset(Light light) {
-		// Invalidate first
 		Object owner = m_owner;
 		
+		// Invalidate first if handle holds a valid light
 		if(m_valid) {
 			invalidate();
 		}
