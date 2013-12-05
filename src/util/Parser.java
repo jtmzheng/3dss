@@ -14,6 +14,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import renderer.Face;
 import renderer.VertexData;
+import texture.Material;
 
 
 /**
@@ -28,28 +29,30 @@ public class Parser {
     private final static String OBJ_VERTEX_NORMAL = "vn";
     private final static String OBJ_VERTEX = "v";
     private final static String OBJ_FACE = "f";
-    private final static String OBJ_GROUP_NAME = "g";
-    private final static String OBJ_OBJECT_NAME = "o";
-    private final static String OBJ_POINT = "p";
-    private final static String OBJ_LINE = "l";
     private final static String OBJ_USEMTL = "usemtl";
+    private final static String OBJ_MTLLIB = "mtllib";
     private final static String MTL_NEWMTL = "newmtl";
     private final static String MTL_KA = "Ka";
     private final static String MTL_KD = "Kd";
     private final static String MTL_KS = "Ks";
-    private final static String MTL_TF = "Tf";
+    private final static String MTL_NS = "Ns";
     
-    // List of obj properties that are used 
+    // Default material.
+    private Material currentMaterial = new Material(null);
+    
+    // List of obj properties that are used.
     private List<Vector3f> vertices;
     private List<Vector2f> textures;
     private List<Vector3f> normals;
     
-    // List of faces 
+    // List of faces.
     private List<Face> faces;
     
-    // DataParser is used to slightly improve performance (does actual parsing)
+    // DataParser is used to slightly improve performance (does actual parsing).
     private ArrayBlockingQueue<String> parsedData;
     private volatile boolean isDone;
+    
+    private File objFile = null;
     
     /**
      * Initializes our parser.
@@ -69,9 +72,10 @@ public class Parser {
      * @throws IOException
      */
     public void parseOBJFile (File file) throws IOException, InterruptedException {
+    	objFile = file;
     	long curTime = System.currentTimeMillis();
     	String line = null;
-    	Runnable parser = new DataParser(file);
+    	Runnable parser = new DataParser(objFile);
     	Thread parserThread = new Thread(parser);
     	isDone = false;
     	parserThread.start();
@@ -85,10 +89,8 @@ public class Parser {
     		else if (line.startsWith(OBJ_VERTEX_NORMAL)) parseNormal(line);
     		else if (line.startsWith(OBJ_VERTEX)) parseVertex(line);
     		else if (line.startsWith(OBJ_FACE)) parseFace(line);
-    		else if (line.startsWith(OBJ_GROUP_NAME)) parseGroup(line);
-    		else if (line.startsWith(OBJ_POINT)) parsePoint(line);
-    		else if (line.startsWith(OBJ_LINE)) parseLine(line);
-    		else if (line.startsWith(OBJ_USEMTL)) parseMTL (line);
+    		else if (line.startsWith(OBJ_MTLLIB)) parseMTLLib(line);
+    		else if (line.startsWith(OBJ_USEMTL)) parseUseMTL(line);
     	}    	
     	System.out.println("New OBJ Loading Time: " + (System.currentTimeMillis() - curTime));
     }
@@ -114,11 +116,8 @@ public class Parser {
 					if (line.startsWith(OBJ_COMMENT)) continue;
 					
 					parsedData.put(line);
-					//System.out.println(parsedData.size());
 				}
-				
 				bin.close();
-				
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e){ //Allows failure
@@ -126,7 +125,6 @@ public class Parser {
 			} finally {
 				isDone = true;
 			}
-
     	}
     }
     
@@ -180,7 +178,7 @@ public class Parser {
     			VertexData v = new VertexData (vertices.get(Integer.parseInt(tokens[x])-1));
     			faceData.add(v);
     		}
-    		faces.add(new Face(faceData));
+    		faces.add(new Face(faceData, currentMaterial));
     		return;
     	}
     	
@@ -193,7 +191,7 @@ public class Parser {
     			
     			faceData.add(v);
     		}
-    		faces.add(new Face(faceData));
+    		faces.add(new Face(faceData, currentMaterial));
     		return;
     	}
     	
@@ -206,7 +204,7 @@ public class Parser {
     			
     			faceData.add(v);
     		}
-    		faces.add(new Face(faceData));
+    		faces.add(new Face(faceData, currentMaterial));
     		return;
     	}
     	
@@ -219,42 +217,106 @@ public class Parser {
     			
     			faceData.add(v);
     		}
-    		faces.add(new Face(faceData));
+    		faces.add(new Face(faceData, currentMaterial));
     		return;
     	}
     }
     
+    private void parseUseMTL (String line) {}
     
-    /**
-     * Parses a line.
-     * @param line
-     */
-    private void parseLine (String line) {
-
+    private void parseMTLLib (String line) {
+    	String[] libNames = line.substring(OBJ_MTLLIB.length()).trim().split("\\w+");
+    	
+    	if (libNames != null) {
+    		for (int i = 0; i < libNames.length; i++) {
+    			try {
+    				parseMTLFile(libNames[i]);
+    			} catch (IOException e) {
+    				System.err.println("Cannot find MTL filename " + libNames[i]);
+    				e.printStackTrace();
+    			}
+    		}
+    	}
     }
     
     /**
-     * Parses a group.
-     * @param line
+     * Parses a MTL file.
+ 	 * @param fileName
      */
-    private void parseGroup (String line) {
+    private void parseMTLFile (String fileName) throws IOException, FileNotFoundException {
+        File mtlFile = new File(objFile.getParent(), fileName);
+        FileReader fr = new FileReader(mtlFile);
+        BufferedReader br = new BufferedReader(fr);
+        
+        String line = null;
+		while ((line = br.readLine()) != null) {
+			if (line.startsWith(OBJ_COMMENT)) continue;
+			if (line.startsWith(MTL_NEWMTL)) parseNewMTL(line);
+			if (line.startsWith(MTL_KA)) parseKa(line);
+			if (line.startsWith(MTL_KD)) parseKd(line);
+			if (line.startsWith(MTL_KS)) parseKs(line);
+			if (line.startsWith(MTL_NS)) parseNs(line);
+		}
+		
+		br.close();
+    }
+    
+    private void parseNewMTL (String line) {
+    	String[] tokens = line.split("\\w+");
+    	String fileName = tokens[1];
     	
+    	// Set current material to new material, with the texture as the filename.
+    	this.currentMaterial = new Material(fileName);
     }
     
     /**
-     * Parses a point.
+     * Parses ambiance.
      * @param line
      */
-    private void parsePoint (String line) {
-    	
+    private void parseKa (String line) {
+    	String[] tokens = line.split("\\w+");
+    	this.currentMaterial.Ka = new float[] {Float.parseFloat(tokens[1]),
+					   Float.parseFloat(tokens[2]),
+					   Float.parseFloat(tokens[3])};
     }
     
     /**
-     * Parses an mtl tag.
+     * Parses diffuse.
      * @param line
      */
-    private void parseMTL (String line) {
-    	
+    private void parseKd (String line) {
+    	String[] tokens = line.split("\\w+");
+    	if (tokens.length == 5) {
+        	this.currentMaterial.Kd = new float[] {Float.parseFloat(tokens[1]),
+					   Float.parseFloat(tokens[2]),
+					   Float.parseFloat(tokens[3]),
+					   Float.parseFloat(tokens[4])};
+    	} else {
+        	this.currentMaterial.Kd = new float[] {Float.parseFloat(tokens[1]),
+					   Float.parseFloat(tokens[2]),
+					   Float.parseFloat(tokens[3]),
+					   1.0f};
+        }
+    }
+    
+    /**
+     * Parses Ks.
+     * @param line
+     */
+    private void parseKs (String line) {
+    	String[] tokens = line.split("\\w+");
+    	this.currentMaterial.Ks = new float[] {Float.parseFloat(tokens[1]),
+					   Float.parseFloat(tokens[2]),
+					   Float.parseFloat(tokens[3])};
+    }
+    
+    /**
+     * Parses Ns.
+     * @param line
+     */
+    private void parseNs (String line) {
+    	String[] tokens = line.split("\\w+");
+    	this.currentMaterial.Ns = Float.parseFloat(tokens[1]);
     }
     
     /**

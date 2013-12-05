@@ -1,15 +1,11 @@
 package renderer;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.ContextAttribs;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
@@ -19,7 +15,6 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
 
 import system.Settings;
 
@@ -121,8 +116,7 @@ public class Renderer {
 		
 		// Select our shader program.
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
-		
-		// Get the view matrix from the camera.
+        
 		viewMatrix = camera.getViewMatrix();
 		
 		viewMatrix.store(matrix44Buffer); matrix44Buffer.flip();

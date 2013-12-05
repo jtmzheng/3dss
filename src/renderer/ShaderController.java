@@ -5,7 +5,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import system.Settings;

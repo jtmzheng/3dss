@@ -15,9 +15,6 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
-import util.Logger;
-
-
 /**
  * Model class is an abstraction used by Renderer. This will use interleaving for vertex properties.
  * @author Max
@@ -295,8 +292,8 @@ public class Model {
 		for (Face face : this.faces) {
 			if (face.faceData.size() == 4) {
 				removeFaces.add(face);
-				addFaces.add(new Face( face.getVertex(0) , face.getVertex(1) , face.getVertex(2) ));
-				addFaces.add(new Face( face.getVertex(0) , face.getVertex(2) , face.getVertex(3) ));
+				addFaces.add(new Face( face.getVertex(0) , face.getVertex(1) , face.getVertex(2), face.material ));
+				addFaces.add(new Face( face.getVertex(0) , face.getVertex(2) , face.getVertex(3), face.material ));
 			}
 			else if (face.faceData.size() > 4){
 				removeFaces.add(face);

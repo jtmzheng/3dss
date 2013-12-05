@@ -107,6 +107,29 @@ public class VertexData {
 		this.rgba = new float[] {r, g, b, 1f};
 	}
 	
+	public void setSpecular (float x, float y, float z) {
+		this.specRefl[0] = x;
+		this.specRefl[1] = y;
+		this.specRefl[2] = z;
+	}
+	
+	public void setDiffuse (float r, float g, float b, float a) {
+		this.rgba[0] = r;
+		this.rgba[1] = g;
+		this.rgba[2] = b;
+		this.rgba[3] = a;
+	}
+	
+	public void setAmbient (float x, float y, float z) {
+		this.ambRefl[0] = x;
+		this.ambRefl[1] = y;
+		this.ambRefl[2] = z;
+	}
+	
+	public void setSpecPower (float pow) {
+		this.specPower = pow;
+	}
+	
 	// Getters	
 	public float[] getElements() {
 		float[] out = new float[VertexData.elementCount];

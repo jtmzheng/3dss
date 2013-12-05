@@ -3,6 +3,8 @@ package renderer;
 import java.util.ArrayList;
 import java.util.List;
 
+import texture.Material;
+
 /**
  * Represents a face in a model.
  * @author Max
@@ -11,12 +13,23 @@ import java.util.List;
 public class Face {
 	public List<VertexData> faceData;
 	
+	// Each face has a material, which has its own lighting properties.
+	public Material material = new Material(null);
+	
 	/**
 	 * Constructs a face given vertex data.
 	 * @param faceData List of vertex data.
 	 */
-	public Face(List<VertexData> faceData) {
+	public Face(List<VertexData> faceData, Material m) {
+		for (VertexData v : faceData) {
+			v.setAmbient(m.Ka[0], m.Ka[1], m.Ka[2]);
+			v.setDiffuse(m.Kd[0], m.Kd[1], m.Kd[2], m.Kd[3]);
+			v.setSpecular(m.Ks[0], m.Ks[1], m.Ks[2]);
+			v.setSpecPower(m.Ns);
+		}
+		
 		this.faceData = faceData;
+		this.material = m;
 	}
 	
 	/**
@@ -25,11 +38,28 @@ public class Face {
 	 * @param b VertexData of second vertex
 	 * @param c VertexData of third vertex
 	 */
-	public Face(VertexData a, VertexData b, VertexData c) {
+	public Face(VertexData a, VertexData b, VertexData c, Material m) {
 		faceData = new ArrayList<VertexData>();
+		
+		a.setAmbient(m.Ka[0], m.Ka[1], m.Ka[2]);
+		a.setDiffuse(m.Kd[0], m.Kd[1], m.Kd[2], m.Kd[3]);
+		a.setSpecular(m.Ks[0], m.Ks[1], m.Ks[2]);
+		a.setSpecPower(m.Ns);
 		faceData.add(a);
+		
+		b.setAmbient(m.Ka[0], m.Ka[1], m.Ka[2]);
+		b.setDiffuse(m.Kd[0], m.Kd[1], m.Kd[2], m.Kd[3]);
+		b.setSpecular(m.Ks[0], m.Ks[1], m.Ks[2]);
+		b.setSpecPower(m.Ns);
 		faceData.add(b);
+		
+		c.setAmbient(m.Ka[0], m.Ka[1], m.Ka[2]);
+		c.setDiffuse(m.Kd[0], m.Kd[1], m.Kd[2], m.Kd[3]);
+		c.setSpecular(m.Ks[0], m.Ks[1], m.Ks[2]);
+		c.setSpecPower(m.Ns);
 		faceData.add(c);
+		
+		this.material = m;
 	}
 	
 	/**
@@ -67,4 +97,3 @@ public class Face {
     }
 
 }
-

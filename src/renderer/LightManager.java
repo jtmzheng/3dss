@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import org.lwjgl.opengl.GL20;
-import org.lwjgl.util.vector.Vector3f;
 
 //TODO: Id management should probably be handled privately
 public class LightManager {

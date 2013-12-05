@@ -1,15 +1,9 @@
 package renderer;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-
-import org.lwjgl.util.vector.Vector2f;
-import org.lwjgl.util.vector.Vector3f;
 
 import util.Parser;
 
@@ -43,4 +37,3 @@ public class ModelFactory {
 		return m;
 	}
 }
-

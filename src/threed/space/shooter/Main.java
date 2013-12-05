@@ -47,7 +47,7 @@ public class Main {
 	public static void main(String [] args){
 		setupRenderer();
 		setupPlayer();
-		
+
 		// Game loop.
 		while(!Display.isCloseRequested()){
 			// Poll the inputs.

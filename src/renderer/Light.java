@@ -6,8 +6,6 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Vector3f;
 
-import system.Settings;
-
 /**
  * Phong lighting implementation
  * @author Max
