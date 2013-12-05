@@ -29,34 +29,11 @@ public class Light {
 	
 	public Light(Vector3f pos, Vector3f spec, Vector3f diff, Vector3f ambi, Vector3f dir){
 		//Use current shader program
-		GL20.glUseProgram(ShaderController.getCurrentProgram());
-
 		m_position = pos;
 		m_Ls = spec;
 		m_Ld = diff;
 		m_La = ambi;
-		m_spot = dir; //TODO: Can be null
-
-		//Bind to uniform variables
-		m_position.store(m_DataBuffer); m_DataBuffer.flip();
-		GL20.glUniform3(ShaderController.getLightPositionLocation(), m_DataBuffer);
-		m_Ls.store(m_DataBuffer); m_DataBuffer.flip();
-		GL20.glUniform3(ShaderController.getSpecularLocation(), m_DataBuffer);
-		m_Ld.store(m_DataBuffer); m_DataBuffer.flip();
-		GL20.glUniform3(ShaderController.getDiffuseLocation(), m_DataBuffer);
-		m_La.store(m_DataBuffer); m_DataBuffer.flip();
-		GL20.glUniform3(ShaderController.getAmbientLocation(), m_DataBuffer);
-		
-		//Unbind
-		GL20.glUseProgram(0);
-		
-	}
-
-	public void updatePosition(){
-		GL20.glUseProgram(ShaderController.getCurrentProgram());
-		m_position.store(m_DataBuffer); m_DataBuffer.flip();
-		GL20.glUniform3(ShaderController.getLightPositionLocation(), m_DataBuffer);
-		GL20.glUseProgram(0);
+		m_spot = dir; //TODO: Can be null		
 	}
 	
 	public void updatePosition(LightGL lgl){

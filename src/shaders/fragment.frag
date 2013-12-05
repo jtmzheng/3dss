@@ -54,6 +54,10 @@ void main(void) {
 	
 			Id += Id + lights[index].Ld * sKd * dotLightEye;	
 			Is += Is + lights[index].Ls * sKs * specFactor;	
+			
+			if(lights[index].isDirectional > 0.5){
+				// Directional lighting
+			}
 	    } 
 	    else {
 	    	// Testing code for when no lights
