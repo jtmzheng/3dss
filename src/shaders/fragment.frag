@@ -10,13 +10,16 @@ uniform vec3 La = vec3(0.2, 0.2, 0.2); //grey ambient
 uniform mat4 viewMatrixFrag;
 uniform vec3 spotDirection;
 
+// Fields set to default value by OpenGL
 struct lightSrc 
 {
 	vec3 position;
+	vec3 direction; // is (0, 0, 0) if not directional
 	vec3 Ls;
 	vec3 Ld;
 	float specExp;
 	float isUsed; // set to 0 by default
+	float isDirectional; // is it a spotlight
 };
 
 uniform lightSrc lights[MAX_NUM_LIGHTS];
@@ -53,7 +56,7 @@ void main(void) {
 			Is += Is + lights[index].Ls * sKs * specFactor;	
 	    } 
 	    else {
-	    	// Testing code
+	    	// Testing code for when no lights
 	    }
 	}
 	
