@@ -137,6 +137,4 @@ public class LightManager {
 			lightsGL[i] = new LightGL(i);
 		}
 	}
-	
-	
 }

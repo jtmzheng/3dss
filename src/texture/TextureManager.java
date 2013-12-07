@@ -31,6 +31,7 @@ public class TextureManager {
 		
 		return instance;
 	}
+	
 	/**
 	 * Adds a texture to the file manager. The texture should reside in
 	 * res/textures and should contain no spaces or special characters in the textureName.

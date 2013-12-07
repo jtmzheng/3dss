@@ -20,6 +20,8 @@ public class Material {
 	public Material (String name) {
 		this.name = name;
 		
-		TextureManager.getInstance().addTexture(name);
+		// TODO: Add a default texture with the manager in the null case.
+		if (name != null)
+			TextureManager.getInstance().addTexture(name);
 	}
 }

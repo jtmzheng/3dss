@@ -95,5 +95,4 @@ public class Face {
         }
         return result;
     }
-
 }

@@ -16,7 +16,6 @@ import renderer.Face;
 import renderer.VertexData;
 import texture.Material;
 
-
 /**
  * This class parses obj/mtl files.
  * @author Adi
@@ -154,20 +153,6 @@ public class Parser {
     
     /**
      * Parses a face.
-     * From the OBJ spec, faces can be specified as:
-     * f int int int ...
-     * OR
-     * f int/int int/int int/int . . .
-     * OR
-     * f int/int/int int/int/int int/int/int
-     * The numbers are (1 based) indexes into the vertices, texture, and normals lists (respectively).
-     * 
-     * For no texture vertices, we have the following:
-     * f int//int int//int int//int ...
-     * 
-     * Consistency in the triplets is required. EG this is illegal:
-     * f 1/1/1 2/2/2 3//3 4//4
-     * 
      * @param line
      */
     private void parseFace (String line) {

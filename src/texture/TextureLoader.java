@@ -24,7 +24,7 @@ public class TextureLoader {
 	 * Number of bytes per pixel.
 	 * Three bytes for RGB, 4 for RGBA.
 	 */
-	private static final int BYTES_PER_PIXEL = 4;
+	private static int BYTES_PER_PIXEL = 4;
 	
 	/**
 	 * Loads a texture given a image location
@@ -33,6 +33,9 @@ public class TextureLoader {
 	 */
 	public static Texture loadTexture(String imageLoc){
 		BufferedImage image = loadImage(imageLoc);
+		
+		if (image.getColorModel().hasAlpha())
+			BYTES_PER_PIXEL = 3;
 		
 		int[] pixels = new int[image.getWidth() * image.getHeight()];
 		image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
@@ -47,7 +50,9 @@ public class TextureLoader {
                 buffer.put((byte) ((pixel >> 16) & 0xFF));  // Red component.
                 buffer.put((byte) ((pixel >> 8) & 0xFF));   // Green component.
                 buffer.put((byte) (pixel & 0xFF));          // Blue component
-                buffer.put((byte) ((pixel >> 24) & 0xFF));  // Alpha component.
+                
+                if (BYTES_PER_PIXEL == 4)
+                	buffer.put((byte) ((pixel >> 24) & 0xFF));  // Alpha component, if it has one.
             }
         }
 

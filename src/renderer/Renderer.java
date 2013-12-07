@@ -58,7 +58,7 @@ public class Renderer {
 			this.initOpenGL(true); 
 		else
 			this.initOpenGL(false);
-		
+
 		models = new ArrayList<Model>();
 		shader = new ShaderController();
 		

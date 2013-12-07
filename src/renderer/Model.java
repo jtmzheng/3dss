@@ -302,6 +302,5 @@ public class Model {
 
 		this.faces.removeAll(removeFaces);
 		this.faces.addAll(addFaces); 
-	}	
-	
+	}
 }
