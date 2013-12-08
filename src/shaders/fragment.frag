@@ -39,24 +39,42 @@ void main(void) {
 	    if(lights[index].isUsed > 0.5){
 			vec3 light_position_eye = vec3(viewMatrixFrag * vec4(lights[index].position, 1.0));
 			vec3 sLightEye = light_position_eye - position_eye;
-			vec3 dirLightEye = normalize(sLightEye);	    
+			vec3 dirLightEye = normalize(sLightEye); // direction from light to surface 
 	    
-	    	float dotLightEye = dot(dirLightEye, normalize(normal_eye));
-			dotLightEye = max(dotLightEye, 0.0); //clamp to 0
+	    	float dotLightEye = abs(dot(dirLightEye, normalize(normal_eye)));
+			dotLightEye = min(dotLightEye, 1.0); //clamp to 0
 	    
 	    	vec3 reflectionEye = reflect(-dirLightEye, normal_eye);
 			vec3 surfaceViewerEye = normalize(-position_eye);
 	    
-	    	float dotSpecular = dot(normalize(reflectionEye), surfaceViewerEye);
-			dotSpecular = max(dotSpecular, 0.0);
+	    	float dotSpecular = abs(dot(normalize(reflectionEye), surfaceViewerEye));
+			dotSpecular = min(dotSpecular, 1.0);
 	
 			float specFactor = pow(dotSpecular, lights[index].specExp);
 	
 			Id += Id + lights[index].Ld * sKd * dotLightEye;	
 			Is += Is + lights[index].Ls * sKs * specFactor;	
 			
+			// Directional lighting
 			if(lights[index].isDirectional > 0.5){
-				// Directional lighting
+				vec3 dir_eye = vec3(viewMatrixFrag * vec4(normalize(lights[index].direction), 0.0));
+				float spot_dot = abs(dot (dir_eye, dirLightEye));
+				spot_dot = min(spot_dot, 1.0);				
+
+				/*
+				float spot_factor = 0.0;
+				if(spot_dot > SPOT_ARC) {
+					spot_factor = 1.0;
+				}
+				*/
+				
+				float spot_factor = (spot_dot - SPOT_ARC) / (1.0 - SPOT_ARC);
+				spot_factor = clamp(spot_factor, 0.0, 1.0);
+				
+				
+				Id *= spot_factor; // zero if outside of spotlight
+  				Is *= spot_factor;
+  				Ia *= spot_factor;
 			}
 	    } 
 	    else {
