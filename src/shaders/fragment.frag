@@ -34,15 +34,20 @@ void main(void) {
 
 	vec3 Ia = La * sKa;
 	vec3 Id = vec3(0, 0, 0), Is = vec3(0, 0, 0);
+	vec3 lightTotal = Ia; // total light adjusted color
 	
 	for(int index = 0; index < MAX_NUM_LIGHTS; index++) {
-	    if(lights[index].isUsed > 0.5){
+		float fAttTotal = 1.0; // total attenuation
+	    vec3 tId = vec3(0, 0, 0), tIs = vec3(0, 0, 0); // diffuse and specular component of this light
+			
+	
+	    if(lights[index].isUsed > 0.5){    
 			vec3 light_position_eye = vec3(viewMatrixFrag * vec4(lights[index].position, 1.0));
 			vec3 sLightEye = light_position_eye - position_eye;
 			vec3 dirLightEye = normalize(sLightEye); // direction from light to surface 
 	    
-	    	float dotLightEye = abs(dot(dirLightEye, normalize(normal_eye)));
-			dotLightEye = min(dotLightEye, 1.0); //clamp to 0
+	    	float dotLightEye = dot(dirLightEye, normalize(normal_eye));
+			dotLightEye = max(dotLightEye, 0.0); //clamp to 0
 	    
 	    	vec3 reflectionEye = reflect(-dirLightEye, normal_eye);
 			vec3 surfaceViewerEye = normalize(-position_eye);
@@ -52,37 +57,39 @@ void main(void) {
 	
 			float specFactor = pow(dotSpecular, lights[index].specExp);
 	
-			Id += Id + lights[index].Ld * sKd * dotLightEye;	
-			Is += Is + lights[index].Ls * sKs * specFactor;	
+   			float fDist = length(sLightEye); // distance between light and position    
+   			fAttTotal = 0.3 + 0.007*fDist + 0.008*fDist*fDist;	
+	
+			tId = lights[index].Ld * sKd * dotLightEye;	
+			tIs = lights[index].Ls * sKs * specFactor;	
 			
 			// Directional lighting
 			if(lights[index].isDirectional > 0.5){
 				vec3 dir_eye = vec3(viewMatrixFrag * vec4(normalize(lights[index].direction), 0.0));
-				float spot_dot = abs(dot (dir_eye, dirLightEye));
+				float spot_dot = abs(dot(dir_eye, dirLightEye));
 				spot_dot = min(spot_dot, 1.0);				
 
-				/*
 				float spot_factor = 0.0;
 				if(spot_dot > SPOT_ARC) {
 					spot_factor = 1.0;
 				}
-				*/
 				
+				/*
 				float spot_factor = (spot_dot - SPOT_ARC) / (1.0 - SPOT_ARC);
 				spot_factor = clamp(spot_factor, 0.0, 1.0);
+				*/
 				
 				
-				Id *= spot_factor; // zero if outside of spotlight
-  				Is *= spot_factor;
-  				Ia *= spot_factor;
+				tId *= spot_factor; // zero if outside of spotlight
+  				tIs *= spot_factor;
 			}
 	    } 
-	    else {
-	    	// Testing code for when no lights
-	    }
+
+		lightTotal += ((tId + tIs) / fAttTotal);
+	    
 	}
 	
-	out_Color = vec4(Is + Id + Ia, 1.0);
+	out_Color = vec4(lightTotal, 1.0);
 	
 }
 

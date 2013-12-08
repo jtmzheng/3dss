@@ -45,12 +45,14 @@ public class Light {
 	}
 	
 	public void updatePosition(LightGL lgl){
+		//System.out.println("Position = " + m_position);
 		m_position.store(m_DataBuffer); m_DataBuffer.flip();
 		GL20.glUniform3(lgl.getPosition(), m_DataBuffer);
 	}
 	
 	public void updateDirection(LightGL lgl){
 		if(m_directional && m_spot != null) {
+			//System.out.println("Direction = " + m_spot);
 			m_spot.store(m_DataBuffer); m_DataBuffer.flip();
 			GL20.glUniform3(lgl.getDirection(), m_DataBuffer);
 		}
@@ -80,6 +82,7 @@ public class Light {
 	}
 	
 	public void updateIsDirectional(LightGL lgl) {
+		System.out.println("Directional? " + m_directional);
 		if(m_directional) {
 			GL20.glUniform1f(lgl.getIsDirectional(), 1.0f);
 		}
