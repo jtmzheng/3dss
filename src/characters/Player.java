@@ -29,21 +29,21 @@ import event.Publisher;
 public class Player implements InputListener {
 	// Camera object that the player uses.
 	private Camera playerCam;
-	
+
 	//Light parameters
 	private Vector3f m_Ld;
 	private Vector3f m_Ls;
 	private Vector3f m_La;
-	
+
 	// Light associated with the camera
 	private LightHandle cameraLight;
 	private LightManager lightManager = null; 
-	
-	
+
+
 	// Player attributes
 	private float shields = 100f;
 	private float HP = 100F;
-	
+
 	// Movement fields.
 	private float speed_x = 0.0f;
 	private float speed_y = 0.0f;
@@ -57,10 +57,10 @@ public class Player implements InputListener {
 	private boolean aPress = false;
 	private boolean sPress = false;
 	private boolean dPress = false;
-	
+
 	// Player name.
 	private String name = "Jun Tao";
-	
+
 	/**
 	 * Constructs a Player with a Camera.
 	 * @param c The Camera object that abstracts out the view matrix logic.
@@ -69,7 +69,7 @@ public class Player implements InputListener {
 		this.playerCam = c;
 		setup();
 	}
-	
+
 	/**
 	 * Sets up all necessary player attributes and listeners.
 	 */
@@ -78,9 +78,14 @@ public class Player implements InputListener {
 		m_Ls = new Vector3f(1.0f, 1.0f, 1.0f);
 		m_Ld = new Vector3f(0.7f, 0.7f, 0.7f);
 		m_La = new Vector3f(0.2f, 0.2f, 0.2f);
-		cameraLight = new LightHandle(this, new Light(playerCam.getLocation(), m_Ls, m_Ld, m_La, playerCam.getDirection()));
-		lightManager = LightManager.getLightManagerHandle();
+		cameraLight = new LightHandle(this, new Light(new Vector3f(playerCam.getLocation()), 
+				new Vector3f(m_Ls), 
+				new Vector3f(m_Ld), 
+				new Vector3f(m_La), 
+				new Vector3f(playerCam.getDirection())));
 		
+		lightManager = LightManager.getLightManagerHandle();
+
 		// Subscribe the enemy death listener to the "enemy death" event.
 		Publisher.getInstance().bindSubscriber(new EnemyDeathListener(), PublishEventType.ENEMY_DEATH);
 	}
@@ -91,14 +96,14 @@ public class Player implements InputListener {
 	private void strafe(){
 		playerCam.strafe(speed_x);
 	}
-	
+
 	/**
 	 * Moves the player forward and backwards (uses playerCam).
 	 */
 	private void moveFrontBack(){
 		playerCam.moveFrontBack(speed_y);
 	}
-	
+
 	/**
 	 * Moves the player.
 	 * This should be called in the game loop.
@@ -109,17 +114,17 @@ public class Player implements InputListener {
 		if (aPress && speed_x > -MAX_SPEED) speed_x -= acceleration;
 		if (sPress && speed_y > -MAX_SPEED) speed_y -= acceleration;
 		if (dPress && speed_x < MAX_SPEED)  speed_x += acceleration;
-				
+
 		// Apply drag.
 		if (speed_x > 0) speed_x -= drag;
 		if (speed_x < 0) speed_x += drag;
 		if (speed_y > 0) speed_y -= drag;
 		if (speed_y < 0) speed_y += drag;
-		
+
 		// Move our player.
 		strafe();
 		moveFrontBack();
-		
+
 		lightManager.updateAllLights();
 	}
 
@@ -135,7 +140,11 @@ public class Player implements InputListener {
 				cameraLight.invalidate();
 			}
 			else {
-				cameraLight.reset(new Light(playerCam.getLocation(), m_Ls, m_Ld, m_La, playerCam.getDirection()));
+				cameraLight.reset(new Light(new Vector3f(playerCam.getLocation()), 
+						new Vector3f(m_Ls), 
+						new Vector3f(m_Ld), 
+						new Vector3f(m_La), 
+						new Vector3f(playerCam.getDirection())));
 			}
 			lightManager.updateAllLights();
 		}
@@ -149,6 +158,14 @@ public class Player implements InputListener {
 	@Override
 	public void onMouseMoveEvent(MouseMoveEvent evt) {	
 		playerCam.rotateCamera(evt.getdx(), evt.getdy());
+		
+		// Update the camera light fields
+		if(cameraLight.isValid()) {
+			Light light = cameraLight.getLight();
+			light.setPosition(new Vector3f(playerCam.getLocation()));
+			light.setDirection(new Vector3f(playerCam.getDirection()));
+		}
+		
 		lightManager.updateAllLights();
 	}
 
@@ -160,17 +177,17 @@ public class Player implements InputListener {
 	@Override
 	public void onKeyEvent(KeyEvent evt) {
 		int code = evt.getKeyCode();
-		
+
 		// Determine whether this is a press or a release event.
 		boolean pressed = evt.isPress() ? true : false;
-		
+
 		// Set the appropriate movement flag.
 		if (code == Keyboard.KEY_W) wPress = pressed;
 		if (code == Keyboard.KEY_A) aPress = pressed;
 		if (code == Keyboard.KEY_S) sPress = pressed;
 		if (code == Keyboard.KEY_D) dPress = pressed;
 	}
-	
+
 	private class EnemyDeathListener implements PubSubListener {
 		@Override
 		public void handleEvent() {

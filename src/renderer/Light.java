@@ -18,11 +18,11 @@ public class Light {
 	private Vector3f m_position; // position of camera
 	private Vector3f m_Ls; // white specular colour
 	private Vector3f m_Ld; // dull white diffuse light colour
-	private Vector3f m_La; // grey ambient colour
+	private Vector3f m_La; // grey ambient colour (currently ambient light is global)
 	
 	private Vector3f m_spot = null; // spot light direction
 	private boolean m_directional;
-	private float m_attentuation; // attentuation of the light (Not used currently)
+	// private float m_attentuation; // attentuation of the light (Not used currently)
 	
 	private FloatBuffer m_DataBuffer = BufferUtils.createFloatBuffer(3);
 	
@@ -86,6 +86,14 @@ public class Light {
 		else {
 			GL20.glUniform1f(lgl.getIsDirectional(), 0.0f);
 		}
+	}
+
+	public void setPosition(Vector3f position) {
+		m_position = position;
+	}
+
+	public void setDirection(Vector3f direction) {
+		m_spot = direction;
 	}
 
 }

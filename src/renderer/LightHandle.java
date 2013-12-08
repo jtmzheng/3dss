@@ -1,5 +1,7 @@
 package renderer;
 
+import org.lwjgl.util.vector.Vector3f;
+
 /*
  * LightHandle class (Description to be added)
  * @author Max
@@ -78,6 +80,10 @@ public class LightHandle {
 		m_valid = true;		
 		
 		return m_valid;
+	}
+
+	public Light getLight() {
+		return m_light;
 	}
 
 }
