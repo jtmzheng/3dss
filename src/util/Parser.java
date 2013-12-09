@@ -15,6 +15,7 @@ import org.lwjgl.util.vector.Vector3f;
 import renderer.Face;
 import renderer.VertexData;
 import texture.Material;
+import texture.TextureType;
 
 /**
  * This class parses obj/mtl files.
@@ -249,8 +250,8 @@ public class Parser {
     private void parseNewMTL (String line) {
     	String[] tokens = line.split("\\w+");
     	String fileName = tokens[1];
-    	
-    	// Set current material to new material, with the texture as the filename.
+
+    	// Set current material to new material, with the filename of the texture to load.
     	this.currentMaterial = new Material(fileName);
     }
     

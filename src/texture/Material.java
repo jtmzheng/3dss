@@ -2,8 +2,6 @@ package texture;
 
 /**
  * Wrapper class for a material to apply to a face, from .mtl files.
- * Note: The name of a material is the filename of the texture which is loaded
- * by the TextureLoader.
  * 
  * @author Adi
  */
@@ -14,14 +12,17 @@ public class Material {
 	public float[] Ka = new float[] {1f, 1f, 1f}; // ambient
 	public float Ns = 95f; // specular coefficient
 	
-	// Should be the same as the filename of the texture referred to in the .mtl file.
-	public String name = null;
-	
-	public Material (String name) {
-		this.name = name;
+	// The texture applied to this material.
+	public TextureType textureType;
+
+	/**
+	 * Creates a material given a filename.
+	 * @param fileName
+	 */
+	public Material (String fileName) {
+		if (fileName == null) fileName = TextureManager.DEFAULT_TEXTURE_FILENAME;
+		this.textureType = TextureType.getTextureTypeFromFilename(fileName);
 		
-		// TODO: Add a default texture with the manager in the null case.
-		if (name != null)
-			TextureManager.getInstance().addTexture(name);
+		//TextureManager.getInstance().addTexture(this.textureType);
 	}
 }

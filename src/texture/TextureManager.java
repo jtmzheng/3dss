@@ -1,29 +1,38 @@
 package texture;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Singleton to manage textures globally, abstracting away the file loading
  * and GL calls. Textures must be 2^n x 2^n in pixel size, and PNG is the only
  * file format currently supported.
  * 
- * TODO: Make this thread-safe.
  * @author Adi
- *
  */
 public class TextureManager {
 	private static TextureManager instance = null;
 	
-	// Mapping of texture file names to textures. We refer to textures as any file
-	// that lives in res/textures, and the string key in the mapping is the name of that file.
-	// so "foo.png" would be a correct string name.
-	private Map<String, Texture> textureFileMapping = new HashMap<String, Texture>();
+	// This is a mapping of a texture type enums to texture objects.
+	// Any texture living in this mapping has already been loaded and assigned
+	// a unique ID by OpenGL.
+	private Map<TextureType, Texture> textureMapping = new ConcurrentHashMap<TextureType, Texture>();
 	
-	public static final int TEXTURE_NOT_FOUND = -1;
+	private final Object TextureManagerLock = new Object();
+
+	public static final String DEFAULT_TEXTURE_FILENAME = "fur_hair.png";
 	
-	private TextureManager(){}
+	/**
+	 * UID of a texture that cannot be found.
+	 */
+	private static final int TEXTURE_NOT_FOUND_ID = -1;
 	
+	private TextureManager() {}
+	
+	/**
+	 * Gets the instance of the texture manager.
+	 * @return instance
+	 */
 	public static TextureManager getInstance () {
 		if (instance == null) {
 			instance = new TextureManager();
@@ -34,52 +43,58 @@ public class TextureManager {
 	
 	/**
 	 * Adds a texture to the file manager. The texture should reside in
-	 * res/textures and should contain no spaces or special characters in the textureName.
+	 * res/textures and should contain no spaces or special characters in the textureType.
 	 * The texture MUST be of size 2^n x 2^n, or else an exception will be thrown.
-	 * @param textureName
+	 * @param textureType
 	 */
-	public void addTexture (String textureName) {
-		if (textureFileMapping.containsKey(textureName)) return;
-		
-		Texture tex = TextureLoader.loadTexture(textureName);
-		textureFileMapping.put(textureName, tex);
+	public void addTexture (TextureType textureType) {
+		synchronized(TextureManagerLock) {
+			if (textureMapping.containsKey(textureType)) return;
+			
+			Texture tex = TextureLoader.loadTexture(textureType.fileName());
+			textureMapping.put(textureType, tex);
+		}
 	}
 	
 	/**
-	 * Removes a texture from the manager.
-	 * @param textureName
+	 * Removes a texture from the manager and frees associated memory.
+	 * @param textureType
 	 */
-	public void removeTexture (String textureName) {
-		if (textureFileMapping.containsKey(textureName)) {
-			textureFileMapping.remove(textureName);
+	public void removeTexture (TextureType textureType) {
+		synchronized(TextureManagerLock) {
+			if (textureMapping.containsKey(textureType)) {
+				Texture tex = textureMapping.get(textureType);
+				tex.unbindAndDestroy();
+				textureMapping.remove(textureType);
+			}
 		}
 	}
 	
 	/**
 	 * Gets the GL ID of a given texture.
-	 * @param textureName
+	 * @param textureType
 	 */
-	public int getTextureID (String textureName) {
-		if (!textureFileMapping.containsKey(textureName)) {
-			return TEXTURE_NOT_FOUND;
+	public int getTextureID (TextureType textureType) {
+		if (!textureMapping.containsKey(textureType)) {
+			return TEXTURE_NOT_FOUND_ID;
 		} else {
-			return textureFileMapping.get(textureName).getID();
+			return textureMapping.get(textureType).getID();
 		}
 	}
 	
 	/**
-	 * Gets a texture with a given textureName.
-	 * @param textureName
+	 * Gets a texture with a given textureType.
+	 * @param textureType
 	 */
-	public Texture getTexture (String textureName) {
-		if (!textureFileMapping.containsKey(textureName)) return null;
-		return textureFileMapping.get(textureName);
+	public Texture getTexture (TextureType textureType) {
+		if (!textureMapping.containsKey(textureType)) return null;
+		return textureMapping.get(textureType);
 	}
 	
 	/**
 	 * Gets the number of textures in the manager.
 	 */
 	public int getNumTextures () {
-		return textureFileMapping.size();
+		return textureMapping.size();
 	}
 }

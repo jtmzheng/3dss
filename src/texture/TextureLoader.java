@@ -27,12 +27,14 @@ public class TextureLoader {
 	private static int BYTES_PER_PIXEL = 4;
 	
 	/**
-	 * Loads a texture given a image location
-	 * @param image
+	 * Loads a texture given an image filename.
+	 * This file must reside in res/textures/
+	 * 
+	 * @param fileName
 	 * @return Texture tex
 	 */
-	public static Texture loadTexture(String imageLoc){
-		BufferedImage image = loadImage(imageLoc);
+	public static Texture loadTexture(String fileName){
+		BufferedImage image = loadImage(fileName);
 		
 		if (image.getColorModel().hasAlpha())
 			BYTES_PER_PIXEL = 3;
@@ -60,7 +62,7 @@ public class TextureLoader {
 
         int textureID = glGenTextures(); // Generate texture ID.
         
-        Texture tex = new Texture(imageLoc, image.getWidth(), image.getHeight(), textureID);
+        Texture tex = new Texture(image.getWidth(), image.getHeight(), textureID);
         
         // Bind texture ID to target.
         tex.bind();

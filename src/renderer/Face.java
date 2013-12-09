@@ -14,7 +14,7 @@ public class Face {
 	public List<VertexData> faceData;
 	
 	// Each face has a material, which has its own lighting properties.
-	public Material material = new Material(null);
+	public Material material;
 	
 	/**
 	 * Constructs a face given vertex data.
