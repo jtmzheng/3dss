@@ -125,6 +125,13 @@ public class Player implements InputListener {
 		strafe();
 		moveFrontBack();
 
+		// Update the camera light fields
+		if(cameraLight.isValid()) {
+			Light light = cameraLight.getLight();
+			light.setPosition(new Vector3f(playerCam.getLocation()));
+			light.setDirection(new Vector3f(playerCam.getDirection()));
+		}
+	
 		lightManager.updateAllLights();
 	}
 
