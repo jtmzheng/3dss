@@ -23,6 +23,7 @@ import texture.Material;
  * tags which declare new materials (which we represent by Material.java). These "newmtl"s 
  * have properties which include texture maps and lighting values.
  * 
+ * TODO: Support smoothing groups.
  * @author Adi
  */
 public class Parser {
@@ -224,15 +225,15 @@ public class Parser {
     }
 
     private void parseMapKa (String line) {
-    	this.currentMaterial.mapKaFilename = line.split(" ")[1];
+    	this.currentMaterial.setMapKaFile(line.split(" ")[1]);
     }
     
     private void parseMapKd (String line) {
-    	this.currentMaterial.mapKdFilename = line.split(" ")[1];
+    	this.currentMaterial.setMapKdFile(line.split(" ")[1]);
     }
     
     private void parseMapKs (String line) {
-    	this.currentMaterial.mapKsFilename = line.split(" ")[1];
+    	this.currentMaterial.setMapKsFile(line.split(" ")[1]);
     }
    
     // Getters.

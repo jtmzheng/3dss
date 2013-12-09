@@ -13,7 +13,7 @@ import texture.Material;
 public class Face {
 	public List<VertexData> faceData;
 	
-	// Each face has a material, which has its own lighting properties and texture.
+	// Each face has a material, which has its own lighting properties.
 	public Material material = null;
 	
 	/**

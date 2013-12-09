@@ -15,6 +15,8 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
+import texture.Material;
+
 /**
  * Model class is an abstraction used by Renderer. This will use interleaving for vertex properties.
  * @author Max
@@ -38,8 +40,10 @@ public class Model {
 	private LightHandle m_LightHandle = null;
 
 	public Model(List<Face> f, Vector3f pos, Vector3f ld, Vector3f ls, Vector3f la){
+		this.faces = f;
+		
 		// Setup the model 
-		setup(f);
+		setup();
 
 		// Transform
 		this.translate(pos);
@@ -49,8 +53,10 @@ public class Model {
 	}
 	
 	public Model(List<Face> f, Vector3f pos){
+		this.faces = f;
+
 		// Setup the model 
-		setup(f);
+		setup();
 		
 		// Transform
 		this.translate(pos);
@@ -62,7 +68,9 @@ public class Model {
 	 * @param f The list of faces.
 	 */
 	public Model(List<Face> f){
-		setup(f);
+		this.faces = f;
+
+		setup();
 	}
 
 	
@@ -70,15 +78,30 @@ public class Model {
 	 * Common setup for constructor
 	 * @param f
 	 */
-	public void setup(List<Face> f){
+	public void setup(){
 		long curTime = System.currentTimeMillis();
-		this.faces = f;
 
 		// Strip any quads / polygons. 
 		this.triangulate();
 
+		// Split face list into a list of face lists, each having their own material.
+		List<ArrayList<Face>> facesByMaterial = new ArrayList<ArrayList<Face>>();
+		Material currentMaterial = null;
+		ArrayList<Face> currentFaceList = new ArrayList<Face>();
+		for (Face face : this.faces) {
+			if (face.material != currentMaterial) {
+				if (!currentFaceList.isEmpty()) {
+					facesByMaterial.add(currentFaceList);
+				}
+				currentMaterial = face.material;
+				currentFaceList = new ArrayList<Face>();
+			}
+			currentFaceList.add(face);
+		}
+		System.out.println("Number of face lists by material: " + facesByMaterial.size());
+		
 		// Put each 'Vertex' in one FloatBuffer
-		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(f.size() *  3 * VertexData.stride); //TODO : Allocating proper amount
+		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(this.faces.size() *  3 * VertexData.stride); //TODO : Allocating proper amount
 		FloatBuffer verticesFloatBuffer = verticesByteBuffer.asFloatBuffer();
 		HashMap<VertexData, Integer> vboIndexMap = new HashMap<VertexData, Integer>();
 		List<Integer> vboIndex = new ArrayList<Integer>();

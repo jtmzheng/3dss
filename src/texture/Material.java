@@ -6,10 +6,7 @@ package texture;
  * 
  * @author Adi
  */
-public class Material {
-	// Default texture map filename.
-	public static String DEFAULT_TEXTURE_MAP_FILE = "fur_hair.png";
-	
+public class Material {	
 	// Default material values when no material is currently selected.
 	public float[] Kd = new float[] {1.0f, 0.5f, 0f, 1.0f}; // diffuse
 	public float[] Ks = new float[] {1f, 1f, 1f}; // specular
@@ -17,10 +14,11 @@ public class Material {
 	public float Ns = 95f; // specular coefficient
     public int illumModel = 0;
     public double niOpticalDensity = 0.0;
-    public String mapKaFilename = null;
-    public String mapKdFilename = null;
-    public String mapKsFilename = null;
 
+    public Texture mapKaTexture = null;
+    public Texture mapKdTexture = null;
+    public Texture mapKsTexture = null;
+    
     public String name;
     
 	/**
@@ -29,14 +27,25 @@ public class Material {
 	 */
 	public Material (String materialName) {
 		this.name = materialName;
-		//if (fileName == null) fileName = TextureManager.DEFAULT_TEXTURE_FILENAME;
 		
-		//textureFileName = fileName;
-		//TextureManager.getInstance().addTexture(this.textureFileName);
+		// Set a default texture map.
+		mapKdTexture = TextureManager.getInstance().defaultTexture;
 	}
 
 	public String getName () {
 		return name;
+	}
+	
+	public void setMapKaFile (String file) {
+		mapKaTexture = TextureManager.getInstance().getOrCreateTexture(file);
+	}
+	
+	public void setMapKdFile (String file) {
+		mapKdTexture = TextureManager.getInstance().getOrCreateTexture(file);
+	}
+	
+	public void setMapKsFile (String file) {
+		mapKsTexture = TextureManager.getInstance().getOrCreateTexture(file);
 	}
 	
 	@Override
@@ -55,9 +64,9 @@ public class Material {
 			   "Ns: " + Ns + "\n" +
 			   "illumModel: " + illumModel + "\n" +
 			   "niOpticalDensity: " + niOpticalDensity + "\n" +
-			   "mapKaFilename: " + mapKaFilename + "\n" +
-			   "mapKdFilename: " + mapKdFilename + "\n" +
-			   "mapKsFilename: " + mapKsFilename + "\n";
+			   "mapKa texture ID: " + mapKaTexture.getID() + "\n" +
+			   "mapKd texture ID: " + mapKdTexture.getID() + "\n" +
+			   "mapKs texture ID: " + mapKsTexture.getID() + "\n";
 			   
 	}
 }

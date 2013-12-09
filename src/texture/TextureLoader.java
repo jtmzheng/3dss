@@ -33,21 +33,9 @@ public class TextureLoader {
 	 * @param fileName
 	 * @return Texture tex
 	 */
-	public static Texture loadTexture(String fileName){
+	public static Texture loadTexture(String fileName) throws IOException{
 		BufferedImage image = null;
-		try {
-			image = loadImage(fileName);
-		} catch (IOException e) {
-			System.err.println("Could not find " + fileName + " in res/textures/. Defaulting to " + Material.DEFAULT_TEXTURE_MAP_FILE);
-			try {
-				image = loadImage(Material.DEFAULT_TEXTURE_MAP_FILE);
-			} catch (IOException e1) {
-				System.err.println("Could not find default texture map in res/textures/. Make sure " + Material.DEFAULT_TEXTURE_MAP_FILE + " is in there.");
-				e1.printStackTrace();
-				System.exit(1);
-			}
-
-		}
+		image = loadImage(fileName);
 		
 		if (image.getColorModel().hasAlpha())
 			BYTES_PER_PIXEL = 3;
