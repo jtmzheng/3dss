@@ -27,6 +27,7 @@ public class Settings {
 		settings.put("fragment_path",  "src/shaders/fragment.frag");
 		settings.put("log_folder", "logs/");
 		settings.put("pwd", System.getProperty("user.dir"));
+		settings.put("playerAcceleration", false);
 	}
 	
 	/**
@@ -54,6 +55,15 @@ public class Settings {
 	 */
 	public static void putFloat (String key, float val) {
 		settings.put(key, new Float(val));
+	}
+	
+	/**
+	 * Adds a boolean value to our settings.
+	 * @param key
+	 * @param val
+	 */
+	public static void putBoolean (String key, boolean val) {
+		settings.put(key, new Boolean(val));
 	}
 	
 	/**
@@ -96,6 +106,20 @@ public class Settings {
 			throw new IllegalArgumentException ("Key '" + val + "' does not exist");
 		
 		return val.floatValue();
+	}
+	
+	/**
+	 * Gets a boolean.
+	 * @param key
+	 * @return the boolean value
+	 */
+	public static boolean getBoolean (String key) {
+		Boolean val = (Boolean) settings.get(key);
+		
+		if (val == null) 
+			throw new IllegalArgumentException ("Key '" + val + "' does not exist");
+		
+		return val.booleanValue();
 	}
 	
 	/**

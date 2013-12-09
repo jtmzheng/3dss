@@ -12,6 +12,7 @@ import renderer.Camera;
 import renderer.Light;
 import renderer.LightHandle;
 import renderer.LightManager;
+import system.Settings;
 import event.PubSubListener;
 import event.PublishEventType;
 import event.Publisher;
@@ -39,15 +40,11 @@ public class Player implements InputListener {
 	private LightHandle cameraLight;
 	private LightManager lightManager = null; 
 	
-	
-	// Player attributes
-	private float shields = 100f;
-	private float HP = 100F;
-	
 	// Movement fields.
 	private float speed_x = 0.0f;
 	private float speed_y = 0.0f;
 
+	private boolean enableAcceleration;
 	private float acceleration = 0.01f;
 	private float MAX_SPEED = 0.17f;
 	private float drag = 0.001f;
@@ -81,6 +78,8 @@ public class Player implements InputListener {
 		cameraLight = new LightHandle(this, new Light(playerCam.getLocation(), m_Ls, m_Ld, m_La, playerCam.getDirection()));
 		lightManager = LightManager.getLightManagerHandle();
 		
+		enableAcceleration = Settings.getBoolean("playerAcceleration");
+		
 		// Subscribe the enemy death listener to the "enemy death" event.
 		Publisher.getInstance().bindSubscriber(new EnemyDeathListener(), PublishEventType.ENEMY_DEATH);
 	}
@@ -104,17 +103,27 @@ public class Player implements InputListener {
 	 * This should be called in the game loop.
 	 */
 	public void move () {
-		// Apply movement from key presses.
-		if (wPress && speed_y < MAX_SPEED)  speed_y += acceleration;
-		if (aPress && speed_x > -MAX_SPEED) speed_x -= acceleration;
-		if (sPress && speed_y > -MAX_SPEED) speed_y -= acceleration;
-		if (dPress && speed_x < MAX_SPEED)  speed_x += acceleration;
-				
-		// Apply drag.
-		if (speed_x > 0) speed_x -= drag;
-		if (speed_x < 0) speed_x += drag;
-		if (speed_y > 0) speed_y -= drag;
-		if (speed_y < 0) speed_y += drag;
+		if (enableAcceleration) {
+			// Apply movement from key presses.
+			if (wPress && speed_y < MAX_SPEED)  speed_y += acceleration;
+			if (aPress && speed_x > -MAX_SPEED) speed_x -= acceleration;
+			if (sPress && speed_y > -MAX_SPEED) speed_y -= acceleration;
+			if (dPress && speed_x < MAX_SPEED)  speed_x += acceleration;
+					
+			// Apply drag.
+			if (speed_x > 0) speed_x -= drag;
+			if (speed_x < 0) speed_x += drag;
+			if (speed_y > 0) speed_y -= drag;
+			if (speed_y < 0) speed_y += drag;
+		} else {		
+			speed_x = 0;
+			speed_y = 0;
+			
+			if (wPress) speed_y = MAX_SPEED;
+			if (aPress) speed_x = -MAX_SPEED;
+			if (sPress) speed_y = -MAX_SPEED;
+			if (dPress) speed_x = MAX_SPEED;
+		}
 		
 		// Move our player.
 		strafe();
