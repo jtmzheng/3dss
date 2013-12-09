@@ -35,12 +35,19 @@ public class Publisher {
 	 * @param eventType The type of the event.
 	 */
 	public void bindSubscriber (PubSubListener listener, PublishEventType eventType) {
-		if (!bindings.containsKey(eventType)) {
-			List<PubSubListener> listenerList = new ArrayList<PubSubListener>();
-			listenerList.add(listener);
-			bindings.put(eventType, listenerList);
-		} else {
-			bindings.get(eventType).add(listener);
+		try {
+			if (eventType == null || listener == null) {
+				throw new Exception();
+			}
+			if (!bindings.containsKey(eventType)) {
+				List<PubSubListener> listenerList = new ArrayList<PubSubListener>();
+				listenerList.add(listener);
+				bindings.put(eventType, listenerList);
+			} else {
+				bindings.get(eventType).add(listener);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -68,5 +75,20 @@ public class Publisher {
 		if (bindings.containsKey(eventName)) {
 			bindings.get(eventName).clear();
 		}
+	}
+	
+	/**
+	 * Clears the instance.
+	 */
+	public void clearInstance () {
+		bindings = new HashMap<PublishEventType, List<PubSubListener>>();
+		instance = null;
+	}
+	
+	/**
+	 * Returns the mapping.
+	 */
+	public Map<PublishEventType, List<PubSubListener>> getBindings() {
+		return bindings;
 	}
 }
