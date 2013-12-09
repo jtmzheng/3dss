@@ -1,6 +1,6 @@
 #version 330 core
 
-const float SPOT_ARC = 25.0 / 90.0;
+const float SPOT_ARC = cos(13.66 / 90.0);
 const int MAX_NUM_LIGHTS = 32;
 
 uniform vec3 light_position = vec3(10.0, 10.0, 10.0);
@@ -32,8 +32,8 @@ out vec4 out_Color;
 
 void main(void) {
 
-	vec3 Ia = La * sKa;
-	vec3 Id = vec3(0, 0, 0), Is = vec3(0, 0, 0);
+	vec3 Ia = La * sKa / 2;
+	vec3 Id = vec3(0, 0, 0), Is = vec3(0, 0, 0), tIa = vec3(0, 0, 0);
 	vec3 lightTotal = Ia; // total light adjusted color
 	
 	for(int index = 0; index < MAX_NUM_LIGHTS; index++) {
@@ -62,30 +62,28 @@ void main(void) {
 	
 			tId = lights[index].Ld * sKd * dotLightEye;	
 			tIs = lights[index].Ls * sKs * specFactor;	
+			tIa = Ia / 2;
 			
 			// Directional lighting
 			if(lights[index].isDirectional > 0.5){
-				vec3 dir_eye = vec3(viewMatrixFrag * vec4(normalize(lights[index].direction), 0.0));
-				float spot_dot = abs(dot(dir_eye, dirLightEye));
-				spot_dot = min(spot_dot, 1.0);				
-
-				float spot_factor = 0.0;
-				if(spot_dot > SPOT_ARC) {
-					spot_factor = 1.0;
-				}
+				vec3 look_at = lights[index].position + lights[index].direction;
+				vec3 look_at_eye = vec3(viewMatrixFrag * vec4(look_at, 1.0));
+				vec3 dir_eye = normalize(light_position_eye - look_at_eye);
 				
-				/*
-				float spot_factor = (spot_dot - SPOT_ARC) / (1.0 - SPOT_ARC);
-				spot_factor = clamp(spot_factor, 0.0, 1.0);
-				*/
+				float spot_dot = dot(dir_eye, dirLightEye);
 				
+				float spot_factor = clamp((spot_dot - SPOT_ARC)/(1.0 - SPOT_ARC), 0.0, 1.0);
+				if(spot_dot < SPOT_ARC) {
+					spot_factor = 0.0;
+				} 
 				
 				tId *= spot_factor; // zero if outside of spotlight
   				tIs *= spot_factor;
+  				tIa *= spot_factor;
 			}
+		
+			lightTotal += ((tId + tIs + tIa) / fAttTotal);
 	    } 
-
-		lightTotal += ((tId + tIs) / fAttTotal);
 	    
 	}
 	
