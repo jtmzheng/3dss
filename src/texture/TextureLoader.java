@@ -38,11 +38,11 @@ public class TextureLoader {
 		try {
 			image = loadImage(fileName);
 		} catch (IOException e) {
-			System.err.println("Could not find " + fileName + " in res/textures/. Defaulting to " + TextureManager.DEFAULT_TEXTURE_FILENAME);
+			System.err.println("Could not find " + fileName + " in res/textures/. Defaulting to " + Material.DEFAULT_TEXTURE_MAP_FILE);
 			try {
-				image = loadImage(TextureManager.DEFAULT_TEXTURE_FILENAME);
+				image = loadImage(Material.DEFAULT_TEXTURE_MAP_FILE);
 			} catch (IOException e1) {
-				System.err.println("Could not find default texture in res/textures/. Make sure " + TextureManager.DEFAULT_TEXTURE_FILENAME + " is in there.");
+				System.err.println("Could not find default texture map in res/textures/. Make sure " + Material.DEFAULT_TEXTURE_MAP_FILE + " is in there.");
 				e1.printStackTrace();
 				System.exit(1);
 			}

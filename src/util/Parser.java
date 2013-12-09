@@ -6,21 +6,24 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
 import renderer.Face;
-import renderer.VertexData;
 import texture.Material;
-import texture.TextureType;
 
 /**
- * This class parses obj/mtl files.
+ * This class parses .obj and .mtl files.
+ * .obj files reference .mtl files by the tag "mtllib". In .mtl files, there are "newmtl"
+ * tags which declare new materials (which we represent by Material.java). These "newmtl"s 
+ * have properties which include texture maps and lighting values.
+ * 
  * @author Adi
- *
  */
 public class Parser {
 	// Parsing token in OBJ/MTL files. 
@@ -36,9 +39,17 @@ public class Parser {
     private final static String MTL_KD = "Kd";
     private final static String MTL_KS = "Ks";
     private final static String MTL_NS = "Ns";
+    private final static String MTL_ILLUM = "illum";
+    private final static String MTL_NI = "Ni";
+    private final static String MTL_MAP_KA = "map_Ka";
+    private final static String MTL_MAP_KD = "map_Kd";
+    private final static String MTL_MAP_KS = "map_Ks";
     
-    // Default material.
-    private Material currentMaterial = new Material(null);
+    // Materials in this object.
+    private Map<String, Material> materialMapping = new HashMap<String, Material>();
+    
+    // Current material being parsed.
+    private Material currentMaterial = null;
     
     // List of obj properties that are used.
     private List<Vector3f> vertices;
@@ -46,7 +57,7 @@ public class Parser {
     private List<Vector3f> normals;
     
     // List of faces.
-    private List<Face> faces;
+    private static List<Face> faces;
     
     // DataParser is used to slightly improve performance (does actual parsing).
     private ArrayBlockingQueue<String> parsedData;
@@ -95,123 +106,29 @@ public class Parser {
     	System.out.println("New OBJ Loading Time: " + (System.currentTimeMillis() - curTime));
     }
     
-    private class DataParser implements Runnable {
-    	
-    	private File m_file; //file to read
-    	
-    	public DataParser(File file){
-    		m_file = file;
-    	}
-    	
-    	@Override
-    	public void run(){
-    		String line = null;
-
-    		try {
-    			FileReader fin = new FileReader(m_file);
-        		BufferedReader bin = new BufferedReader (fin);
-				while ((line = bin.readLine()) != null) {
-
-					if (line.length() == 0) continue;
-					if (line.startsWith(OBJ_COMMENT)) continue;
-					
-					parsedData.put(line);
-				}
-				bin.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (InterruptedException e){ //Allows failure
-				e.printStackTrace();
-			} finally {
-				isDone = true;
-			}
-    	}
-    }
-    
-    /**
-     * Parses a texture.
-     * @param line
-     */
     private void parseTexture (String line) {
-    	textures.add(StringUtilities.parse2FloatList(line));
+    	textures.add(ParseUtils.parse2FloatList(line));
     }
     
-    /**
-     * Parses a normal.
-     * @param line
-     */
     private void parseNormal (String line) {
-    	normals.add(StringUtilities.parse3FloatList(line));
+    	normals.add(ParseUtils.parse3FloatList(line));
     }
-    
-    /**
-     * Parses a vertex.
-     * @param line
-     */
+
     private void parseVertex (String line) {
-    	vertices.add(StringUtilities.parse3FloatList(line));
+    	vertices.add(ParseUtils.parse3FloatList(line));
     }
-    
-    /**
-     * Parses a face.
-     * @param line
-     */
+
     private void parseFace (String line) {
-    	String[] tokens = line.split("\\s+");
-    	List<VertexData> faceData = new ArrayList<VertexData>();
-    	if (!line.contains("/")) {
-    		for (int x = 1; x < tokens.length; x++) {
-    			VertexData v = new VertexData (vertices.get(Integer.parseInt(tokens[x])-1));
-    			faceData.add(v);
-    		}
-    		faces.add(new Face(faceData, currentMaterial));
-    		return;
-    	}
-    	
-    	// We should have trimmed whitespace and stuff by this point.
-    	if (tokens[1].matches("^[0-9]+/[0-9]+$")) {
-    		for (int x = 1; x < tokens.length; x++) {
-    			String[] indices = tokens[x].split("/");
-    			VertexData v = new VertexData (vertices.get(Integer.parseInt(indices[0]) - 1),
-    					textures.get(Integer.parseInt(indices[1]) - 1));
-    			
-    			faceData.add(v);
-    		}
-    		faces.add(new Face(faceData, currentMaterial));
-    		return;
-    	}
-    	
-    	if (tokens[1].matches("^[0-9]+/[0-9]+/[0-9]+$")) {
-    		for (int x = 1; x < tokens.length; x++) {
-    			String[] indices = tokens[x].split("/");
-    			VertexData v = new VertexData (vertices.get(Integer.parseInt(indices[0]) - 1),
-    					textures.get(Integer.parseInt(indices[1]) - 1),
-    					normals.get(Integer.parseInt(indices[2]) - 1));
-    			
-    			faceData.add(v);
-    		}
-    		faces.add(new Face(faceData, currentMaterial));
-    		return;
-    	}
-    	
-    	if (tokens[1].matches("^[0-9]+//[0-9]+$")) {
-    		for (int x = 1; x < tokens.length; x++) {
-    			String[] indices = tokens[x].split("//");
-    			VertexData v = new VertexData (vertices.get(Integer.parseInt(indices[0]) - 1),
-    					new Vector2f(0f, 0f),
-    					normals.get(Integer.parseInt(indices[1]) - 1));
-    			
-    			faceData.add(v);
-    		}
-    		faces.add(new Face(faceData, currentMaterial));
-    		return;
-    	}
+    	faces.add(ParseUtils.parseFace(line, vertices, normals, textures, currentMaterial));
     }
     
-    private void parseUseMTL (String line) {}
+    private void parseUseMTL (String line) {
+    	line = line.split(" ")[1];
+    	this.currentMaterial = materialMapping.get(line);
+    }
     
     private void parseMTLLib (String line) {
-    	String[] libNames = line.substring(OBJ_MTLLIB.length()).trim().split("\\w+");
+    	String[] libNames = line.substring(OBJ_MTLLIB.length()).trim().split(" ");
     	
     	if (libNames != null) {
     		for (int i = 0; i < libNames.length; i++) {
@@ -224,10 +141,12 @@ public class Parser {
     		}
     	}
     }
-    
+
     /**
-     * Parses a MTL file.
- 	 * @param fileName
+     * Parses .mtl files referenced by .obj files.
+     * @param fileName
+     * @throws IOException
+     * @throws FileNotFoundException
      */
     private void parseMTLFile (String fileName) throws IOException, FileNotFoundException {
         File mtlFile = new File(objFile.getParent(), fileName);
@@ -241,37 +160,34 @@ public class Parser {
 			if (line.startsWith(MTL_KA)) parseKa(line);
 			if (line.startsWith(MTL_KD)) parseKd(line);
 			if (line.startsWith(MTL_KS)) parseKs(line);
+			if (line.startsWith(MTL_ILLUM)) parseIllum(line);
 			if (line.startsWith(MTL_NS)) parseNs(line);
+			if (line.startsWith(MTL_NI)) parseNi(line);
+			if (line.startsWith(MTL_MAP_KA)) parseMapKa(line);
+			if (line.startsWith(MTL_MAP_KD)) parseMapKd(line);
+			if (line.startsWith(MTL_MAP_KS)) parseMapKs(line);
 		}
 		
 		br.close();
     }
     
     private void parseNewMTL (String line) {
-    	String[] tokens = line.split("\\w+");
-    	String fileName = tokens[1];
-
-    	// Set current material to new material, with the filename of the texture to load.
-    	this.currentMaterial = new Material(fileName);
+    	line = line.substring(MTL_NEWMTL.length()).trim();
+    	
+    	// Create a new material and set it to the current material being parsed.
+    	this.currentMaterial = new Material(line);
+    	materialMapping.put(line, this.currentMaterial);
     }
-    
-    /**
-     * Parses ambiance.
-     * @param line
-     */
+
     private void parseKa (String line) {
-    	String[] tokens = line.split("\\w+");
+    	String[] tokens = line.split(" ");
     	this.currentMaterial.Ka = new float[] {Float.parseFloat(tokens[1]),
 					   Float.parseFloat(tokens[2]),
 					   Float.parseFloat(tokens[3])};
     }
-    
-    /**
-     * Parses diffuse.
-     * @param line
-     */
+
     private void parseKd (String line) {
-    	String[] tokens = line.split("\\w+");
+    	String[] tokens = line.split(" ");
     	if (tokens.length == 5) {
         	this.currentMaterial.Kd = new float[] {Float.parseFloat(tokens[1]),
 					   Float.parseFloat(tokens[2]),
@@ -284,56 +200,86 @@ public class Parser {
 					   1.0f};
         }
     }
+
+    private void parseIllum (String line) {
+    	line = line.substring(MTL_ILLUM.length()).trim();
+    	this.currentMaterial.illumModel = Integer.parseInt(line);
+    }
     
-    /**
-     * Parses Ks.
-     * @param line
-     */
+    private void parseNs (String line) {
+    	line = line.substring(MTL_NS.length()).trim();
+    	this.currentMaterial.Ns = Float.parseFloat(line);
+    }
+
+    private void parseNi (String line) {
+    	line = line.substring(MTL_NI.length()).trim();
+    	this.currentMaterial.niOpticalDensity = Float.parseFloat(line);
+    }
+    
     private void parseKs (String line) {
-    	String[] tokens = line.split("\\w+");
+    	String[] tokens = line.split("\\s+");
     	this.currentMaterial.Ks = new float[] {Float.parseFloat(tokens[1]),
 					   Float.parseFloat(tokens[2]),
 					   Float.parseFloat(tokens[3])};
     }
-    
-    /**
-     * Parses Ns.
-     * @param line
-     */
-    private void parseNs (String line) {
-    	String[] tokens = line.split("\\w+");
-    	this.currentMaterial.Ns = Float.parseFloat(tokens[1]);
+
+    private void parseMapKa (String line) {
+    	this.currentMaterial.mapKaFilename = line.split(" ")[1];
     }
     
-    /**
-     * Gets the list of vertices that this parser parsed.
-     * @return the list of vertices
-     */
-    public List<Vector3f> getVertices () {
-    	return vertices;
+    private void parseMapKd (String line) {
+    	this.currentMaterial.mapKdFilename = line.split(" ")[1];
     }
     
-    /**
-     * Gets the list of texture that this parser parsed.
-     * @return the list of textures
-     */
-    public List<Vector2f> getTextures () {
-    	return textures;
+    private void parseMapKs (String line) {
+    	this.currentMaterial.mapKsFilename = line.split(" ")[1];
     }
+   
+    // Getters.
+    public List<Vector3f> getVertices () { return vertices; }
+    public List<Vector2f> getTextures () { return textures; }
+    public List<Vector3f> getNormals () { return normals; }
+    public List<Face> getFaces () { return faces; }
     
-    /**
-     * Gets the list of normals that this parser parsed.
-     * @return the list of normals
-     */
-    public List<Vector3f> getNormals () {
-    	return normals;
+    private class DataParser implements Runnable {
+    	
+    	private File m_file; //file to read
+    	
+    	public DataParser(File file){
+    		m_file = file;
+    	}
+    	
+    	@Override
+    	public void run(){
+    		String line = null;
+    		try {
+    			FileReader fin = new FileReader(m_file);
+        		BufferedReader bin = new BufferedReader (fin);
+				while ((line = bin.readLine()) != null) {
+					if (line.length() == 0) continue;
+					if (line.startsWith(OBJ_COMMENT)) continue;
+			
+					parsedData.put(line);
+				}
+				bin.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e){ //Allows failure
+				e.printStackTrace();
+			} finally {
+				isDone = true;
+			}
+    	}
     }
-    
-    /**
-     * Gets the list of faces that this parser parsed.
-     * @return the list of faces
-     */
-    public List<Face> getFaces () {
-    	return faces;
+
+    public static void main (String[] args) throws IOException, InterruptedException {
+    	for (int i = 0; i < 10; i++) {
+    		Parser parseFile = new Parser();
+    		parseFile.parseOBJFile(new File("res/obj/ATAT.obj"));
+    	}
+
+		
+		//faces = parseFile.getFaces();
+		//System.out.println(faces.get(20000).material.toString());
     }
 }

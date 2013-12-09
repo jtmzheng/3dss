@@ -162,8 +162,6 @@ public class VertexData {
 		out[i++] = this.ambRefl[2];
 		out[i++] = this.specPower;
 		
-		
-		
 		return out;
 	}
 	
