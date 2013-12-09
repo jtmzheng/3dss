@@ -34,7 +34,20 @@ public class TextureLoader {
 	 * @return Texture tex
 	 */
 	public static Texture loadTexture(String fileName){
-		BufferedImage image = loadImage(fileName);
+		BufferedImage image = null;
+		try {
+			image = loadImage(fileName);
+		} catch (IOException e) {
+			System.err.println("Could not find " + fileName + " in res/textures/. Defaulting to " + TextureManager.DEFAULT_TEXTURE_FILENAME);
+			try {
+				image = loadImage(TextureManager.DEFAULT_TEXTURE_FILENAME);
+			} catch (IOException e1) {
+				System.err.println("Could not find default texture in res/textures/. Make sure " + TextureManager.DEFAULT_TEXTURE_FILENAME + " is in there.");
+				e1.printStackTrace();
+				System.exit(1);
+			}
+
+		}
 		
 		if (image.getColorModel().hasAlpha())
 			BYTES_PER_PIXEL = 3;
@@ -79,20 +92,15 @@ public class TextureLoader {
         return tex;
 	}
 
-	private static BufferedImage loadImage(String textureName) {
+	private static BufferedImage loadImage (String textureName) throws IOException {
 		// Get the absolute path to the texture.
 		String abspath = Settings.getString("pwd") + "/res/textures/" + textureName;
-	    try {
-	        BufferedImage im = ImageIO.read(new File(abspath));
-	        
-	        if ((im.getHeight() & im.getHeight() - 1) != 0 || (im.getWidth() & im.getWidth() - 1) != 0) {
-	        	throw new IOException("Invalid dimensions for texture. Please use width and heights of powers of two.");
-	        }
-	        
-	        return im;
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    }
-        return null;
-	}
+        BufferedImage im = ImageIO.read(new File(abspath));
+        
+        if ((im.getHeight() & im.getHeight() - 1) != 0 || (im.getWidth() & im.getWidth() - 1) != 0) {
+        	throw new IllegalArgumentException("Invalid dimensions for texture. Please use width and heights of powers of two.");
+        }
+        
+        return im;
+    }
 }
