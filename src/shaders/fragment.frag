@@ -66,7 +66,7 @@ void main(void) {
 			
 			// If directional lighting is enabled
 			if(lights[index].isDirectional > 0.5){
-				vec3 light_look_at = lights[index].position - lights[index].direction;
+				vec3 light_look_at = lights[index].position + lights[index].direction;
 				vec3 light_look_at_eye = vec3(viewMatrixFrag * vec4(light_look_at, 1.0));
 				vec3 dir_eye = normalize(light_position_eye - light_look_at_eye);
 				

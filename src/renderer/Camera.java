@@ -111,7 +111,7 @@ public class Camera {
 	 */
 	public void rotateCamera(int deltaX, int deltaY){
 		pitch += deltaY * cameraSensitivity;
-		yaw += deltaX * cameraSensitivity;
+		yaw -= deltaX * cameraSensitivity; // why inverted???
 		
 		cameraDirection.x = (float)(Math.cos(pitch) * Math.sin(yaw));
 		cameraDirection.y = (float)(Math.sin(pitch));
@@ -139,11 +139,10 @@ public class Camera {
 		right.y = cameraRight.y / cameraRight.length();
 		right.z = cameraRight.z / cameraRight.length();
 		
-		forwards.x = cameraDirection.x / cameraDirection.length();
-		forwards.y = cameraDirection.y / cameraDirection.length();
-		forwards.z = cameraDirection.z / cameraDirection.length();
+		forwards.x = -cameraDirection.x / cameraDirection.length(); // ????? why reversed
+		forwards.y = -cameraDirection.y / cameraDirection.length();
+		forwards.z = -cameraDirection.z / cameraDirection.length();
 		
-
 		Vector3f up = Vector3f.cross(forwards, right, null);
 		Vector3f pos = new Vector3f(cameraPosition);
 		
@@ -151,7 +150,7 @@ public class Camera {
 		orientation.m00 = right.x; 		
 		orientation.m10 = right.y; 		
 		orientation.m20 = right.z; 		
-		orientation.m30 = -Vector3f.dot(right, pos);
+		orientation.m30 = -Vector3f.dot(right, pos); 
 		orientation.m01 = up.x;			
 		orientation.m11 = up.y;			
 		orientation.m21 = up.z; 	  		
@@ -161,7 +160,7 @@ public class Camera {
 		orientation.m22 = forwards.z; 	
 		orientation.m32 = -Vector3f.dot(forwards, pos);
 		
-		viewMatrix = orientation;
+		viewMatrix = orientation; // translation built in 
 	}
 	
 	/**
