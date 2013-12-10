@@ -66,7 +66,7 @@ public class Player implements InputListener {
 	 * @param c The Camera object that abstracts out the view matrix logic.
 	 */
 	public Player(Camera c) {
-		this.playerCam = c;
+		playerCam = c;
 		setup();
 	}
 

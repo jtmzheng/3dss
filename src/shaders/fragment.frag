@@ -43,13 +43,13 @@ void main(void) {
 	
 	    if(lights[index].isUsed > 0.5){    
 			vec3 light_position_eye = vec3(viewMatrixFrag * vec4(lights[index].position, 1.0));
-			vec3 sLightEye = light_position_eye - position_eye;
-			vec3 dirLightEye = normalize(sLightEye); // direction from light to surface 
+			vec3 sLightFragmentEye = light_position_eye - position_eye;
+			vec3 dirLightFragmentEye = normalize(sLightFragmentEye); // direction from light to surface 
 	    
-	    	float dotLightEye = dot(dirLightEye, normalize(normal_eye));
+	    	float dotLightEye = dot(dirLightFragmentEye, normalize(normal_eye));
 			dotLightEye = max(dotLightEye, 0.0); //clamp to 0
 	    
-	    	vec3 reflectionEye = reflect(-dirLightEye, normal_eye);
+	    	vec3 reflectionEye = reflect(-dirLightFragmentEye, normal_eye);
 			vec3 surfaceViewerEye = normalize(-position_eye);
 	    
 	    	float dotSpecular = abs(dot(normalize(reflectionEye), surfaceViewerEye));
@@ -57,20 +57,20 @@ void main(void) {
 	
 			float specFactor = pow(dotSpecular, lights[index].specExp);
 	
-   			float fDist = length(sLightEye); // distance between light and position    
+   			float fDist = length(sLightFragmentEye); // distance between light and position of fragment    
    			fAttTotal = 0.3 + 0.007*fDist + 0.008*fDist*fDist;	
 	
 			tId = lights[index].Ld * sKd * dotLightEye;	
 			tIs = lights[index].Ls * sKs * specFactor;	
 			tIa = Ia / 2;
 			
-			// Directional lighting
+			// If directional lighting is enabled
 			if(lights[index].isDirectional > 0.5){
-				vec3 look_at = lights[index].position + lights[index].direction;
-				vec3 look_at_eye = vec3(viewMatrixFrag * vec4(look_at, 1.0));
-				vec3 dir_eye = normalize(light_position_eye - look_at_eye);
+				vec3 light_look_at = lights[index].position - lights[index].direction;
+				vec3 light_look_at_eye = vec3(viewMatrixFrag * vec4(light_look_at, 1.0));
+				vec3 dir_eye = normalize(light_position_eye - light_look_at_eye);
 				
-				float spot_dot = dot(dir_eye, dirLightEye);
+				float spot_dot = dot(dir_eye, dirLightFragmentEye);
 				
 				float spot_factor = clamp((spot_dot - SPOT_ARC)/(1.0 - SPOT_ARC), 0.0, 1.0);
 				if(spot_dot < SPOT_ARC) {
