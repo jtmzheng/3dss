@@ -29,7 +29,7 @@ public class Material {
 		this.name = materialName;
 		
 		// Set a default texture map.
-		mapKdTexture = TextureManager.getInstance().defaultTexture;
+		mapKdTexture = TextureManager.getInstance().getDefaultTexture();
 	}
 
 	public String getName () {

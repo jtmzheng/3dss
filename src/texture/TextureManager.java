@@ -45,7 +45,7 @@ public class TextureManager {
 	/**
 	 * Default texture (set on first instance of this class).
 	 */
-	public Texture defaultTexture;
+	private Texture defaultTexture;
 	
 	private static final Object TextureManagerLock = new Object();
 	
@@ -148,5 +148,9 @@ public class TextureManager {
 				return textureFileMapping.get(fileName).getID();
 			}
 		}
+	}
+	
+	public Texture getDefaultTexture() {
+		return defaultTexture;
 	}
 }
