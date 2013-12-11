@@ -3,6 +3,11 @@ package texture;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
+
+import org.lwjgl.opengl.GL13;
 
 /**
  * Singleton that manages loading, adding, and removing texture maps.
@@ -28,6 +33,16 @@ public class TextureManager {
 	public static final String DEFAULT_TEXTURE_FILENAME = "fur_hair.png";
 	
 	/**
+	 * OpenGL Texture Slot IDs
+	 */
+	private BlockingQueue<Integer> texSlotIds;
+	
+	/**
+	 * LWJGL only supports 32 slots 
+	 */
+	private final int MAX_SUPPORTED_SLOTS = 50; 
+	
+	/**
 	 * Default texture (set on first instance of this class).
 	 */
 	public Texture defaultTexture;
@@ -36,10 +51,21 @@ public class TextureManager {
 	
 	private TextureManager() {
 		try {
-			defaultTexture = TextureLoader.loadTexture(DEFAULT_TEXTURE_FILENAME);
+			texSlotIds = new ArrayBlockingQueue<Integer>(MAX_SUPPORTED_SLOTS);
+			
+			// Add all supported LWJGL texture slot Ids to list of available slot IDs
+			for(int i = GL13.GL_TEXTURE0; i < GL13.GL_TEXTURE31; i++) {
+				texSlotIds.add(i);
+			}
+			
+			// Load the default texture
+			defaultTexture = TextureLoader.loadTexture(DEFAULT_TEXTURE_FILENAME, texSlotIds.poll(2000, TimeUnit.MILLISECONDS));
+			
 		} catch (IOException e) {
 			System.err.println("Could not find default texture file in res/textures/!");
 			System.err.println("Please add the file " + DEFAULT_TEXTURE_FILENAME + " in that directory.");
+			System.exit(1);
+		} catch (InterruptedException e) {
 			System.exit(1);
 		}
 		textureFileMapping.put(DEFAULT_TEXTURE_FILENAME, defaultTexture);
@@ -70,12 +96,15 @@ public class TextureManager {
 				return textureFileMapping.get(textureFileName);
 			} else {
 				try {
-					Texture loadedTexture = TextureLoader.loadTexture(textureFileName);
+					Texture loadedTexture = TextureLoader.loadTexture(textureFileName, texSlotIds.poll(2000, TimeUnit.MILLISECONDS));
+					textureFileMapping.put(textureFileName, loadedTexture);
 					return loadedTexture;
 				} catch (IOException e) {
 					System.err.println("Could not find " + textureFileName + " in res/textures/.");
 					System.err.println("Falling back to the default texture map -> " + DEFAULT_TEXTURE_FILENAME);
-					
+					return defaultTexture;
+				} catch (InterruptedException e) {
+					System.err.println("Timed out waiting for texture slot!");					
 					return defaultTexture;
 				}
 			}

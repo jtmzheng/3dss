@@ -89,15 +89,16 @@ public class Model {
 		Material currentMaterial = null;
 		ArrayList<Face> currentFaceList = new ArrayList<Face>();
 		for (Face face : this.faces) {
-			if (face.material != currentMaterial) {
+			if (face.getMaterial() != currentMaterial) {
 				if (!currentFaceList.isEmpty()) {
 					facesByMaterial.add(currentFaceList);
 				}
-				currentMaterial = face.material;
+				currentMaterial = face.getMaterial();
 				currentFaceList = new ArrayList<Face>();
 			}
 			currentFaceList.add(face);
 		}
+		
 		System.out.println("Number of face lists by material: " + facesByMaterial.size());
 		
 		// Put each 'Vertex' in one FloatBuffer
@@ -107,10 +108,13 @@ public class Model {
 		List<Integer> vboIndex = new ArrayList<Integer>();
 		VertexData tempVertexData;
 
+		
+		// VBO index
 		int index = 0;
 
-		// For each face in the list, process the data and add to
-		// the byte buffer.
+		/** For each face in the list, process the data and add to 
+		 *  the byte buffer.
+		 */
 		for(Face face: this.faces){			
 			//Add first vertex of the face			
 			tempVertexData = face.faceData.get(0);
@@ -297,12 +301,21 @@ public class Model {
 	 * Add a light to this model 
 	 * @param light
 	 */
-	public void addLight(Light light){
-		if(m_LightHandle != null){
+	public void addLight(Light light) {
+		if(m_LightHandle != null) {
 			m_LightHandle.invalidate();
 		}
 		
 		m_LightHandle = new LightHandle(this, light);
+	}
+	
+	/**
+	 * Remove the light associated with this model
+	 */
+	public void removeLight() {
+		if(m_LightHandle != null) {
+			m_LightHandle.invalidate();
+		}
 	}
 
 	/**
@@ -315,8 +328,8 @@ public class Model {
 		for (Face face : this.faces) {
 			if (face.faceData.size() == 4) {
 				removeFaces.add(face);
-				addFaces.add(new Face( face.getVertex(0) , face.getVertex(1) , face.getVertex(2), face.material ));
-				addFaces.add(new Face( face.getVertex(0) , face.getVertex(2) , face.getVertex(3), face.material ));
+				addFaces.add(new Face( face.getVertex(0) , face.getVertex(1) , face.getVertex(2), face.getMaterial() ));
+				addFaces.add(new Face( face.getVertex(0) , face.getVertex(2) , face.getVertex(3), face.getMaterial() ));
 			}
 			else if (face.faceData.size() > 4){
 				removeFaces.add(face);

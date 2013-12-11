@@ -1,5 +1,12 @@
 package texture;
 
+import static org.lwjgl.opengl.GL11.GL_RGBA;
+import static org.lwjgl.opengl.GL11.GL_RGBA8;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL11.glGenTextures;
+import static org.lwjgl.opengl.GL11.glTexImage2D;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -8,10 +15,11 @@ import java.nio.ByteBuffer;
 import javax.imageio.ImageIO;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL20;
 
+import renderer.ShaderController;
 import system.Settings;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.*;
 
 /**
  * Utility class to load textures. This should (other than unit tests) only be 
@@ -31,9 +39,10 @@ public class TextureLoader {
 	 * This file must reside in res/textures/
 	 * 
 	 * @param fileName
-	 * @return Texture tex
+	 * @param slotId
+	 * @return Texture tex (a bound texture)
 	 */
-	public static Texture loadTexture(String fileName) throws IOException{
+	public static Texture loadTexture(String fileName, int slotId) throws IOException{
 		BufferedImage image = null;
 		image = loadImage(fileName);
 		
@@ -59,23 +68,22 @@ public class TextureLoader {
             }
         }
 
-        buffer.flip(); 
+        buffer.flip();
 
-        int textureID = glGenTextures(); // Generate texture ID.
+        int textureId = glGenTextures(); // Generate texture ID.
         
-        Texture tex = new Texture(image.getWidth(), image.getHeight(), textureID);
+        Texture tex = new Texture(image.getWidth(), 
+        		image.getHeight(), 
+        		textureId, 
+        		slotId, 
+        		buffer);
         
+    	// Select our shader program.
+     	GL20.glUseProgram(ShaderController.getCurrentProgram());
         // Bind texture ID to target.
         tex.bind();
-        
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-        // Send texel data to OpenGL.
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+        // Deselect shader program
+     	GL20.glUseProgram(0);
 
         return tex;
 	}

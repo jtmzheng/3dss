@@ -104,6 +104,8 @@ public class Parser {
     		else if (line.startsWith(OBJ_MTLLIB)) parseMTLLib(line);
     		else if (line.startsWith(OBJ_USEMTL)) parseUseMTL(line);
     	}    	
+    	
+    	parserThread.join();
     	System.out.println("New OBJ Loading Time: " + (System.currentTimeMillis() - curTime));
     }
     

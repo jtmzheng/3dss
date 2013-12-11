@@ -14,7 +14,7 @@ public class Face {
 	public List<VertexData> faceData;
 	
 	// Each face has a material, which has its own lighting properties.
-	public Material material = null;
+	private Material material = null;
 	
 	/**
 	 * Constructs a face given vertex data.
@@ -82,6 +82,14 @@ public class Face {
 		}
 		
 		return faceData.get(index);
+	}
+	
+	/**
+	 * Get the material from the face (if applicable)
+	 * @return
+	 */
+	public Material getMaterial() {
+		return material;
 	}
     
     /**
