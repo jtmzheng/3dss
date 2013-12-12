@@ -80,4 +80,8 @@ public class LightHandle {
 		return m_valid;
 	}
 
+	public Light getLight() {
+		return m_light;
+	}
+
 }

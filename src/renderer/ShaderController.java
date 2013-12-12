@@ -76,8 +76,7 @@ public class ShaderController {
 		lightPositionLocation = GL20.glGetUniformLocation(currentProgram,  "light_position");
 		specularLocation = GL20.glGetUniformLocation(currentProgram,  "Ls");
 		diffuseLocation = GL20.glGetUniformLocation(currentProgram,  "Ld");
-		ambientLocation = GL20.glGetUniformLocation(currentProgram,  "La");
-		viewMatrixFragLocation = GL20.glGetUniformLocation(currentProgram, "viewMatrixFragLocation");
+		ambientLocation = GL20.glGetUniformLocation(currentProgram,  "La");		
 		
 		return true;
 	}

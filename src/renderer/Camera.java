@@ -110,15 +110,16 @@ public class Camera {
 	 * @param deltaY The change in y.
 	 */
 	public void rotateCamera(int deltaX, int deltaY){
-		pitch -= deltaY * cameraSensitivity;
-		yaw += deltaX * cameraSensitivity;
-
-		cameraDirection.x = -(float)(Math.cos(pitch) * Math.sin(yaw));
+		pitch += deltaY * cameraSensitivity;
+		yaw -= deltaX * cameraSensitivity; // why inverted???
+		
+		cameraDirection.x = (float)(Math.cos(pitch) * Math.sin(yaw));
 		cameraDirection.y = (float)(Math.sin(pitch));
 		cameraDirection.z = (float)(Math.cos(pitch) * Math.cos(yaw));
 		
 		cameraRight.x = (float)(Math.sin(yaw - 3.14f/2.0f));
-		cameraRight.z = -(float)(Math.cos(yaw - 3.14f/2.0f));
+		cameraRight.y = 0f;
+		cameraRight.z = (float)(Math.cos(yaw - 3.14f/2.0f));
 				
 		applyTransformations();
 	}
@@ -129,16 +130,37 @@ public class Camera {
 	 * then applies the translation to return it back to its position.
 	 */
 	public void applyTransformations() {
-		viewMatrix = new Matrix4f();
-	    Matrix4f.rotate(pitch, new Vector3f(1, 0, 0), viewMatrix, viewMatrix);
-	    Matrix4f.rotate(yaw, new Vector3f(0, 1, 0), viewMatrix, viewMatrix);
-	    Matrix4f.rotate(roll, new Vector3f(0, 0, 1), viewMatrix, viewMatrix);
-	    
-	    Matrix4f.translate(new Vector3f(cameraPosition.x,
-	    		cameraPosition.y,
-	    		cameraPosition.z),
-	    		viewMatrix,
-	    		viewMatrix);
+		Matrix4f orientation = new Matrix4f();
+		
+		Vector3f right = new Vector3f(cameraRight);
+		Vector3f forwards = new Vector3f(cameraDirection);
+		
+		right.x = cameraRight.x / cameraRight.length();
+		right.y = cameraRight.y / cameraRight.length();
+		right.z = cameraRight.z / cameraRight.length();
+		
+		forwards.x = -cameraDirection.x / cameraDirection.length(); // ????? why reversed
+		forwards.y = -cameraDirection.y / cameraDirection.length();
+		forwards.z = -cameraDirection.z / cameraDirection.length();
+		
+		Vector3f up = Vector3f.cross(forwards, right, null);
+		Vector3f pos = new Vector3f(cameraPosition);
+		
+		// Column major matrix
+		orientation.m00 = right.x; 		
+		orientation.m10 = right.y; 		
+		orientation.m20 = right.z; 		
+		orientation.m30 = -Vector3f.dot(right, pos); 
+		orientation.m01 = up.x;			
+		orientation.m11 = up.y;			
+		orientation.m21 = up.z; 	  		
+		orientation.m31 = -Vector3f.dot(up,  pos);
+		orientation.m02 = forwards.x; 	
+		orientation.m12 = forwards.y;	
+		orientation.m22 = forwards.z; 	
+		orientation.m32 = -Vector3f.dot(forwards, pos);
+		
+		viewMatrix = orientation; // translation built in 
 	}
 	
 	/**
@@ -153,10 +175,13 @@ public class Camera {
 						translationVector.z),
 						null);
 		
+		applyTransformations();
+		/*
 		Matrix4f.translate(new Vector3f(translationVector.x,
 				translationVector.y,
 				translationVector.z),
 				viewMatrix,
 				viewMatrix);
+				*/
 	}
 }
