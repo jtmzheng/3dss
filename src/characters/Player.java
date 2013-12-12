@@ -40,6 +40,12 @@ public class Player implements InputListener {
 	private LightHandle cameraLight;
 	private LightManager lightManager = null; 
 	
+
+
+	// Player attributes
+	private float shields = 100f;
+	private float HP = 100F;
+
 	// Movement fields.
 	private float speed_x = 0.0f;
 	private float speed_y = 0.0f;
@@ -57,16 +63,16 @@ public class Player implements InputListener {
 	
 	// Player name.
 	private String name = "Jun Tao";
-	
+
 	/**
 	 * Constructs a Player with a Camera.
 	 * @param c The Camera object that abstracts out the view matrix logic.
 	 */
 	public Player(Camera c) {
-		this.playerCam = c;
+		playerCam = c;
 		setup();
 	}
-	
+
 	/**
 	 * Sets up all necessary player attributes and listeners.
 	 */
@@ -75,9 +81,14 @@ public class Player implements InputListener {
 		m_Ls = new Vector3f(1.0f, 1.0f, 1.0f);
 		m_Ld = new Vector3f(0.7f, 0.7f, 0.7f);
 		m_La = new Vector3f(0.2f, 0.2f, 0.2f);
-		cameraLight = new LightHandle(this, new Light(playerCam.getLocation(), m_Ls, m_Ld, m_La, playerCam.getDirection()));
-		lightManager = LightManager.getLightManagerHandle();
+		cameraLight = new LightHandle(this, new Light(new Vector3f(playerCam.getLocation()), 
+				new Vector3f(m_Ls), 
+				new Vector3f(m_Ld), 
+				new Vector3f(m_La), 
+				new Vector3f(playerCam.getDirection())));
 		
+		lightManager = LightManager.getLightManagerHandle();
+
 		enableAcceleration = Settings.getBoolean("playerAcceleration");
 		
 		// Subscribe the enemy death listener to the "enemy death" event.
@@ -90,14 +101,14 @@ public class Player implements InputListener {
 	private void strafe(){
 		playerCam.strafe(speed_x);
 	}
-	
+
 	/**
 	 * Moves the player forward and backwards (uses playerCam).
 	 */
 	private void moveFrontBack(){
 		playerCam.moveFrontBack(speed_y);
 	}
-	
+
 	/**
 	 * Moves the player.
 	 * This should be called in the game loop.
@@ -128,7 +139,14 @@ public class Player implements InputListener {
 		// Move our player.
 		strafe();
 		moveFrontBack();
-		
+
+		// Update the camera light fields
+		if(cameraLight.isValid()) {
+			Light light = cameraLight.getLight();
+			light.setPosition(new Vector3f(playerCam.getLocation()));
+			light.setDirection(new Vector3f(playerCam.getDirection()));
+		}
+	
 		lightManager.updateAllLights();
 	}
 
@@ -144,7 +162,11 @@ public class Player implements InputListener {
 				cameraLight.invalidate();
 			}
 			else {
-				cameraLight.reset(new Light(playerCam.getLocation(), m_Ls, m_Ld, m_La, playerCam.getDirection()));
+				cameraLight.reset(new Light(new Vector3f(playerCam.getLocation()), 
+						new Vector3f(m_Ls), 
+						new Vector3f(m_Ld), 
+						new Vector3f(m_La), 
+						new Vector3f(playerCam.getDirection())));
 			}
 			lightManager.updateAllLights();
 		}
@@ -158,6 +180,15 @@ public class Player implements InputListener {
 	@Override
 	public void onMouseMoveEvent(MouseMoveEvent evt) {	
 		playerCam.rotateCamera(evt.getdx(), evt.getdy());
+		
+		// Update the camera light fields
+		if(cameraLight.isValid()) {
+			Light light = cameraLight.getLight();
+			light.setPosition(new Vector3f(playerCam.getLocation()));
+			light.setDirection(new Vector3f(playerCam.getDirection()));
+		}
+		
+		lightManager.updateAllLights();
 	}
 
 	/**
@@ -168,17 +199,17 @@ public class Player implements InputListener {
 	@Override
 	public void onKeyEvent(KeyEvent evt) {
 		int code = evt.getKeyCode();
-		
+
 		// Determine whether this is a press or a release event.
 		boolean pressed = evt.isPress() ? true : false;
-		
+
 		// Set the appropriate movement flag.
 		if (code == Keyboard.KEY_W) wPress = pressed;
 		if (code == Keyboard.KEY_A) aPress = pressed;
 		if (code == Keyboard.KEY_S) sPress = pressed;
 		if (code == Keyboard.KEY_D) dPress = pressed;
 	}
-	
+
 	private class EnemyDeathListener implements PubSubListener {
 		@Override
 		public void handleEvent() {

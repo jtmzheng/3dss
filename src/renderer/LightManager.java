@@ -59,6 +59,7 @@ public class LightManager {
 				// Update the uniform variables that won't change (for now)
 				GL20.glUseProgram(ShaderController.getCurrentProgram());
 				newLight.updateIsUsed(lightsGL[lightId], true);
+				newLight.updateIsDirectional(lightsGL[lightId]);
 				newLight.updateSpecExp(lightsGL[lightId]);
 				newLight.updateDiffuse(lightsGL[lightId]);
 				newLight.updateSpecular(lightsGL[lightId]);
@@ -107,6 +108,7 @@ public class LightManager {
 			for(Light l : m_lightMap.values()) {
 				GL20.glUseProgram(ShaderController.getCurrentProgram());
 				l.updatePosition(m_lightToGLMap.get(l));
+				l.updateDirection(m_lightToGLMap.get(l));
 				GL20.glUseProgram(0);
 			}
 		}
