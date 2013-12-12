@@ -13,6 +13,7 @@ in vec3 Ks;
 in vec3 Ka;
 
 out vec4 pass_Color;
+out vec2 pass_Texture;
 out vec3 position_eye, normal_eye;
 out vec3 sKs;
 out vec3 sKd;
@@ -30,4 +31,5 @@ void main(void) {
 	
     gl_Position = projectionMatrix * vm * in_Position;
 	pass_Color = in_Color;
+	pass_Texture = in_Texture;
 }

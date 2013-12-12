@@ -127,6 +127,22 @@ public class TextureManager {
 	}
 	
 	/**
+	 * Return a slot for further use (while keeping the texture bound in memory
+	 * @param textureFileName
+	 * @return
+	 */
+	public boolean freeTextureSlot (String textureFileName) {
+		synchronized (TextureManagerLock) {
+			if (textureFileMapping.containsKey(textureFileName)) {
+				int retId = textureFileMapping.get(textureFileName).unbindTextureSlot();
+				return texSlotIds.offer(retId);
+			}
+			
+			return false; // texture not found
+		}
+	}
+	
+	/**
 	 * Gets the number of loaded textures (including the default texture).
 	 * @return
 	 */

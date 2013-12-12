@@ -127,7 +127,7 @@ public class Parser {
     
     private void parseUseMTL (String line) {
     	line = line.split(" ")[1];
-    	this.currentMaterial = materialMapping.get(line);
+    	currentMaterial = materialMapping.get(line);
     }
     
     private void parseMTLLib (String line) {
@@ -178,13 +178,13 @@ public class Parser {
     	line = line.substring(MTL_NEWMTL.length()).trim();
     	
     	// Create a new material and set it to the current material being parsed.
-    	this.currentMaterial = new Material(line);
+    	currentMaterial = new Material(line);
     	materialMapping.put(line, this.currentMaterial);
     }
 
     private void parseKa (String line) {
     	String[] tokens = line.split(" ");
-    	this.currentMaterial.Ka = new float[] {Float.parseFloat(tokens[1]),
+    	currentMaterial.Ka = new float[] {Float.parseFloat(tokens[1]),
 					   Float.parseFloat(tokens[2]),
 					   Float.parseFloat(tokens[3])};
     }
@@ -192,12 +192,12 @@ public class Parser {
     private void parseKd (String line) {
     	String[] tokens = line.split(" ");
     	if (tokens.length == 5) {
-        	this.currentMaterial.Kd = new float[] {Float.parseFloat(tokens[1]),
+        	currentMaterial.Kd = new float[] {Float.parseFloat(tokens[1]),
 					   Float.parseFloat(tokens[2]),
 					   Float.parseFloat(tokens[3]),
 					   Float.parseFloat(tokens[4])};
     	} else {
-        	this.currentMaterial.Kd = new float[] {Float.parseFloat(tokens[1]),
+        	currentMaterial.Kd = new float[] {Float.parseFloat(tokens[1]),
 					   Float.parseFloat(tokens[2]),
 					   Float.parseFloat(tokens[3]),
 					   1.0f};
@@ -206,36 +206,36 @@ public class Parser {
 
     private void parseIllum (String line) {
     	line = line.substring(MTL_ILLUM.length()).trim();
-    	this.currentMaterial.illumModel = Integer.parseInt(line);
+    	currentMaterial.illumModel = Integer.parseInt(line);
     }
     
     private void parseNs (String line) {
     	line = line.substring(MTL_NS.length()).trim();
-    	this.currentMaterial.Ns = Float.parseFloat(line);
+    	currentMaterial.Ns = Float.parseFloat(line);
     }
 
     private void parseNi (String line) {
     	line = line.substring(MTL_NI.length()).trim();
-    	this.currentMaterial.niOpticalDensity = Float.parseFloat(line);
+    	currentMaterial.niOpticalDensity = Float.parseFloat(line);
     }
     
     private void parseKs (String line) {
     	String[] tokens = line.split("\\s+");
-    	this.currentMaterial.Ks = new float[] {Float.parseFloat(tokens[1]),
+    	currentMaterial.Ks = new float[] {Float.parseFloat(tokens[1]),
 					   Float.parseFloat(tokens[2]),
 					   Float.parseFloat(tokens[3])};
     }
 
     private void parseMapKa (String line) {
-    	this.currentMaterial.setMapKaFile(line.split(" ")[1]);
+    	currentMaterial.setMapKaFile(line.split(" ")[1]);
     }
     
     private void parseMapKd (String line) {
-    	this.currentMaterial.setMapKdFile(line.split(" ")[1]);
+    	currentMaterial.setMapKdFile(line.split(" ")[1]);
     }
     
     private void parseMapKs (String line) {
-    	this.currentMaterial.setMapKsFile(line.split(" ")[1]);
+    	currentMaterial.setMapKsFile(line.split(" ")[1]);
     }
    
     // Getters.

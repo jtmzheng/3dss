@@ -22,9 +22,16 @@ public class Face {
 	 */
 	public Face(List<VertexData> faceData, Material m) {
 		for (VertexData v : faceData) {
-			v.setAmbient(m.Ka[0], m.Ka[1], m.Ka[2]);
-			v.setDiffuse(m.Kd[0], m.Kd[1], m.Kd[2], m.Kd[3]);
-			v.setSpecular(m.Ks[0], m.Ks[1], m.Ks[2]);
+			if(m.Ka != null) {
+				v.setAmbient(m.Ka[0], m.Ka[1], m.Ka[2]);
+			}
+			if(m.Kd != null) {
+				v.setDiffuse(m.Kd[0], m.Kd[1], m.Kd[2], m.Kd[3]);
+			}
+			if(m.Ks != null) {
+				v.setSpecular(m.Ks[0], m.Ks[1], m.Ks[2]);
+			}
+			
 			v.setSpecPower(m.Ns);
 		}
 		

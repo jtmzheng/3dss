@@ -9,6 +9,9 @@ import java.nio.ByteBuffer;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL20;
+
+import renderer.ShaderController;
 
 public class Texture {
 	// Unique texture ID assigned by OpenGL.
@@ -74,6 +77,10 @@ public class Texture {
         
         texId = GL11.glGenTextures();
         GL13.glActiveTexture(unitId);
+        
+        // Set uniform variable of texture slot
+        GL20.glUniform1i(ShaderController.getTexSamplerLocation(), unitId);
+        
         GL11.glBindTexture(GL_TEXTURE_2D, texId);
         GL11.glTexImage2D (
         		GL_TEXTURE_2D,
@@ -94,6 +101,7 @@ public class Texture {
         GL11.glTexParameteri (GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
         GL11.glTexParameteri (GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri (GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+       
 	}
 	
 	/**
@@ -111,4 +119,15 @@ public class Texture {
 		glDeleteTextures(texId);
 		isBound = false;
 	}
+	
+	/**
+	 * Unbind the texture from the sampler (but keep it loaded in memory)
+	 * @return
+	 */
+	public int unbindTextureSlot() {
+		int retId = unitId;
+		unitId = -1;
+		return retId;
+	}
+	
 }

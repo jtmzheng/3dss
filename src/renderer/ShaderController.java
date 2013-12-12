@@ -26,6 +26,7 @@ public class ShaderController {
 	private static int diffuseLocation = 0;
 	private static int ambientLocation = 0;
 	private static int viewMatrixFragLocation = 0;
+	private static int textureSamplerLocation = 0;
 	
 	private static int currentProgram = 0;
 
@@ -64,6 +65,7 @@ public class ShaderController {
 		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("Ks"), "Ks");
 		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("Ka"), "Ka");
 		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("specExp"), "specExp");
+		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("texture"), "texture");
 
 		GL20.glLinkProgram(currentProgram);
 		GL20.glValidateProgram(currentProgram);
@@ -77,6 +79,7 @@ public class ShaderController {
 		specularLocation = GL20.glGetUniformLocation(currentProgram,  "Ls");
 		diffuseLocation = GL20.glGetUniformLocation(currentProgram,  "Ld");
 		ambientLocation = GL20.glGetUniformLocation(currentProgram,  "La");		
+		textureSamplerLocation = GL20.glGetUniformLocation(currentProgram, "texture");
 		
 		return true;
 	}
@@ -132,6 +135,10 @@ public class ShaderController {
 	
 	public static int getViewMatrixFragLocation(){
 		return viewMatrixFragLocation;
+	}
+	
+	public static int getTexSamplerLocation(){
+		return textureSamplerLocation;
 	}
 	
 	/**

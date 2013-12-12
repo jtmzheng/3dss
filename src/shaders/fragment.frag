@@ -29,6 +29,7 @@ uniform lightSrc lights[MAX_NUM_LIGHTS];
 
 in vec3 sKs, sKd, sKa;
 in vec4 pass_Color;
+in vec2 pass_Texture;
 in vec3 position_eye, normal_eye;
 
 out vec4 out_Color;
@@ -90,19 +91,7 @@ void main(void) {
 	    
 	}
 	
-	out_Color = vec4(lightTotal, 1.0);
+	// vec4 texel = texture2D(texture, pass_Texture); // @TODO 
+	out_Color = vec4(lightTotal, 1.0); // + texel;
 	
 }
-
-
-
-
-/*
-void main(void) {
-
-	
-	out_Color = pass_Color;
-	//vec4(Is + Id + Ia, 1.0);
-	
-}
-*/
