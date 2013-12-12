@@ -28,6 +28,7 @@ public class Material {
 	public Material (String materialName) {
 		this.name = materialName;
 		
+		System.out.println("New texture + " + materialName);
 		// Set a default texture map.
 		mapKdTexture = TextureManager.getInstance().getDefaultTexture();
 	}

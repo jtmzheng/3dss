@@ -92,6 +92,8 @@ public class TextureManager {
 	 */
 	public Texture getOrCreateTexture (String textureFileName) {
 		synchronized (TextureManagerLock) {
+			System.out.println("New texture:" + textureFileName);
+			
 			if (textureFileMapping.containsKey(textureFileName)) {
 				return textureFileMapping.get(textureFileName);
 			} else {

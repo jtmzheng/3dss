@@ -10,6 +10,9 @@ uniform vec3 La = vec3(0.2, 0.2, 0.2); //grey ambient
 uniform mat4 viewMatrixFrag;
 uniform vec3 spotDirection;
 
+// Texturing
+uniform sampler2D texture;
+
 struct lightSrc 
 {
 	vec3 position;
