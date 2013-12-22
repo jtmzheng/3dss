@@ -38,7 +38,7 @@ public class TextureLoader {
 		BufferedImage image = null;
 		image = loadImage(fileName);
 		
-		if (image.getColorModel().hasAlpha())
+		if (!image.getColorModel().hasAlpha())
 			BYTES_PER_PIXEL = 3;
 		
 		int[] pixels = new int[image.getWidth() * image.getHeight()];

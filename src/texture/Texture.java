@@ -79,6 +79,15 @@ public class Texture {
 	
 
 	/**
+	 * Returns whether the texture is bound
+	 * @return isBound - boolean value of whether the texture is bound
+	 */
+	public boolean isBound() {
+		return isBound;
+	}
+	
+
+	/**
 	 * Binds this texture to the GL_TEXTURE_2D target.
 	 * @param unitId - an OpenGL texture unit index
 	 */
@@ -100,11 +109,11 @@ public class Texture {
 			GL11.glTexImage2D (
 					GL_TEXTURE_2D,
 					0,
-					GL11.GL_RGB,
+					GL11.GL_RGBA,
 					width,
 					height,
 					0,
-					GL11.GL_RGB,
+					GL11.GL_RGBA,
 					GL11.GL_UNSIGNED_BYTE,
 					buffer
 					);
@@ -120,14 +129,6 @@ public class Texture {
 			isBound = true;
 		}
 
-	}
-
-	/**
-	 * Returns whether the texture is bound
-	 * @return
-	 */
-	public boolean isBound() {
-		return isBound;
 	}
 
 	/**
