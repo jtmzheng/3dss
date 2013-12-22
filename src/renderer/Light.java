@@ -23,10 +23,6 @@ public class Light {
 	
 	private Vector3f m_attenuation;	// Attenuation
 	
-	 private float m_constAtt; // constant attenuation of the light
-	 private float m_linearAtt; // linear attenuation of the light
-	 private float m_quadAtt; // quadratic attenuation of the light
-	
 	private FloatBuffer m_DataBuffer = BufferUtils.createFloatBuffer(3);
 	
 	/**
@@ -48,9 +44,6 @@ public class Light {
 		
 		// Default attenuation
 		m_attenuation = new Vector3f(0.3f, 0.007f, 0.008f); //constant, linear, and quadratic
-		m_constAtt = 0.3f;
-		m_linearAtt = 0.007f;
-		m_quadAtt = 0.008f;
 	}
 	
 	public void updatePosition(LightGL lgl){
@@ -102,8 +95,6 @@ public class Light {
 		}
 	}
 	
-	
-
 	public void setPosition(Vector3f position) {
 		m_position = position;
 	}
