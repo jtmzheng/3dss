@@ -77,7 +77,7 @@ public class Material {
 	 * Gets the texture Ids of all bound textures
 	 * @return
 	 */
-	public List<Integer> getActiveTextures() {
+	public List<Integer> getActiveTextureIds() {
 		List<Integer> activeTextures = new ArrayList<Integer>();
 		if(mapKaTexture != null) {
 			if(mapKaTexture.isBound()) {

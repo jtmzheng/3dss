@@ -266,20 +266,21 @@ public class Model {
 	public void render() {
 		// Do bind and draw for each material's faces
 		for(Material material : mapMaterialToFaces.keySet()) {
+			// Loop through all texture Ids for a given material
+			for(Integer tex : material.getActiveTextureIds()) {
+				Integer unitId = texManager.getTextureSlot();
 
-			// Only support Kd for now
-			Texture tex = material.mapKdTexture;
-			Integer unitId = texManager.getTextureSlot();
-			
-			// If invalid return
-			if(unitId == null) {
-				return;
+				// If invalid continue
+				if(unitId == null) {
+					continue;
+				}
+
+				// Bind and activate sampler 
+				GL20.glUniform1i(ShaderController.getTexSamplerLocation(), unitId - GL13.GL_TEXTURE0);
+				GL13.glActiveTexture(unitId);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex);
+				texManager.returnTextureSlot(unitId);
 			}
-									
-			// Bind and activate sampler 
-			GL20.glUniform1i(ShaderController.getTexSamplerLocation(), unitId - GL13.GL_TEXTURE0);
-			GL13.glActiveTexture(unitId);
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex.getID());
 			
 			GL30.glBindVertexArray(mapVAOIds.get(material));
 			GL20.glEnableVertexAttribArray(0); //position
@@ -295,8 +296,6 @@ public class Model {
 
 			// Draw the vertices
 			GL11.glDrawElements(GL11.GL_TRIANGLES, mapIndiceCount.get(material), GL11.GL_UNSIGNED_INT, 0);
-			
-			texManager.returnTextureSlot(unitId);
 		}
 	}
 
