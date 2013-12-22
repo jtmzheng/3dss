@@ -28,7 +28,6 @@ struct lightSrc
 uniform lightSrc lights[MAX_NUM_LIGHTS];
 
 in vec3 sKs, sKd, sKa;
-in vec4 pass_Color;
 in vec2 pass_Texture;
 in vec3 position_eye, normal_eye;
 
@@ -43,7 +42,6 @@ void main(void) {
 		float fAttTotal = 1.0; // total attenuation
 	    vec3 tId = vec3(0, 0, 0), tIs = vec3(0, 0, 0); // diffuse and specular component of this light
 			
-	
 	    if(lights[index].isUsed > 0.5){    
 			vec3 light_position_eye = vec3(viewMatrixFrag * vec4(lights[index].position, 1.0));
 			vec3 sLightFragmentEye = light_position_eye - position_eye;
@@ -96,7 +94,7 @@ void main(void) {
 	    
 	}
 	
-	vec4 texel = texture(textureSampler, pass_Texture); // @TODO 
+	vec4 texel = texture(textureSampler, pass_Texture);  
 	out_Color = vec4(lightTotal, 1.0) + texel;
 	
 }

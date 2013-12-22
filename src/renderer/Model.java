@@ -27,14 +27,11 @@ import texture.TextureManager;
  */
 public class Model {
 	// VBO (GL_ELEMENT_ARRAY_BUFFER).
-	private int vboiID;
 	private HashMap<Material, Integer> mapVBOIndexIds;
 	private HashMap<Material, Integer> mapIndiceCount;
 
-	// Vertex Array Object.
-	private int vaoID;
+	// Vertex Array Objects
 	private HashMap<Material, Integer> mapVAOIds;
-	private int indicesCount = 0;
 
 	// The model matrix assosciated with this model.
 	private Matrix4f modelMatrix;
@@ -186,7 +183,7 @@ public class Model {
 			//Create VBO Index buffer
 			verticesFloatBuffer.flip();
 			int [] indices = new int[vboIndex.size()];
-			indicesCount = vboIndex.size();
+			int indicesCount = vboIndex.size();
 			mapIndiceCount.put(material, indicesCount);
 
 			for(int i = 0; i < vboIndex.size(); i++){
@@ -198,7 +195,7 @@ public class Model {
 			indicesBuffer.flip();
 
 			// Create a new Vertex Array Object in memory and select it (bind)
-			vaoID = GL30.glGenVertexArrays();
+			int vaoID = GL30.glGenVertexArrays();
 			mapVAOIds.put(material, vaoID);
 			GL30.glBindVertexArray(vaoID);
 
@@ -238,7 +235,7 @@ public class Model {
 			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);			
 
 			// Create a new VBO for the indices and select it (bind) - INDICES
-			vboiID = GL15.glGenBuffers();
+			int vboiID = GL15.glGenBuffers();
 			mapVBOIndexIds.put(material, vboiID);
 			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiID);
 			GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
@@ -301,30 +298,6 @@ public class Model {
 			
 			texManager.returnTextureSlot(unitId);
 		}
-	}
-
-	/**
-	 * Get the index VBO.
-	 * @return the VBO ID
-	 */
-	public int getIndexVBO(){
-		return vboiID;
-	}
-
-	/**
-	 * Get the vertex array object ID.
-	 * @return the VAO ID
-	 */
-	public int getVAO(){
-		return vaoID;
-	}
-
-	/**
-	 * Gets the number of indices.
-	 * @return the number of indices
-	 */
-	public int getIndicesCount(){
-		return indicesCount;
 	}
 
 	/**
