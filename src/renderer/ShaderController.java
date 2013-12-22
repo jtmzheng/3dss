@@ -27,6 +27,9 @@ public class ShaderController {
 	private static int ambientLocation = 0;
 	private static int viewMatrixFragLocation = 0;
 	private static int textureSamplerLocation = 0;
+	private static int textureKdSamplerLocation = 0;
+	private static int textureKsSamplerLocation = 0;
+	private static int textureKaSamplerLocation = 0;
 	
 	private static int currentProgram = 0;
 
@@ -75,12 +78,17 @@ public class ShaderController {
 		viewMatrixLocation = GL20.glGetUniformLocation(currentProgram,  "viewMatrix");
 		modelMatrixLocation = GL20.glGetUniformLocation(currentProgram,  "modelMatrix");
 		viewMatrixFragLocation = GL20.glGetUniformLocation(currentProgram, "viewMatrixFrag");
-		lightPositionLocation = GL20.glGetUniformLocation(currentProgram,  "light_position");
-		specularLocation = GL20.glGetUniformLocation(currentProgram,  "Ls");
-		diffuseLocation = GL20.glGetUniformLocation(currentProgram,  "Ld");
+		// lightPositionLocation = GL20.glGetUniformLocation(currentProgram,  "light_position");
+		// specularLocation = GL20.glGetUniformLocation(currentProgram,  "Ls");
+		// diffuseLocation = GL20.glGetUniformLocation(currentProgram,  "Ld");
 		ambientLocation = GL20.glGetUniformLocation(currentProgram,  "La");		
-		textureSamplerLocation = GL20.glGetUniformLocation(currentProgram, "texture");
+		textureSamplerLocation = GL20.glGetUniformLocation(currentProgram, "textureSampler");
+		textureKdSamplerLocation = GL20.glGetUniformLocation(currentProgram, "textureSamplers[0]"); 
+		textureKsSamplerLocation = GL20.glGetUniformLocation(currentProgram, "textureSamplers[1]");		
+		textureKaSamplerLocation = GL20.glGetUniformLocation(currentProgram, "textureSamplers[2]");
 		
+		System.out.println("Test: " + viewMatrixFragLocation);
+		System.out.println("Test 2: " + textureSamplerLocation);
 		return true;
 	}
 	
@@ -139,6 +147,18 @@ public class ShaderController {
 	
 	public static int getTexSamplerLocation(){
 		return textureSamplerLocation;
+	}
+	
+	public static int getTexKdSamplerLocation(){
+		return textureKdSamplerLocation;
+	}
+	
+	public static int getTexKsSamplerLocation(){
+		return textureKsSamplerLocation;
+	}
+	
+	public static int getTexKaSamplerLocation(){
+		return textureKaSamplerLocation;
 	}
 	
 	/**

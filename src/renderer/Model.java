@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
@@ -16,6 +17,8 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
 import texture.Material;
+import texture.Texture;
+import texture.TextureManager;
 
 /**
  * Model class is an abstraction used by Renderer. This will use interleaving for vertex properties.
@@ -25,9 +28,12 @@ import texture.Material;
 public class Model {
 	// VBO (GL_ELEMENT_ARRAY_BUFFER).
 	private int vboiID;
+	private HashMap<Material, Integer> mapVBOIndexIds;
+	private HashMap<Material, Integer> mapIndiceCount;
 
 	// Vertex Array Object.
 	private int vaoID;
+	private HashMap<Material, Integer> mapVAOIds;
 	private int indicesCount = 0;
 
 	// The model matrix assosciated with this model.
@@ -35,13 +41,21 @@ public class Model {
 
 	// Faces that make up this model.
 	private List<Face> faces;
-	
+	private HashMap<Material, List<Face>> mapMaterialToFaces;
+
 	// LightHandle of the model
 	private LightHandle m_LightHandle = null;
+	
+	// TextureManager instance
+	TextureManager texManager;
 
 	public Model(List<Face> f, Vector3f pos, Vector3f ld, Vector3f ls, Vector3f la){
 		this.faces = f;
-		
+
+		// Get instance of texture manager
+		texManager = TextureManager.getInstance();
+
+
 		// Setup the model 
 		setup();
 
@@ -49,174 +63,246 @@ public class Model {
 		this.translate(pos);
 
 		// Setup the light associated with this model
-		m_LightHandle = new LightHandle(this, new Light(pos, ls, ld, la, null)); 
+		m_LightHandle = new LightHandle(this, new Light(pos, ls, ld, la, null));
 	}
-	
+
 	public Model(List<Face> f, Vector3f pos){
 		this.faces = f;
+		
+		// Get instance of texture manager
+		texManager = TextureManager.getInstance();
 
 		// Setup the model 
 		setup();
-		
+
 		// Transform
 		this.translate(pos);
-
 	}
-	
+
 	/**
 	 * Creates a model with a list of faces.
 	 * @param f The list of faces.
 	 */
 	public Model(List<Face> f){
 		this.faces = f;
+		
+		// Get instance of texture manager
+		texManager = TextureManager.getInstance();
 
 		setup();
 	}
 
-	
+
 	/**
 	 * Common setup for constructor
 	 * @param f
 	 */
 	public void setup(){
 		long curTime = System.currentTimeMillis();
-
+		
 		// Strip any quads / polygons. 
 		this.triangulate();
 
 		// Split face list into a list of face lists, each having their own material.
-		List<ArrayList<Face>> facesByMaterial = new ArrayList<ArrayList<Face>>();
+		mapMaterialToFaces = new HashMap<>();
+		
+		// Set up HashMaps
+		mapVAOIds = new HashMap<>();
+		mapVBOIndexIds = new HashMap<>();
+		mapIndiceCount = new HashMap<>();
+		
 		Material currentMaterial = null;
-		ArrayList<Face> currentFaceList = new ArrayList<Face>();
+
+		// Split the faces up by material
 		for (Face face : this.faces) {
-			if (face.getMaterial() != currentMaterial) {
-				if (!currentFaceList.isEmpty()) {
-					facesByMaterial.add(currentFaceList);
-				}
-				currentMaterial = face.getMaterial();
-				currentFaceList = new ArrayList<Face>();
+			currentMaterial = face.getMaterial();
+
+			// If already in the map append to the list (else make new entry)
+			if(mapMaterialToFaces.containsKey(currentMaterial)) {
+				List<Face> faceList = mapMaterialToFaces.get(currentMaterial);
+				faceList.add(face);
 			}
-			currentFaceList.add(face);
+			else {
+				List<Face> faceList = new ArrayList<>();
+				faceList.add(face);
+				mapMaterialToFaces.put(currentMaterial, faceList);
+			}
 		}
-		
-		System.out.println("Number of face lists by material: " + facesByMaterial.size());
-		
-		// Put each 'Vertex' in one FloatBuffer
-		ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(this.faces.size() *  3 * VertexData.stride); //TODO : Allocating proper amount
-		FloatBuffer verticesFloatBuffer = verticesByteBuffer.asFloatBuffer();
-		HashMap<VertexData, Integer> vboIndexMap = new HashMap<VertexData, Integer>();
-		List<Integer> vboIndex = new ArrayList<Integer>();
-		VertexData tempVertexData;
 
-		
-		// VBO index
-		int index = 0;
+		// System.out.println("Number of face lists by material: " +  mapMaterialToFace.size());
 
-		/** For each face in the list, process the data and add to 
-		 *  the byte buffer.
-		 */
-		for(Face face: this.faces){			
-			//Add first vertex of the face			
-			tempVertexData = face.faceData.get(0);
-			if(!vboIndexMap.containsKey(tempVertexData)){
-				vboIndexMap.put(tempVertexData, index);
-				verticesFloatBuffer.put(tempVertexData.getElements());
-				vboIndex.add(index++);
-			}
-			else{
-				vboIndex.add(vboIndexMap.get(tempVertexData));
-			}
+		for(Material material : mapMaterialToFaces.keySet()) {
+			List<Face> materialFaces = mapMaterialToFaces.get(material);
 			
-			//Add second vertex of the face
-			tempVertexData = face.faceData.get(1);
-			if(!vboIndexMap.containsKey(tempVertexData)){
-				vboIndexMap.put(tempVertexData, index);
-				verticesFloatBuffer.put(tempVertexData.getElements());
-				vboIndex.add(index++);
-			}
-			else{
-				vboIndex.add(vboIndexMap.get(tempVertexData));
+			// Put each 'Vertex' in one FloatBuffer
+			ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(materialFaces.size() *  3 * VertexData.stride); //TODO : Allocating proper amount
+			FloatBuffer verticesFloatBuffer = verticesByteBuffer.asFloatBuffer();
+			HashMap<VertexData, Integer> vboIndexMap = new HashMap<VertexData, Integer>();
+			List<Integer> vboIndex = new ArrayList<Integer>();
+			VertexData tempVertexData;
+
+			// VBO index
+			int index = 0;
+
+			/** For each face in the list, process the data and add to 
+			 *  the byte buffer.
+			 */
+			for(Face face: materialFaces){			
+				//Add first vertex of the face			
+				tempVertexData = face.faceData.get(0);
+				if(!vboIndexMap.containsKey(tempVertexData)){
+					vboIndexMap.put(tempVertexData, index);
+					verticesFloatBuffer.put(tempVertexData.getElements());
+					vboIndex.add(index++);
+				}
+				else{
+					vboIndex.add(vboIndexMap.get(tempVertexData));
+				}
+
+				//Add second vertex of the face
+				tempVertexData = face.faceData.get(1);
+				if(!vboIndexMap.containsKey(tempVertexData)){
+					vboIndexMap.put(tempVertexData, index);
+					verticesFloatBuffer.put(tempVertexData.getElements());
+					vboIndex.add(index++);
+				}
+				else{
+					vboIndex.add(vboIndexMap.get(tempVertexData));
+				}
+
+				//Add third vertex of the face
+				tempVertexData = face.faceData.get(2);
+				if(!vboIndexMap.containsKey(tempVertexData)){
+					vboIndexMap.put(tempVertexData, index);
+					verticesFloatBuffer.put(tempVertexData.getElements());
+					vboIndex.add(index++);
+				}
+				else{
+					vboIndex.add(vboIndexMap.get(tempVertexData));
+				}
+
 			}
 
-			//Add third vertex of the face
-			tempVertexData = face.faceData.get(2);
-			if(!vboIndexMap.containsKey(tempVertexData)){
-				vboIndexMap.put(tempVertexData, index);
-				verticesFloatBuffer.put(tempVertexData.getElements());
-				vboIndex.add(index++);
-			}
-			else{
-				vboIndex.add(vboIndexMap.get(tempVertexData));
+			//Create VBO Index buffer
+			verticesFloatBuffer.flip();
+			int [] indices = new int[vboIndex.size()];
+			indicesCount = vboIndex.size();
+			mapIndiceCount.put(material, indicesCount);
+
+			for(int i = 0; i < vboIndex.size(); i++){
+				indices[i] = vboIndex.get(i); 
 			}
 
+			IntBuffer indicesBuffer = BufferUtils.createIntBuffer(vboIndex.size());
+			indicesBuffer.put( indices );
+			indicesBuffer.flip();
+
+			// Create a new Vertex Array Object in memory and select it (bind)
+			vaoID = GL30.glGenVertexArrays();
+			mapVAOIds.put(material, vaoID);
+			GL30.glBindVertexArray(vaoID);
+
+			// Create a new Vertex Buffer Object in memory and select it (bind)
+			int vboId = GL15.glGenBuffers();
+			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId);
+			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, verticesFloatBuffer, GL15.GL_STATIC_DRAW);
+
+			// Put the position coordinates in attribute list 0
+			GL20.glVertexAttribPointer(0, VertexData.positionElementCount, GL11.GL_FLOAT,
+					false, VertexData.stride, VertexData.positionByteOffset);
+
+			// Put the color components in attribute list 1
+			GL20.glVertexAttribPointer(1, VertexData.colorElementCount, GL11.GL_FLOAT,
+					false, VertexData.stride, VertexData.colorByteOffset);
+
+			// Put the texture coordinates in attribute list 2
+			GL20.glVertexAttribPointer(2, VertexData.textureElementCount, GL11.GL_FLOAT,
+					false, VertexData.stride, VertexData.textureByteOffset);
+
+			// Put the normal coordinates in attribute list 3
+			GL20.glVertexAttribPointer(3, VertexData.normalElementCount, GL11.GL_FLOAT,
+					false, VertexData.stride, VertexData.normalByteOffset);
+
+			// Put the normal coordinates in attribute list 4
+			GL20.glVertexAttribPointer(4, VertexData.specularElementCount, GL11.GL_FLOAT,
+					false, VertexData.stride, VertexData.specularElementByteOffset);
+
+			// Put the normal coordinates in attribute list 5
+			GL20.glVertexAttribPointer(5, VertexData.ambientElementCount, GL11.GL_FLOAT,
+					false, VertexData.stride, VertexData.ambientElementByteOffset);
+
+			// Put the normal coordinates in attribute list 6
+			GL20.glVertexAttribPointer(6, VertexData.specularPowerElementCount, GL11.GL_FLOAT,
+					false, VertexData.stride, VertexData.specularPowerElementByteOffset);
+
+			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);			
+
+			// Create a new VBO for the indices and select it (bind) - INDICES
+			vboiID = GL15.glGenBuffers();
+			mapVBOIndexIds.put(material, vboiID);
+			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiID);
+			GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
+			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+			
 		}
-
-		//Create VBO Index buffer
-		verticesFloatBuffer.flip();
-		int [] indices = new int[vboIndex.size()];
-		indicesCount = vboIndex.size();
-
-		for(int i = 0; i < vboIndex.size(); i++){
-			indices[i] = vboIndex.get(i); 
-		}
-
-		IntBuffer indicesBuffer = BufferUtils.createIntBuffer(vboIndex.size());
-		indicesBuffer.put( indices );
-		indicesBuffer.flip();
-
-		// Create a new Vertex Array Object in memory and select it (bind)
-		vaoID = GL30.glGenVertexArrays();
-		GL30.glBindVertexArray(vaoID);
-
-		// Create a new Vertex Buffer Object in memory and select it (bind)
-		int vboId = GL15.glGenBuffers();
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId);
-		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, verticesFloatBuffer, GL15.GL_STATIC_DRAW);
-
-		// Put the position coordinates in attribute list 0
-		GL20.glVertexAttribPointer(0, VertexData.positionElementCount, GL11.GL_FLOAT,
-				false, VertexData.stride, VertexData.positionByteOffset);
-
-		// Put the color components in attribute list 1
-		GL20.glVertexAttribPointer(1, VertexData.colorElementCount, GL11.GL_FLOAT,
-				false, VertexData.stride, VertexData.colorByteOffset);
-
-		// Put the texture coordinates in attribute list 2
-		GL20.glVertexAttribPointer(2, VertexData.textureElementCount, GL11.GL_FLOAT,
-				false, VertexData.stride, VertexData.textureByteOffset);
-
-		// Put the normal coordinates in attribute list 3
-		GL20.glVertexAttribPointer(3, VertexData.normalElementCount, GL11.GL_FLOAT,
-				false, VertexData.stride, VertexData.normalByteOffset);
-
-		// Put the normal coordinates in attribute list 3
-		GL20.glVertexAttribPointer(4, VertexData.specularElementCount, GL11.GL_FLOAT,
-				false, VertexData.stride, VertexData.specularElementByteOffset);
 		
-		// Put the normal coordinates in attribute list 3
-		GL20.glVertexAttribPointer(5, VertexData.ambientElementCount, GL11.GL_FLOAT,
-				false, VertexData.stride, VertexData.ambientElementByteOffset);
-		
-		// Put the normal coordinates in attribute list 3
-		GL20.glVertexAttribPointer(6, VertexData.specularPowerElementCount, GL11.GL_FLOAT,
-				false, VertexData.stride, VertexData.specularPowerElementByteOffset);
-
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-
-		// Create a new VBO for the indices and select it (bind) - INDICES
-		vboiID = GL15.glGenBuffers();
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiID);
-		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		//Initialize model matrix
-		modelMatrix = new Matrix4f(); //Initialized to the identity in the constructor
-
 		// Deselect (bind to 0) the VAO
 		GL30.glBindVertexArray(0);
+		
+		for(Material material : this.mapMaterialToFaces.keySet()) {
+			Texture tex = material.mapKdTexture;
+			int textureUnitId = texManager.getTextureSlot();
+	        tex.bind(textureUnitId);
+	        texManager.returnTextureSlot(textureUnitId);
+		}
+		
+		//Initialize model matrix
+		modelMatrix = new Matrix4f(); //Initialized to the identity in the constructor
+		
 		System.out.println("Model loading to GPU: " + (System.currentTimeMillis() - curTime));
 	}
 	
+	/**
+	 * Render a set up model
+	 * @TODO: Make a class for the HashMaps (a struct) - will keep it cleaner
+	 */
+	public void render() {
+		// Do bind and draw for each material's faces
+		for(Material material : mapMaterialToFaces.keySet()) {
+
+			// Only support Kd for now
+			Texture tex = material.mapKdTexture;
+			Integer unitId = texManager.getTextureSlot();
+			
+			// If invalid return
+			if(unitId == null) {
+				return;
+			}
+									
+			// Bind and activate sampler 
+			GL20.glUniform1i(ShaderController.getTexSamplerLocation(), unitId - GL13.GL_TEXTURE0);
+			GL13.glActiveTexture(unitId);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex.getID());
+			
+			GL30.glBindVertexArray(mapVAOIds.get(material));
+			GL20.glEnableVertexAttribArray(0); //position
+			GL20.glEnableVertexAttribArray(1); //color
+			GL20.glEnableVertexAttribArray(2); //texture
+			GL20.glEnableVertexAttribArray(3); //normal
+			GL20.glEnableVertexAttribArray(4);
+			GL20.glEnableVertexAttribArray(5);
+			GL20.glEnableVertexAttribArray(6);
+
+			// Bind to the index VBO that has all the information about the order of the vertices
+			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mapVBOIndexIds.get(material));
+
+			// Draw the vertices
+			GL11.glDrawElements(GL11.GL_TRIANGLES, mapIndiceCount.get(material), GL11.GL_UNSIGNED_INT, 0);
+			
+			texManager.returnTextureSlot(unitId);
+		}
+	}
+
 	/**
 	 * Get the index VBO.
 	 * @return the VBO ID
@@ -296,7 +382,7 @@ public class Model {
 	public Matrix4f getModelMatrix(){
 		return modelMatrix;
 	}
-	
+
 	/**
 	 * Add a light to this model 
 	 * @param light
@@ -305,10 +391,10 @@ public class Model {
 		if(m_LightHandle != null) {
 			m_LightHandle.invalidate();
 		}
-		
+
 		m_LightHandle = new LightHandle(this, light);
 	}
-	
+
 	/**
 	 * Remove the light associated with this model
 	 */

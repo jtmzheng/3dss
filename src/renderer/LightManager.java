@@ -13,7 +13,7 @@ public class LightManager {
 	
 	private final Object LightManagerLock = new Object();
 	
-	private final static int MAX_LIGHTS = 32;
+	private final static int MAX_LIGHTS = 30;
 	private static ArrayBlockingQueue<Integer> m_lightIndices; // Holds uniform location of each light
 	private static LightManager m_lightManager = null;
 	private LightGL[] lightsGL;
@@ -61,6 +61,8 @@ public class LightManager {
 				newLight.updateSpecExp(lightsGL[lightId]);
 				newLight.updateDiffuse(lightsGL[lightId]);
 				newLight.updateSpecular(lightsGL[lightId]);
+				newLight.updateIsDirectional(lightsGL[lightId]);
+				newLight.updateAttenuation(lightsGL[lightId]);
 				GL20.glUseProgram(0);
 				
 				return true;
@@ -106,6 +108,7 @@ public class LightManager {
 			for(Light l : m_lightMap.values()) {
 				GL20.glUseProgram(ShaderController.getCurrentProgram());
 				l.updatePosition(m_lightToGLMap.get(l));
+				l.updateDirection(m_lightToGLMap.get(l));
 				GL20.glUseProgram(0);
 			}
 		}

@@ -55,7 +55,8 @@ public class TextureManager {
 			
 			// Add all supported LWJGL texture slot Ids to list of available slot IDs
 			for(int i = GL13.GL_TEXTURE0; i < GL13.GL_TEXTURE31; i++) {
-				texSlotIds.add(i);
+				System.out.println("TexSlot = " + i);
+ 				texSlotIds.add(i);
 			}
 			
 			// Load the default texture
@@ -127,19 +128,19 @@ public class TextureManager {
 	}
 	
 	/**
-	 * Return a slot for further use (while keeping the texture bound in memory
-	 * @param textureFileName
-	 * @return
+	 * Requests a texture slot for use
+	 * @return null if empty
 	 */
-	public boolean freeTextureSlot (String textureFileName) {
-		synchronized (TextureManagerLock) {
-			if (textureFileMapping.containsKey(textureFileName)) {
-				int retId = textureFileMapping.get(textureFileName).unbindTextureSlot();
-				return texSlotIds.offer(retId);
-			}
-			
-			return false; // texture not found
-		}
+	public Integer getTextureSlot() {
+		return texSlotIds.poll();
+	}
+	
+	/**
+	 * Returns a texture slot for future use
+	 * @return true if successful
+	 */
+	public boolean returnTextureSlot(Integer id) {
+		return texSlotIds.offer(id);
 	}
 	
 	/**

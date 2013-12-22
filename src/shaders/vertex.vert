@@ -26,7 +26,7 @@ void main(void) {
 	normal_eye = vec3(vm * vec4(vec3(in_Normal), 0.0)); //TODO, might as well pass normals as vec3
 	
 	sKs = Ks;
-	sKd = vec3(pass_Color); //TODO should be pass_Color
+	sKd = vec3(in_Color); //@TODO, not needed
 	sKa = Ka;
 	
     gl_Position = projectionMatrix * vm * in_Position;

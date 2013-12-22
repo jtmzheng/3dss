@@ -1,5 +1,8 @@
 package texture;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Class for a material to apply to a face. This is a wrapper for the
  * "newmtl" tags in .mtl files. 
@@ -69,5 +72,32 @@ public class Material {
 			   "mapKd texture ID: " + mapKdTexture.getID() + "\n" +
 			   "mapKs texture ID: " + mapKsTexture.getID() + "\n";
 			   
+	}
+	
+	/**
+	 * Gets the texture Ids of all bound textures
+	 * @return
+	 */
+	public List<Integer> getActiveTextures() {
+		List<Integer> activeTextures = new ArrayList<Integer>();
+		if(mapKaTexture != null) {
+			if(mapKaTexture.isBound()) {
+				activeTextures.add(mapKaTexture.getID());
+			}
+		}
+		
+		if(mapKdTexture != null) {
+			if(mapKdTexture.isBound()) {
+				activeTextures.add(mapKdTexture.getID());
+			}
+		}
+		
+		if(mapKsTexture != null) {
+			if(mapKsTexture.isBound()) {
+				activeTextures.add(mapKsTexture.getID());
+			}
+		}
+		
+		return activeTextures;
 	}
 }

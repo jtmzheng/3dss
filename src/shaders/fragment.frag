@@ -1,17 +1,14 @@
 #version 330 core
 
 const float SPOT_ARC = cos(13.66 / 90.0);
-const int MAX_NUM_LIGHTS = 32;
+const int MAX_NUM_LIGHTS = 30;
 
-uniform vec3 light_position = vec3(10.0, 10.0, 10.0);
-uniform vec3 Ls = vec3(1.0, 1.0, 1.0); //white specular colour
-uniform vec3 Ld = vec3(0.7, 0.7, 0.7); //dull white diffuse
 uniform vec3 La = vec3(0.2, 0.2, 0.2); //grey ambient
 uniform mat4 viewMatrixFrag;
-uniform vec3 spotDirection;
 
 // Texturing
-uniform sampler2D texture;
+uniform sampler2D textureSampler;
+// uniform sampler2D textures [3];
 
 // Fields set to default value by OpenGL
 struct lightSrc 
@@ -23,6 +20,9 @@ struct lightSrc
 	float specExp;
 	float isUsed; // set to 0 by default
 	float isDirectional; // is it a spotlight
+	
+	// Attenuation
+	vec3 attenuation;
 };
 
 uniform lightSrc lights[MAX_NUM_LIGHTS];
@@ -35,7 +35,6 @@ in vec3 position_eye, normal_eye;
 out vec4 out_Color;
 
 void main(void) {
-
 	vec3 Ia = La * sKa / 2;
 	vec3 Id = vec3(0, 0, 0), Is = vec3(0, 0, 0), tIa = vec3(0, 0, 0);
 	vec3 lightTotal = Ia; // total light adjusted color
@@ -61,9 +60,15 @@ void main(void) {
 	
 			float specFactor = pow(dotSpecular, lights[index].specExp);
 	
-   			float fDist = length(sLightFragmentEye); // distance between light and position of fragment    
-   			fAttTotal = 0.3 + 0.007*fDist + 0.008*fDist*fDist;	
-	
+			// Attenuation of light over distance
+   			float fDist = length(sLightFragmentEye); // distance between light and position of fragment
+   			float constAtt = lights[index].attenuation[0];
+   			float linearAtt = lights[index].attenuation[1];
+   			float quadAtt = lights[index].attenuation[2];
+   			    
+   			fAttTotal = constAtt + linearAtt * fDist + quadAtt * fDist * fDist;
+   			
+			// Get light component due to current light
 			tId = lights[index].Ld * sKd * dotLightEye;	
 			tIs = lights[index].Ls * sKs * specFactor;	
 			tIa = Ia / 2;
@@ -91,7 +96,7 @@ void main(void) {
 	    
 	}
 	
-	// vec4 texel = texture2D(texture, pass_Texture); // @TODO 
-	out_Color = vec4(lightTotal, 1.0); // + texel;
+	vec4 texel = texture(textureSampler, pass_Texture); // @TODO 
+	out_Color = vec4(lightTotal, 1.0) + texel;
 	
 }

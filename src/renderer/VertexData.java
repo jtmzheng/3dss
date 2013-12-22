@@ -1,5 +1,6 @@
 package renderer;
 
+import java.awt.List;
 import java.util.Arrays;
 
 import org.lwjgl.util.vector.Vector2f;
@@ -17,6 +18,7 @@ public class VertexData {
 	private float[] ambRefl = new float[] {1f, 1f, 1f}; //ambient
 	private float[] st = new float[] {0f, 0f};
 	private float[] norm = new float[]{0f, 0f, 0f, 1f};
+	private boolean isTextured = false;
 	
 	//Specular power 
 	private float specPower = 100.0f;
@@ -72,11 +74,13 @@ public class VertexData {
 		this.xyzw = new float[]{v.x, v.y, v.z, 1f};
 		this.st = new float[]{vt.x, vt.y};
 		this.norm = new float[]{vn.x, vn.y, vn.z, 1f};
+		this.isTextured = true;
 	}
 	
 	public VertexData(Vector3f v, Vector2f vt) {
 		this.xyzw = new float[]{v.x, v.y, v.z, 1f};
 		this.st = new float[]{vt.x, vt.y};
+		this.isTextured = true;
 	}
 	
 	public VertexData(Vector3f v) {
@@ -148,6 +152,7 @@ public class VertexData {
 		// Insert ST elements
 		out[i++] = this.st[0];
 		out[i++] = this.st[1];
+		System.out.println(Arrays.toString(st));
 		//Insert normal elements
 		out[i++] = this.norm[0];
 		out[i++] = this.norm[1];

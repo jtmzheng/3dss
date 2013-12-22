@@ -1,12 +1,5 @@
 package texture;
 
-import static org.lwjgl.opengl.GL11.GL_RGBA;
-import static org.lwjgl.opengl.GL11.GL_RGBA8;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
-import static org.lwjgl.opengl.GL11.glGenTextures;
-import static org.lwjgl.opengl.GL11.glTexImage2D;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +8,6 @@ import java.nio.ByteBuffer;
 import javax.imageio.ImageIO;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 
 import renderer.ShaderController;
@@ -53,7 +45,7 @@ public class TextureLoader {
 		image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
 
         ByteBuffer buffer = BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * BYTES_PER_PIXEL);
-
+       
         // Iterates through the image and adds each pixel to the buffer.
         for (int y = 0; y < image.getHeight(); y++){
             for (int x = 0; x < image.getWidth(); x++){
@@ -65,25 +57,16 @@ public class TextureLoader {
                 
                 if (BYTES_PER_PIXEL == 4)
                 	buffer.put((byte) ((pixel >> 24) & 0xFF));  // Alpha component, if it has one.
+                
             }
         }
 
         buffer.flip();
-
-        int textureId = glGenTextures(); // Generate texture ID.
         
         Texture tex = new Texture(image.getWidth(), 
         		image.getHeight(), 
-        		textureId, 
-        		slotId, 
-        		buffer);
-        
-    	// Select our shader program.
-     	GL20.glUseProgram(ShaderController.getCurrentProgram());
-        // Bind texture ID to target.
-        tex.bind();
-        // Deselect shader program
-     	GL20.glUseProgram(0);
+        		buffer,
+        		fileName);
 
         return tex;
 	}
