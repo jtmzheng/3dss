@@ -3,6 +3,7 @@ package renderer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -63,7 +64,7 @@ public class Renderer {
 		shader = new ShaderController();
 		
 		//Initialize shaders
-		HashMap<String, Integer> sh = new HashMap<String, Integer>();
+		Map<String, Integer> sh = new HashMap<String, Integer>();
 		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		

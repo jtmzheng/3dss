@@ -6,6 +6,7 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -21,24 +22,25 @@ import texture.Texture;
 import texture.TextureManager;
 
 /**
- * Model class is an abstraction used by Renderer. This will use interleaving for vertex properties.
+ * Model class is an abstraction used by Renderer. Each model represents a physical object
+ * in the environment. The OpenGL attributes will be passed as an interleaved VBO.
  * @author Max
  * @author Adi
  */
 public class Model {
-	// VBO (GL_ELEMENT_ARRAY_BUFFER).
-	private HashMap<Material, Integer> mapVBOIndexIds;
-	private HashMap<Material, Integer> mapIndiceCount;
+	// Map of VBOs and indices for each material in the model
+	private Map<Material, Integer> mapVBOIndexIds;
+	private Map<Material, Integer> mapIndiceCount;
 
 	// Vertex Array Objects
-	private HashMap<Material, Integer> mapVAOIds;
+	private Map<Material, Integer> mapVAOIds;
 
 	// The model matrix assosciated with this model.
 	private Matrix4f modelMatrix;
 
 	// Faces that make up this model.
 	private List<Face> faces;
-	private HashMap<Material, List<Face>> mapMaterialToFaces;
+	private Map<Material, List<Face>> mapMaterialToFaces;
 
 	// LightHandle of the model
 	private LightHandle m_LightHandle = null;
@@ -260,7 +262,7 @@ public class Model {
 	}
 	
 	/**
-	 * Render a set up model
+	 * Render a model that has already been set up
 	 * @TODO: Make a class for the HashMaps (a struct) - will keep it cleaner
 	 */
 	public void render() {

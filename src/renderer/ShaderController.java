@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.lwjgl.opengl.GL20;
 
@@ -15,8 +16,8 @@ import system.Settings;
  */
 public class ShaderController {
 
-	private HashMap<String, Integer> shaderNameToID = null;
-	private HashMap<Integer, Integer> shaderIDToType = null;
+	private Map<String, Integer> shaderNameToID = null;
+	private Map<Integer, Integer> shaderIDToType = null;
 	
 	private static int projectionMatrixLocation = 0;
 	private static int viewMatrixLocation = 0;
@@ -47,7 +48,7 @@ public class ShaderController {
 	 * 
 	 * @return <code>true</code> if the program was successfully set, and false otherwise.
 	 */
-	public boolean setProgram(HashMap<String, Integer> shaders){
+	public boolean setProgram(Map<String, Integer> shaders){
 
 		//Sets the new current program
 		currentProgram = GL20.glCreateProgram();
@@ -87,8 +88,6 @@ public class ShaderController {
 		textureKsSamplerLocation = GL20.glGetUniformLocation(currentProgram, "textureSamplers[1]");		
 		textureKaSamplerLocation = GL20.glGetUniformLocation(currentProgram, "textureSamplers[2]");
 		
-		System.out.println("Test: " + viewMatrixFragLocation);
-		System.out.println("Test 2: " + textureSamplerLocation);
 		return true;
 	}
 	

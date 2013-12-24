@@ -1,20 +1,24 @@
 package renderer;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import org.lwjgl.opengl.GL20;
 
-//TODO: Id management should probably be handled privately
+//@TODO: Id management should probably be handled privately
+//@TODO: updateLight(LightGL lgl) method
+
 public class LightManager {
 
-	private HashMap<Object, Light> m_lightMap; 
-	private HashMap<Light, LightGL> m_lightToGLMap;
+	private Map<Object, Light> m_lightMap; 
+	private Map<Light, LightGL> m_lightToGLMap;
 	
 	private final Object LightManagerLock = new Object();
 	
 	private final static int MAX_LIGHTS = 30;
-	private static ArrayBlockingQueue<Integer> m_lightIndices; // Holds uniform location of each light
+	private static BlockingQueue<Integer> m_lightIndices; // Holds uniform location of each light
 	private static LightManager m_lightManager = null;
 	private LightGL[] lightsGL;
 	
@@ -116,6 +120,7 @@ public class LightManager {
 	
 	/**
 	 * Get a light ID from the manager
+	 * @TODO: Remove this method?
 	 * @return a light ID or null if all light slots are full
 	 */
 	private int getLightID(){
@@ -124,6 +129,7 @@ public class LightManager {
 	
 	/**
 	 * Returns a light ID to the manager
+	 * @TODO: Remove this method?
 	 * @param id
 	 * @return true if success
 	 */

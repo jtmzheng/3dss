@@ -1,6 +1,7 @@
 package system;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /*
  * A static utility class defining the settings globally used in the applications.
@@ -10,7 +11,7 @@ import java.util.HashMap;
  */
 public class Settings {
 	
-	public static HashMap<String, Object> settings = new HashMap<String, Object> ();
+	public static Map<String, Object> settings = new HashMap<String, Object> ();
 	
 	// List of default settings.
 	static {

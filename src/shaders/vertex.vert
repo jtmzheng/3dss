@@ -12,7 +12,7 @@ in vec4 in_Normal;
 in vec3 Ks; 
 in vec3 Ka;
 
-out vec2 pass_Texture;
+out vec2 pass_texture;
 out vec3 position_eye, normal_eye;
 out vec3 sKs;
 out vec3 sKd;
@@ -29,5 +29,5 @@ void main(void) {
 	sKa = Ka;
 	
     gl_Position = projectionMatrix * vm * in_Position;
-	pass_Texture = in_Texture;
+	pass_texture = in_Texture;
 }

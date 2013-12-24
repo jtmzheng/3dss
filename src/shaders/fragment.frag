@@ -28,7 +28,7 @@ struct lightSrc
 uniform lightSrc lights[MAX_NUM_LIGHTS];
 
 in vec3 sKs, sKd, sKa;
-in vec2 pass_Texture;
+in vec2 pass_texture;
 in vec3 position_eye, normal_eye;
 
 out vec4 out_Color;
@@ -38,11 +38,11 @@ void main(void) {
 	vec3 Id = vec3(0, 0, 0), Is = vec3(0, 0, 0), tIa = vec3(0, 0, 0);
 	vec3 lightTotal = Ia; // total light adjusted color
 	
-	for(int index = 0; index < MAX_NUM_LIGHTS; index++) {
-		float fAttTotal = 1.0; // total attenuation
-	    vec3 tId = vec3(0, 0, 0), tIs = vec3(0, 0, 0); // diffuse and specular component of this light
-			
+	for(int index = 0; index < MAX_NUM_LIGHTS; index++) {			
 	    if(lights[index].isUsed > 0.5){    
+	    	float fAttTotal = 1.0; // total attenuation
+	    	vec3 tId = vec3(0, 0, 0), tIs = vec3(0, 0, 0); // diffuse and specular component of this light
+	    	
 			vec3 light_position_eye = vec3(viewMatrixFrag * vec4(lights[index].position, 1.0));
 			vec3 sLightFragmentEye = light_position_eye - position_eye;
 			vec3 dirLightFragmentEye = normalize(sLightFragmentEye); // direction from light to surface 
@@ -94,7 +94,7 @@ void main(void) {
 	    
 	}
 	
-	vec4 texel = texture(textureSampler, pass_Texture);  
+	vec4 texel = texture(textureSampler, pass_texture);  
 	out_Color = vec4(lightTotal, 1.0) + texel;
 	
 }
