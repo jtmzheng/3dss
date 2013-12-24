@@ -39,7 +39,9 @@ public class Material {
 	 * Creates the default material using the default Kd texture map.
 	 */
 	public Material() {
-		this.name = "default";
+		// Very descriptive default material name to make sure that no .MTL files
+		// accidentally use this name and cause issues.
+		this.name = "defaultaraghavajtmzheng1234material";
 		mapKdTexture = TextureManager.getInstance().getDefaultTexture();
 	}
 
