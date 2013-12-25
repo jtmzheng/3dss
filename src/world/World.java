@@ -1,5 +1,6 @@
 package world;
 
+import renderer.Model;
 import renderer.Renderer;
 
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
@@ -30,6 +31,15 @@ public class World {
 		setupPhysics(/*@TODO: Options*/);
 	}
 	
+	public void addModel(Model model) {
+		renderer.bindNewModel(model);
+	}
+	
+	public void removeModel(Model model) {
+		// @TODO: Removal of model
+	}
+	
+	
 	/**
 	 * Set up the physics (JBullets) of the World 
 	 */
@@ -39,6 +49,10 @@ public class World {
         CollisionDispatcher dispatcher = new CollisionDispatcher(collisionConfiguration);
         ConstraintSolver solver = new SequentialImpulseConstraintSolver();
         dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+	}
+	
+	private void simulate() {
+		dynamicsWorld.stepSimulation(1.0f / renderer.getFrameRate());
 	}
 	
 	/**
