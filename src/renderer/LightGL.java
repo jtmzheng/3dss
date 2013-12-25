@@ -16,6 +16,7 @@ public class LightGL {
 	private int isUsed = -1;
 	private int isDirectional = -1;
 	private int index = -1;
+	private int attenuation = -1;
 
 	/**
 	 * Constructor for the LightGL 
@@ -35,6 +36,7 @@ public class LightGL {
 		specExp = GL20.glGetUniformLocation(ShaderController.getCurrentProgram(),  light + "specExp");
 		isUsed = GL20.glGetUniformLocation(ShaderController.getCurrentProgram(),  light + "isUsed");
 		isDirectional = GL20.glGetUniformLocation(ShaderController.getCurrentProgram(), light + "isDirectional");
+		attenuation = GL20.glGetUniformLocation(ShaderController.getCurrentProgram(), light + "attenuation");
 	}
 
 	public int getPosition(){
@@ -68,5 +70,9 @@ public class LightGL {
 	public int getIndex(){
 		return index;
 	}
-
+	
+	public int getAttenuation(){
+		return attenuation;
+	}
+	
 }

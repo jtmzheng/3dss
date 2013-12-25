@@ -1,5 +1,6 @@
 package renderer;
 
+import java.awt.List;
 import java.util.Arrays;
 
 import org.lwjgl.util.vector.Vector2f;
@@ -17,6 +18,7 @@ public class VertexData {
 	private float[] ambRefl = new float[] {1f, 1f, 1f}; //ambient
 	private float[] st = new float[] {0f, 0f};
 	private float[] norm = new float[]{0f, 0f, 0f, 1f};
+	private boolean isTextured = false;
 	
 	//Specular power 
 	private float specPower = 100.0f;
@@ -72,11 +74,13 @@ public class VertexData {
 		this.xyzw = new float[]{v.x, v.y, v.z, 1f};
 		this.st = new float[]{vt.x, vt.y};
 		this.norm = new float[]{vn.x, vn.y, vn.z, 1f};
+		this.isTextured = true;
 	}
 	
 	public VertexData(Vector3f v, Vector2f vt) {
 		this.xyzw = new float[]{v.x, v.y, v.z, 1f};
 		this.st = new float[]{vt.x, vt.y};
+		this.isTextured = true;
 	}
 	
 	public VertexData(Vector3f v) {
@@ -107,6 +111,29 @@ public class VertexData {
 		this.rgba = new float[] {r, g, b, 1f};
 	}
 	
+	public void setSpecular (float x, float y, float z) {
+		this.specRefl[0] = x;
+		this.specRefl[1] = y;
+		this.specRefl[2] = z;
+	}
+	
+	public void setDiffuse (float r, float g, float b, float a) {
+		this.rgba[0] = r;
+		this.rgba[1] = g;
+		this.rgba[2] = b;
+		this.rgba[3] = a;
+	}
+	
+	public void setAmbient (float x, float y, float z) {
+		this.ambRefl[0] = x;
+		this.ambRefl[1] = y;
+		this.ambRefl[2] = z;
+	}
+	
+	public void setSpecPower (float pow) {
+		this.specPower = pow;
+	}
+	
 	// Getters	
 	public float[] getElements() {
 		float[] out = new float[VertexData.elementCount];
@@ -125,6 +152,7 @@ public class VertexData {
 		// Insert ST elements
 		out[i++] = this.st[0];
 		out[i++] = this.st[1];
+		System.out.println(Arrays.toString(st));
 		//Insert normal elements
 		out[i++] = this.norm[0];
 		out[i++] = this.norm[1];
@@ -138,8 +166,6 @@ public class VertexData {
 		out[i++] = this.ambRefl[1];
 		out[i++] = this.ambRefl[2];
 		out[i++] = this.specPower;
-		
-		
 		
 		return out;
 	}

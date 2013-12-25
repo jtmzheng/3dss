@@ -14,7 +14,6 @@ import org.lwjgl.util.vector.Vector3f;
 import renderer.Camera;
 import renderer.ModelFactory;
 import renderer.Renderer;
-import util.Logger;
 import characters.Player;
 
 /**
@@ -47,7 +46,7 @@ public class Main {
 	public static void main(String [] args){
 		setupRenderer();
 		setupPlayer();
-		
+
 		// Game loop.
 		while(!Display.isCloseRequested()){
 			// Poll the inputs.
@@ -60,8 +59,6 @@ public class Main {
 			// Render a new frame.
 			gameRenderer.renderScene();
 		}
-		
-		cleanUp();
 	}
 	
 	/**
@@ -71,7 +68,7 @@ public class Main {
 		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
 		gameRenderer = new Renderer(600, 600, gameCam);
 		try{
-			gameRenderer.bindNewModel(ModelFactory.loadModel(new File("res/obj/bunny.obj")));
+			gameRenderer.bindNewModel(ModelFactory.loadObjModel(new File("res/obj/ATAT.obj")));
 		}
 		catch(IOException e){
 			e.printStackTrace();
@@ -94,12 +91,5 @@ public class Main {
 			i.initialize();
 			i.setListener(player);
 		}
-	}
-	
-	/**
-	 * Cleans up, frees memory, flushes streams.
-	 */
-	public static void cleanUp() {
-		Logger.flush();
 	}
 }

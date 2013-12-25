@@ -1,7 +1,5 @@
 package renderer;
 
-import org.lwjgl.util.vector.Vector3f;
-
 /*
  * LightHandle class (Description to be added)
  * @author Max

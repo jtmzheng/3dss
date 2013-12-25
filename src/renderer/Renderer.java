@@ -1,15 +1,12 @@
 package renderer;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.ContextAttribs;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
@@ -19,7 +16,6 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
 
 import system.Settings;
 
@@ -63,12 +59,12 @@ public class Renderer {
 			this.initOpenGL(true); 
 		else
 			this.initOpenGL(false);
-		
+
 		models = new ArrayList<Model>();
 		shader = new ShaderController();
 		
 		//Initialize shaders
-		HashMap<String, Integer> sh = new HashMap<String, Integer>();
+		Map<String, Integer> sh = new HashMap<String, Integer>();
 		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		
@@ -121,8 +117,7 @@ public class Renderer {
 		
 		// Select our shader program.
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
-		
-		// Get the view matrix from the camera.
+        
 		viewMatrix = camera.getViewMatrix();
 		
 		viewMatrix.store(matrix44Buffer); matrix44Buffer.flip();
@@ -135,21 +130,8 @@ public class Renderer {
 			m.getModelMatrix().store(matrix44Buffer); matrix44Buffer.flip();
 			GL20.glUniformMatrix4(ShaderController.getModelMatrixLocation(), false, matrix44Buffer);
 			
-			// Bind to the VAO that has all the information about the vertices
-			GL30.glBindVertexArray(m.getVAO());
-			GL20.glEnableVertexAttribArray(0); //position
-			GL20.glEnableVertexAttribArray(1); //color
-			GL20.glEnableVertexAttribArray(2); //texture
-			GL20.glEnableVertexAttribArray(3); //normal
-			GL20.glEnableVertexAttribArray(4);
-			GL20.glEnableVertexAttribArray(5);
-			GL20.glEnableVertexAttribArray(6);
-
-			// Bind to the index VBO that has all the information about the order of the vertices
-			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, m.getIndexVBO());
-			
-			// Draw the vertices
-			GL11.glDrawElements(GL11.GL_TRIANGLES, m.getIndicesCount(), GL11.GL_UNSIGNED_INT, 0);
+			// Render the model
+			m.render();
 		}
         		
 		// Deselect

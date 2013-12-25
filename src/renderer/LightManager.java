@@ -1,21 +1,24 @@
 package renderer;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import org.lwjgl.opengl.GL20;
-import org.lwjgl.util.vector.Vector3f;
 
-//TODO: Id management should probably be handled privately
+//@TODO: Id management should probably be handled privately
+//@TODO: updateLight(LightGL lgl) method
+
 public class LightManager {
 
-	private HashMap<Object, Light> m_lightMap; 
-	private HashMap<Light, LightGL> m_lightToGLMap;
+	private Map<Object, Light> m_lightMap; 
+	private Map<Light, LightGL> m_lightToGLMap;
 	
 	private final Object LightManagerLock = new Object();
 	
-	private final static int MAX_LIGHTS = 32;
-	private static ArrayBlockingQueue<Integer> m_lightIndices; // Holds uniform location of each light
+	private final static int MAX_LIGHTS = 30;
+	private static BlockingQueue<Integer> m_lightIndices; // Holds uniform location of each light
 	private static LightManager m_lightManager = null;
 	private LightGL[] lightsGL;
 	
@@ -59,10 +62,11 @@ public class LightManager {
 				// Update the uniform variables that won't change (for now)
 				GL20.glUseProgram(ShaderController.getCurrentProgram());
 				newLight.updateIsUsed(lightsGL[lightId], true);
-				newLight.updateIsDirectional(lightsGL[lightId]);
 				newLight.updateSpecExp(lightsGL[lightId]);
 				newLight.updateDiffuse(lightsGL[lightId]);
 				newLight.updateSpecular(lightsGL[lightId]);
+				newLight.updateIsDirectional(lightsGL[lightId]);
+				newLight.updateAttenuation(lightsGL[lightId]);
 				GL20.glUseProgram(0);
 				
 				return true;
@@ -116,6 +120,7 @@ public class LightManager {
 	
 	/**
 	 * Get a light ID from the manager
+	 * @TODO: Remove this method?
 	 * @return a light ID or null if all light slots are full
 	 */
 	private int getLightID(){
@@ -124,6 +129,7 @@ public class LightManager {
 	
 	/**
 	 * Returns a light ID to the manager
+	 * @TODO: Remove this method?
 	 * @param id
 	 * @return true if success
 	 */
@@ -140,6 +146,4 @@ public class LightManager {
 			lightsGL[i] = new LightGL(i);
 		}
 	}
-	
-	
 }

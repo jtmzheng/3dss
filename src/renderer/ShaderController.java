@@ -4,8 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import system.Settings;
@@ -16,8 +16,8 @@ import system.Settings;
  */
 public class ShaderController {
 
-	private HashMap<String, Integer> shaderNameToID = null;
-	private HashMap<Integer, Integer> shaderIDToType = null;
+	private Map<String, Integer> shaderNameToID = null;
+	private Map<Integer, Integer> shaderIDToType = null;
 	
 	private static int projectionMatrixLocation = 0;
 	private static int viewMatrixLocation = 0;
@@ -27,6 +27,10 @@ public class ShaderController {
 	private static int diffuseLocation = 0;
 	private static int ambientLocation = 0;
 	private static int viewMatrixFragLocation = 0;
+	private static int textureSamplerLocation = 0;
+	private static int textureKdSamplerLocation = 0;
+	private static int textureKsSamplerLocation = 0;
+	private static int textureKaSamplerLocation = 0;
 	
 	private static int currentProgram = 0;
 
@@ -44,7 +48,7 @@ public class ShaderController {
 	 * 
 	 * @return <code>true</code> if the program was successfully set, and false otherwise.
 	 */
-	public boolean setProgram(HashMap<String, Integer> shaders){
+	public boolean setProgram(Map<String, Integer> shaders){
 
 		//Sets the new current program
 		currentProgram = GL20.glCreateProgram();
@@ -65,6 +69,7 @@ public class ShaderController {
 		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("Ks"), "Ks");
 		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("Ka"), "Ka");
 		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("specExp"), "specExp");
+		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("texture"), "texture");
 
 		GL20.glLinkProgram(currentProgram);
 		GL20.glValidateProgram(currentProgram);
@@ -74,10 +79,14 @@ public class ShaderController {
 		viewMatrixLocation = GL20.glGetUniformLocation(currentProgram,  "viewMatrix");
 		modelMatrixLocation = GL20.glGetUniformLocation(currentProgram,  "modelMatrix");
 		viewMatrixFragLocation = GL20.glGetUniformLocation(currentProgram, "viewMatrixFrag");
-		lightPositionLocation = GL20.glGetUniformLocation(currentProgram,  "light_position");
-		specularLocation = GL20.glGetUniformLocation(currentProgram,  "Ls");
-		diffuseLocation = GL20.glGetUniformLocation(currentProgram,  "Ld");
+		// lightPositionLocation = GL20.glGetUniformLocation(currentProgram,  "light_position");
+		// specularLocation = GL20.glGetUniformLocation(currentProgram,  "Ls");
+		// diffuseLocation = GL20.glGetUniformLocation(currentProgram,  "Ld");
 		ambientLocation = GL20.glGetUniformLocation(currentProgram,  "La");		
+		textureSamplerLocation = GL20.glGetUniformLocation(currentProgram, "textureSampler");
+		textureKdSamplerLocation = GL20.glGetUniformLocation(currentProgram, "textureSamplers[0]"); 
+		textureKsSamplerLocation = GL20.glGetUniformLocation(currentProgram, "textureSamplers[1]");		
+		textureKaSamplerLocation = GL20.glGetUniformLocation(currentProgram, "textureSamplers[2]");
 		
 		return true;
 	}
@@ -133,6 +142,22 @@ public class ShaderController {
 	
 	public static int getViewMatrixFragLocation(){
 		return viewMatrixFragLocation;
+	}
+	
+	public static int getTexSamplerLocation(){
+		return textureSamplerLocation;
+	}
+	
+	public static int getTexKdSamplerLocation(){
+		return textureKdSamplerLocation;
+	}
+	
+	public static int getTexKsSamplerLocation(){
+		return textureKsSamplerLocation;
+	}
+	
+	public static int getTexKaSamplerLocation(){
+		return textureKaSamplerLocation;
 	}
 	
 	/**

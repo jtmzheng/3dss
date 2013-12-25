@@ -48,6 +48,7 @@ public class MouseClickEvent extends InputEvent{
 	public boolean isPress () {
 		return pressed;
 	}
+	
 	/**
 	 * Gets the X location of the event.
 	 * @return x location of mouse click.

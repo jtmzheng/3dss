@@ -12,7 +12,7 @@ in vec4 in_Normal;
 in vec3 Ks; 
 in vec3 Ka;
 
-out vec4 pass_Color;
+out vec2 pass_texture;
 out vec3 position_eye, normal_eye;
 out vec3 sKs;
 out vec3 sKd;
@@ -21,13 +21,13 @@ out vec3 sKa;
 void main(void) {
 
 	mat4 vm = viewMatrix * modelMatrix;
-	position_eye = vec3(vm * in_Position);
-	normal_eye = vec3(vm * vec4(vec3(in_Normal), 0.0)); //TODO, might as well pass normals as vec3
+	position_eye = (vm * in_Position).xyz;
+	normal_eye = (vm * vec4(in_Normal.xyz, 0.0)).xyz; 
 	
 	sKs = Ks;
-	sKd = vec3(pass_Color); //TODO should be pass_Color
+	sKd = in_Color.rgb; 
 	sKa = Ka;
 	
     gl_Position = projectionMatrix * vm * in_Position;
-	pass_Color = in_Color;
+	pass_texture = in_Texture;
 }

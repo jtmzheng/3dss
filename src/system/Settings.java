@@ -1,6 +1,7 @@
 package system;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /*
  * A static utility class defining the settings globally used in the applications.
@@ -10,7 +11,7 @@ import java.util.HashMap;
  */
 public class Settings {
 	
-	public static HashMap<String, Object> settings = new HashMap<String, Object> ();
+	public static Map<String, Object> settings = new HashMap<String, Object> ();
 	
 	// List of default settings.
 	static {
@@ -23,6 +24,7 @@ public class Settings {
 		settings.put("Ks", 4);
 		settings.put("Ka", 5);
 		settings.put("specExp", 6);
+		settings.put("texture", 7);
 		settings.put("vertex_path", "src/shaders/vertex.vert");
 		settings.put("fragment_path",  "src/shaders/fragment.frag");
 		settings.put("log_folder", "logs/");

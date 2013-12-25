@@ -6,8 +6,6 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Vector3f;
 
-import system.Settings;
-
 /**
  * Phong lighting implementation
  * @author Max
@@ -22,7 +20,8 @@ public class Light {
 	
 	private Vector3f m_spot = null; // spot light direction
 	private boolean m_directional;
-	// private float m_attentuation; // attentuation of the light (Not used currently)
+	
+	private Vector3f m_attenuation;	// Attenuation
 	
 	private FloatBuffer m_DataBuffer = BufferUtils.createFloatBuffer(3);
 	
@@ -41,18 +40,19 @@ public class Light {
 		m_La = ambi;
 		m_spot = dir; 
 		
-		m_directional = m_spot != null; // If m_spot is null, it is non-directional 
+		m_directional = m_spot != null; // If m_spot is null, it is non-directional
+		
+		// Default attenuation
+		m_attenuation = new Vector3f(0.3f, 0.007f, 0.008f); //constant, linear, and quadratic
 	}
 	
 	public void updatePosition(LightGL lgl){
-		//System.out.println("Position = " + m_position);
 		m_position.store(m_DataBuffer); m_DataBuffer.flip();
 		GL20.glUniform3(lgl.getPosition(), m_DataBuffer);
 	}
 	
 	public void updateDirection(LightGL lgl){
 		if(m_directional && m_spot != null) {
-			//System.out.println("Direction = " + m_spot);
 			m_spot.store(m_DataBuffer); m_DataBuffer.flip();
 			GL20.glUniform3(lgl.getDirection(), m_DataBuffer);
 		}
@@ -66,6 +66,11 @@ public class Light {
 	public void updateDiffuse(LightGL lgl){
 		m_Ld.store(m_DataBuffer); m_DataBuffer.flip();
 		GL20.glUniform3(lgl.getDiffuse(), m_DataBuffer);
+	}
+	
+	public void updateAttenuation(LightGL lgl){
+		m_attenuation.store(m_DataBuffer); m_DataBuffer.flip();
+		GL20.glUniform3(lgl.getAttenuation(), m_DataBuffer);
 	}
 	
 	public void updateSpecExp(LightGL lgl){
@@ -82,7 +87,6 @@ public class Light {
 	}
 	
 	public void updateIsDirectional(LightGL lgl) {
-		System.out.println("Directional? " + m_directional);
 		if(m_directional) {
 			GL20.glUniform1f(lgl.getIsDirectional(), 1.0f);
 		}
@@ -90,7 +94,7 @@ public class Light {
 			GL20.glUniform1f(lgl.getIsDirectional(), 0.0f);
 		}
 	}
-
+	
 	public void setPosition(Vector3f position) {
 		m_position = position;
 	}
