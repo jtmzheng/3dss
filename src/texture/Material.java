@@ -14,7 +14,7 @@ public class Material {
 	public float[] Kd = new float[] {0.8f, 0.8f, 0.8f, 1.0f}; // diffuse
 	public float[] Ks = new float[] {1f, 1f, 1f}; // specular
 	public float[] Ka = new float[] {0.2f, 0.2f, 0.2f}; // ambient
-	public float Ns = 1f; // specular coefficient
+	public float Ns = 0f; // specular coefficient
     public int illumModel = 1;
     public double niOpticalDensity = 0.0;
 
