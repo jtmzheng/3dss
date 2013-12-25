@@ -33,7 +33,7 @@ public class ParseUtils {
     			VertexData v = new VertexData (vertices.get(Integer.parseInt(tokens[x])-1));
     			faceData.add(v);
     		}
-    		return currentMaterial != null ? new Face(faceData, currentMaterial) : null;
+    		return new Face(faceData, currentMaterial);
     	}
     	
     	// We should have trimmed whitespace and stuff by this point.
@@ -45,7 +45,7 @@ public class ParseUtils {
     			
     			faceData.add(v);
     		}
-    		return currentMaterial != null ? new Face(faceData, currentMaterial) : null;
+    		return new Face(faceData, currentMaterial);
     	}
     	
     	if (tokens[1].matches("^[0-9]+/[0-9]+/[0-9]+$")) {
@@ -57,7 +57,7 @@ public class ParseUtils {
     			
     			faceData.add(v);
     		}
-    		return currentMaterial != null ? new Face(faceData, currentMaterial) : null;
+    		return new Face(faceData, currentMaterial);
     	}
     	
     	if (tokens[1].matches("^[0-9]+//[0-9]+$")) {
@@ -69,7 +69,7 @@ public class ParseUtils {
     			
     			faceData.add(v);
     		}
-    		return currentMaterial != null ? new Face(faceData, currentMaterial) : null; 
+    		return new Face(faceData, currentMaterial); 
     	}
     	
     	return null;
