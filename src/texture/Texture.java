@@ -99,6 +99,14 @@ public class Texture {
 	public boolean hasAlpha() {
 		return hasAlpha;
 	}
+	
+	/**
+	 * Returns an integer representing the color format (RGB or RGBA
+	 * @return colorFormat - integer value representing the color format
+	 */
+	public int getColorFormat() {
+		return colorFormat;
+	}
 
 	/**
 	 * Binds this texture to the GL_TEXTURE_2D target.
