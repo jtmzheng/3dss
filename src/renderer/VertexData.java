@@ -173,6 +173,10 @@ public class VertexData {
 		return new float[] {this.xyzw[0], this.xyzw[1], this.xyzw[2], this.xyzw[3]};
 	}
 	
+	public float[] getXYZ() {
+		return new float[] {this.xyzw[0], this.xyzw[1], this.xyzw[2]};
+	}
+	
 	public float[] getGeometric() {
 		return new float[] {this.xyzw[0], this.xyzw[1], this.xyzw[2]};
 	}

@@ -66,9 +66,9 @@ public class Main {
 	 */
 	public static void setupRenderer() {
 		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
-		gameRenderer = new Renderer(600, 600, gameCam);
+		gameRenderer = new Renderer(600, 600, gameCam, 60);
 		try{
-			gameRenderer.bindNewModel(ModelFactory.loadObjModel(new File("res/obj/ATAT.obj")));
+			gameRenderer.bindNewModel(ModelFactory.loadObjModel(new File("res/obj/sphere.obj")));
 		}
 		catch(IOException e){
 			e.printStackTrace();

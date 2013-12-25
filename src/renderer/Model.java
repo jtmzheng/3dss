@@ -21,6 +21,9 @@ import texture.Material;
 import texture.Texture;
 import texture.TextureManager;
 
+import com.bulletphysics.collision.shapes.ConvexHullShape;
+import com.bulletphysics.util.ObjectArrayList;
+
 /**
  * Model class is an abstraction used by Renderer. Each model represents a physical object
  * in the environment. The OpenGL attributes will be passed as an interleaved VBO.
@@ -46,14 +49,16 @@ public class Model {
 	private LightHandle m_LightHandle = null;
 	
 	// TextureManager instance
-	TextureManager texManager;
+	private TextureManager texManager;
+	
+	// Physics model
+	private ConvexHullShape modelShape;
 
 	public Model(List<Face> f, Vector3f pos, Vector3f ld, Vector3f ls, Vector3f la){
 		this.faces = f;
 
 		// Get instance of texture manager
 		texManager = TextureManager.getInstance();
-
 
 		// Setup the model 
 		setup();
@@ -101,6 +106,9 @@ public class Model {
 		
 		// Strip any quads / polygons. 
 		this.triangulate();
+
+		// Setup the physics object
+		modelShape = new ConvexHullShape(new ObjectArrayList<javax.vecmath.Vector3f>());
 
 		// Split face list into a list of face lists, each having their own material.
 		mapMaterialToFaces = new HashMap<>();
@@ -156,6 +164,7 @@ public class Model {
 				}
 				else{
 					vboIndex.add(vboIndexMap.get(tempVertexData));
+					modelShape.addPoint(new javax.vecmath.Vector3f(tempVertexData.getXYZ())); // @TODO: Very slow call
 				}
 
 				//Add second vertex of the face
@@ -167,6 +176,7 @@ public class Model {
 				}
 				else{
 					vboIndex.add(vboIndexMap.get(tempVertexData));
+					modelShape.addPoint(new javax.vecmath.Vector3f(tempVertexData.getXYZ()));
 				}
 
 				//Add third vertex of the face
@@ -178,6 +188,7 @@ public class Model {
 				}
 				else{
 					vboIndex.add(vboIndexMap.get(tempVertexData));
+					modelShape.addPoint(new javax.vecmath.Vector3f(tempVertexData.getXYZ()));
 				}
 
 			}

@@ -32,6 +32,7 @@ public class Renderer {
 	public ArrayList<Model> models; //Arraylist of the models that will be renderered
 	private int WIDTH = 320;
 	private int HEIGHT = 240;
+	private int frameRate = 60;
 	private ShaderController shader;
 	
 	// Matrix variables (should be moved to camera class in the future)
@@ -50,10 +51,11 @@ public class Renderer {
 	 * @param height The height of the renderer.
 	 * @param camera The camera associated with the renderer.
 	 */
-	public Renderer(int width, int height, Camera camera){
+	public Renderer(int width, int height, Camera camera, int frameRate){
 		this.camera = camera;
 		this.WIDTH = width;
 		this.HEIGHT = height;
+		this.frameRate = frameRate;
 		
 		if (width == 0 && height == 0)
 			this.initOpenGL(true); 
@@ -63,14 +65,14 @@ public class Renderer {
 		models = new ArrayList<Model>();
 		shader = new ShaderController();
 		
-		//Initialize shaders
+		// Initialize shaders
 		Map<String, Integer> sh = new HashMap<String, Integer>();
 		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		
 		shader.setProgram(sh); //TO DO: Error checking
 		
-		//Set up view and projection matrices
+		// Set up view and projection matrices
 		projectionMatrix = new Matrix4f();
 		float fieldOfView = 45f;
 		float aspectRatio = (float)WIDTH / (float)HEIGHT;
@@ -147,7 +149,7 @@ public class Renderer {
 		GL20.glUseProgram(0);
 
 		// Force a maximum FPS of about 60
-		Display.sync(60);
+		Display.sync(frameRate);
 		// Let the CPU synchronize with the GPU if GPU is tagging behind (I think update refreshs the display)
 		Display.update();
 	}
@@ -163,6 +165,14 @@ public class Renderer {
 		}
 		
 		return camera;
+	}
+	
+	/**
+	 * Get the max frame rate of the renderer
+	 * @return
+	 */
+	public int getFrameRate() {
+		return frameRate;
 	}
 	
 	/**

@@ -50,6 +50,7 @@ public class Texture {
 		this.name = name;
 		this.hasAlpha = alpha;
 		this.colorFormat = this.hasAlpha ? GL11.GL_RGBA : GL11.GL_RGB;
+		System.out.println("HasAlpha?" + this.hasAlpha + " , " + colorFormat);
 	}
 
 	/**
@@ -116,7 +117,7 @@ public class Texture {
 		// If not already bound and valid unit Id
 		if(!isBound && unitId > 0) {
 			texId = GL11.glGenTextures();
-			
+
 			// Set uniform variable of texture slot
 			GL20.glUseProgram(ShaderController.getCurrentProgram());
 			GL20.glUniform1i(ShaderController.getTexSamplerLocation(), unitId - GL13.GL_TEXTURE0);
