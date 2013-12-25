@@ -21,7 +21,13 @@ import texture.Material;
 import texture.Texture;
 import texture.TextureManager;
 
+import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.shapes.ConvexHullShape;
+import com.bulletphysics.dynamics.RigidBody;
+import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
+import com.bulletphysics.linearmath.DefaultMotionState;
+import com.bulletphysics.linearmath.MotionState;
+import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.ObjectArrayList;
 
 /**
@@ -53,6 +59,7 @@ public class Model {
 	
 	// Physics model
 	private ConvexHullShape modelShape;
+	private RigidBody modelRigidBody;
 
 	public Model(List<Face> f, Vector3f pos, Vector3f ld, Vector3f ls, Vector3f la){
 		this.faces = f;
@@ -259,6 +266,7 @@ public class Model {
 		// Deselect (bind to 0) the VAO
 		GL30.glBindVertexArray(0);
 		
+		// Bind all the textures
 		for(Material material : this.mapMaterialToFaces.keySet()) {
 			Texture tex = material.mapKdTexture;
 			int textureUnitId = texManager.getTextureSlot();
@@ -266,9 +274,20 @@ public class Model {
 	        texManager.returnTextureSlot(textureUnitId);
 		}
 		
-		//Initialize model matrix
-		modelMatrix = new Matrix4f(); //Initialized to the identity in the constructor
+		//Initialize model matrix (Initialized to the identity in the constructor)
+		modelMatrix = new Matrix4f(); 
 		
+		// Create and initialize the physics model
+		Transform modelTransform = new Transform(new javax.vecmath.Matrix4f());
+		MotionState modelMotionState = new DefaultMotionState(modelTransform);
+        javax.vecmath.Vector3f modelInertia = new javax.vecmath.Vector3f(0, 0, 0);
+        modelShape.calculateLocalInertia(2.5f, modelInertia);
+        RigidBodyConstructionInfo modelConstructionInfo = new RigidBodyConstructionInfo(2.5f, modelMotionState, modelShape, modelInertia);
+        modelConstructionInfo.restitution = 0.5f;
+        modelConstructionInfo.angularDamping = 0.95f;
+        modelRigidBody = new RigidBody(modelConstructionInfo);
+        modelRigidBody.setActivationState(CollisionObject.DISABLE_DEACTIVATION);
+	
 		System.out.println("Model loading to GPU: " + (System.currentTimeMillis() - curTime));
 	}
 	
@@ -364,8 +383,16 @@ public class Model {
 	 * Get the model matrix associated with this model.
 	 * @return the model matrix
 	 */
-	public Matrix4f getModelMatrix(){
+	public Matrix4f getModelMatrix() {
 		return modelMatrix;
+	}
+	
+	/**
+	 * Get the rigid body that represents the model
+	 * @return 
+	 */
+	public RigidBody getRigidBody() {
+		return modelRigidBody;
 	}
 
 	/**
