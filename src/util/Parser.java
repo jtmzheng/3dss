@@ -50,8 +50,8 @@ public class Parser {
     // Materials in this object.
     private Map<String, Material> materialMapping = new HashMap<String, Material>();
     
-    // Current material being parsed.
-    private Material currentMaterial = null;
+    // Current material being parsed. Initialize with default material.
+    private Material currentMaterial = new Material();
     
     // List of obj properties that are used.
     private List<Vector3f> vertices;

@@ -11,11 +11,11 @@ import java.util.List;
  */
 public class Material {	
 	// Default material values when no material is currently selected.
-	public float[] Kd = new float[] {1.0f, 0.5f, 0f, 1.0f}; // diffuse
+	public float[] Kd = new float[] {0.8f, 0.8f, 0.8f, 1.0f}; // diffuse
 	public float[] Ks = new float[] {1f, 1f, 1f}; // specular
-	public float[] Ka = new float[] {1f, 1f, 1f}; // ambient
-	public float Ns = 95f; // specular coefficient
-    public int illumModel = 0;
+	public float[] Ka = new float[] {0.2f, 0.2f, 0.2f}; // ambient
+	public float Ns = 0f; // specular coefficient
+    public int illumModel = 1;
     public double niOpticalDensity = 0.0;
 
     public Texture mapKaTexture = null;
@@ -32,6 +32,16 @@ public class Material {
 		this.name = materialName;
 		
 		System.out.println("New texture + " + materialName);
+		mapKdTexture = TextureManager.getInstance().getDefaultTexture();
+	}
+	
+	/**
+	 * Creates the default material using the default Kd texture map.
+	 */
+	public Material() {
+		// Very descriptive default material name to make sure that no .MTL files
+		// accidentally use this name and cause issues.
+		this.name = "defaultaraghavajtmzheng1234material";
 		mapKdTexture = TextureManager.getInstance().getDefaultTexture();
 	}
 
