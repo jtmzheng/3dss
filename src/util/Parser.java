@@ -23,7 +23,8 @@ import texture.Material;
  * tags which declare new materials (which we represent by Material.java). These "newmtl"s 
  * have properties which include texture maps and lighting values.
  * 
- * TODO: Support smoothing groups.
+ * @TODO: Support smoothing groups.
+ * @TODO: Add error checking 
  * @author Adi
  */
 public class Parser {
