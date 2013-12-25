@@ -11,11 +11,11 @@ import java.util.List;
  */
 public class Material {	
 	// Default material values when no material is currently selected.
-	public float[] Kd = new float[] {0.5f, 0.5f, 0.5f, 0.5f}; // diffuse
-	public float[] Ks = new float[] {0f, 0f, 0f}; // specular
-	public float[] Ka = new float[] {0f, 0f, 0f}; // ambient
-	public float Ns = 0.85f; // specular coefficient
-    public int illumModel = 0;
+	public float[] Kd = new float[] {0.8f, 0.8f, 0.8f, 1.0f}; // diffuse
+	public float[] Ks = new float[] {1f, 1f, 1f}; // specular
+	public float[] Ka = new float[] {0.2f, 0.2f, 0.2f}; // ambient
+	public float Ns = 1f; // specular coefficient
+    public int illumModel = 1;
     public double niOpticalDensity = 0.0;
 
     public Texture mapKaTexture = null;
