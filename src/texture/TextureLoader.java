@@ -66,7 +66,8 @@ public class TextureLoader {
         Texture tex = new Texture(image.getWidth(), 
         		image.getHeight(), 
         		buffer,
-        		fileName);
+        		fileName,
+        		image.getColorModel().hasAlpha());
 
         return tex;
 	}

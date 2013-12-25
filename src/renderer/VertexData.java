@@ -152,7 +152,6 @@ public class VertexData {
 		// Insert ST elements
 		out[i++] = this.st[0];
 		out[i++] = this.st[1];
-		System.out.println(Arrays.toString(st));
 		//Insert normal elements
 		out[i++] = this.norm[0];
 		out[i++] = this.norm[1];

@@ -28,6 +28,12 @@ public class Texture {
 	
 	// The name of the texture image 
 	private String name;
+	
+	// Whether the texture has alpha
+	private boolean hasAlpha;
+	
+	// RGB or RGBA
+	private int colorFormat;
 
 	/**
 	 * Constructs a texture given a width, height, and unique ID assigned by OpenGL.
@@ -36,12 +42,14 @@ public class Texture {
 	 * @param id
 	 * @param unitId
 	 */
-	public Texture (int width, int height, ByteBuffer buffer, String name) {
+	public Texture (int width, int height, ByteBuffer buffer, String name, boolean alpha) {
 		this.width = width;
 		this.height = height;
 		this.isBound = false;
 		this.buffer = buffer;
 		this.name = name;
+		this.hasAlpha = alpha;
+		this.colorFormat = this.hasAlpha ? GL11.GL_RGBA : GL11.GL_RGB;
 	}
 
 	/**
@@ -76,7 +84,6 @@ public class Texture {
 		return name;
 	}
 	
-
 	/**
 	 * Returns whether the texture is bound
 	 * @return isBound - boolean value of whether the texture is bound
@@ -85,6 +92,13 @@ public class Texture {
 		return isBound;
 	}
 	
+	/**
+	 * Returns whether the texture supports alpha (transparency)
+	 * @return hasAlpha - boolean value of whether the texture has alpha
+	 */
+	public boolean hasAlpha() {
+		return hasAlpha;
+	}
 
 	/**
 	 * Binds this texture to the GL_TEXTURE_2D target.
@@ -104,15 +118,16 @@ public class Texture {
 
 			GL11.glBindTexture(GL_TEXTURE_2D, texId);
 			GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
-
+			
+			
 			GL11.glTexImage2D (
 					GL_TEXTURE_2D,
 					0,
-					GL11.GL_RGBA,
+					colorFormat,
 					width,
 					height,
 					0,
-					GL11.GL_RGBA,
+					colorFormat,
 					GL11.GL_UNSIGNED_BYTE,
 					buffer
 					);
