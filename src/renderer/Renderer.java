@@ -114,8 +114,9 @@ public class Renderer {
 	 * Renders the new scene.
 	 */
 	public void renderScene (){		
-		// Clear the color buffer
+		// Clear the color and depth buffers
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+		GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 		
 		// Select our shader program.
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
@@ -210,6 +211,7 @@ public class Renderer {
 		GL11.glClearColor(0.4f, 0.6f, 0.9f, 0f);		
 		//GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE ); //for debug
 		GL11.glEnable(GL11.GL_CULL_FACE);
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glCullFace(GL11.GL_BACK);
 	}
 	

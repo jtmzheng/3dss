@@ -63,6 +63,9 @@ public class Model {
 	
 	// Physics model
 	private PhysicsModel physicsModel;
+	
+	// Flag for whether this model should be rendered
+	private boolean renderFlag;	
 
 	public Model(List<Face> f, Vector3f pos, Vector3f ld, Vector3f ls, Vector3f la){
 		this.faces = f;
@@ -285,6 +288,8 @@ public class Model {
 		ConvexHullShape modelShape = new ConvexHullShape(modelShapePoints);
 		physicsModel = setupPhysicsModel(modelShape, initialPosition);
 	
+		renderFlag = true;
+		
 		System.out.println("Model loading to GPU: " + (System.currentTimeMillis() - curTime));
 	}
 	
@@ -293,40 +298,41 @@ public class Model {
 	 * @TODO: Make a class for the HashMaps (a struct) - will keep it cleaner
 	 */
 	public void render() {
-		// Do bind and draw for each material's faces
-		for(Material material : mapMaterialToFaces.keySet()) {
-			// Loop through all texture Ids for a given material
-			for(Integer tex : material.getActiveTextureIds()) {
-				Integer unitId = texManager.getTextureSlot();
+		if(renderFlag) {
+			// Do bind and draw for each material's faces
+			for(Material material : mapMaterialToFaces.keySet()) {
+				// Loop through all texture Ids for a given material
+				for(Integer tex : material.getActiveTextureIds()) {
+					Integer unitId = texManager.getTextureSlot();
 
-				// If invalid continue
-				if(unitId == null) {
-					continue;
+					// If invalid continue
+					if(unitId == null) {
+						continue;
+					}
+
+					// Bind and activate sampler 
+					GL20.glUniform1i(ShaderController.getTexSamplerLocation(), unitId - GL13.GL_TEXTURE0);
+					GL13.glActiveTexture(unitId);
+					GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex);
+					texManager.returnTextureSlot(unitId);
 				}
 
-				// Bind and activate sampler 
-				GL20.glUniform1i(ShaderController.getTexSamplerLocation(), unitId - GL13.GL_TEXTURE0);
-				GL13.glActiveTexture(unitId);
-				GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex);
-				texManager.returnTextureSlot(unitId);
+				GL30.glBindVertexArray(mapVAOIds.get(material));
+				GL20.glEnableVertexAttribArray(0); //position
+				GL20.glEnableVertexAttribArray(1); //color
+				GL20.glEnableVertexAttribArray(2); //texture
+				GL20.glEnableVertexAttribArray(3); //normal
+				GL20.glEnableVertexAttribArray(4);
+				GL20.glEnableVertexAttribArray(5);
+				GL20.glEnableVertexAttribArray(6);
+
+				// Bind to the index VBO that has all the information about the order of the vertices
+				GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mapVBOIndexIds.get(material));
+
+				// Draw the vertices
+				GL11.glDrawElements(GL11.GL_TRIANGLES, mapIndiceCount.get(material), GL11.GL_UNSIGNED_INT, 0);
 			}
-			
-			GL30.glBindVertexArray(mapVAOIds.get(material));
-			GL20.glEnableVertexAttribArray(0); //position
-			GL20.glEnableVertexAttribArray(1); //color
-			GL20.glEnableVertexAttribArray(2); //texture
-			GL20.glEnableVertexAttribArray(3); //normal
-			GL20.glEnableVertexAttribArray(4);
-			GL20.glEnableVertexAttribArray(5);
-			GL20.glEnableVertexAttribArray(6);
-
-			// Bind to the index VBO that has all the information about the order of the vertices
-			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mapVBOIndexIds.get(material));
-
-			// Draw the vertices
-			GL11.glDrawElements(GL11.GL_TRIANGLES, mapIndiceCount.get(material), GL11.GL_UNSIGNED_INT, 0);
 		}
-		physicsModel.getTransformMatrix();
 	}
 
 	/**
@@ -405,6 +411,22 @@ public class Model {
 	 */
 	public PhysicsModel getPhysicsModel() {
 		return physicsModel;
+	}
+	
+	/**
+	 * Get whether the model is currently being rendered
+	 * @return
+	 */
+	public boolean getRenderFlag() {
+		return renderFlag;
+	}
+	
+	/**
+	 * Set flag for whether this model should be rendered
+	 * @param renderFlag
+	 */
+	public void setRenderFlag(boolean renderFlag) {
+		this.renderFlag = renderFlag;
 	}
 	
 	/**
