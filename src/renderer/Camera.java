@@ -72,6 +72,14 @@ public class Camera {
 	}
 	
 	/**
+	 * Gets the right vector for the camera
+	 * @return
+	 */
+	public Vector3f getRight() {
+		return cameraRight;
+	}
+	
+	/**
 	 * Returns the view matrix the Camera controls.
 	 * @return the view matrix
 	 */

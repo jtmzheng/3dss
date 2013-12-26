@@ -1,7 +1,5 @@
 package characters;
 
-import javax.vecmath.Quat4f;
-
 import input.InputListener;
 import input.KeyEvent;
 import input.MouseClickEvent;
@@ -148,8 +146,13 @@ public class Player implements InputListener {
 		}
 		
 		// Move player
+		RigidBody playerRigidBody = playerModel.getPhysicsModel().getRigidBody();
+		javax.vecmath.Vector3f oldPosition = playerRigidBody.getWorldTransform(new Transform()).origin;
+		playerCam.setLocation(new Vector3f(oldPosition.x, oldPosition.y, oldPosition.z));
+		/*
 		strafe();
 		moveFrontBack();
+		*/
 
 		// Update the camera light fields
 		if(cameraLight.isValid()) {
@@ -161,11 +164,22 @@ public class Player implements InputListener {
 		lightManager.updateAllLights();
 		
 		// Update the physics model
-		RigidBody playerRigidBody = playerModel.getPhysicsModel().getRigidBody();
+		javax.vecmath.Vector3f forceRight = new javax.vecmath.Vector3f(speed_x * 20 * playerCam.getRight().x,
+				speed_x * 20 * playerCam.getRight().y,
+				speed_x * 20 * playerCam.getRight().z);
+		javax.vecmath.Vector3f forceDirection = new javax.vecmath.Vector3f(speed_y * 20 * playerCam.getDirection().x,
+				speed_y * 20 * playerCam.getDirection().y,
+				speed_y * 20 * playerCam.getDirection().z);
+		
+		forceDirection.add(forceRight);
+		playerRigidBody.setLinearVelocity(forceDirection);
+		/*
 		Vector3f position = playerCam.getLocation();
 		playerRigidBody.setWorldTransform(new Transform(new javax.vecmath.Matrix4f(new Quat4f(0, 0, 0, 1), 
         		new javax.vecmath.Vector3f(position.x, position.y, position.z), 
         		1)));
+        		*/
+		
 		
 	}
 
