@@ -119,9 +119,12 @@ public class Renderer {
 		
 		// Select our shader program.
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
-        
-		viewMatrix = camera.getViewMatrix();
 		
+		// Reset the buffer
+		matrix44Buffer = BufferUtils.createFloatBuffer(16);
+		
+		// Set the uniform values of the projection and view matrices 
+		viewMatrix = camera.getViewMatrix();
 		viewMatrix.store(matrix44Buffer); matrix44Buffer.flip();
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixFragLocation(), false, matrix44Buffer);
@@ -129,9 +132,10 @@ public class Renderer {
 		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
 		
 		for(Model m: models){
-			m.getModelMatrix().store(matrix44Buffer); matrix44Buffer.flip();
+			matrix44Buffer = BufferUtils.createFloatBuffer(16);
+			matrix44Buffer.put(m.getModelMatrixBuffer()); matrix44Buffer.flip();
+			// m.getModelMatrix().store(matrix44Buffer); matrix44Buffer.flip(); // @TODO: Move to model class
 			GL20.glUniformMatrix4(ShaderController.getModelMatrixLocation(), false, matrix44Buffer);
-			
 			// Render the model
 			m.render();
 		}

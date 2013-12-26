@@ -381,6 +381,10 @@ public class Model {
 		return modelMatrix;
 	}
 	
+	public float[] getModelMatrixBuffer() {
+		return physicsModel.getTransformMatrix();
+	}
+	
 	/**
 	 * Get the physics model associated with this model.
 	 * @return
