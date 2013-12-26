@@ -17,11 +17,13 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
+import physics.PhysicsModel;
 import texture.Material;
 import texture.Texture;
 import texture.TextureManager;
 
 import com.bulletphysics.collision.dispatch.CollisionObject;
+import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.ConvexHullShape;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
@@ -58,8 +60,7 @@ public class Model {
 	private TextureManager texManager;
 	
 	// Physics model
-	private ConvexHullShape modelShape;
-	private RigidBody modelRigidBody;
+	private PhysicsModel physicsModel;
 
 	public Model(List<Face> f, Vector3f pos, Vector3f ld, Vector3f ls, Vector3f la){
 		this.faces = f;
@@ -114,8 +115,8 @@ public class Model {
 		// Strip any quads / polygons. 
 		this.triangulate();
 
-		// Setup the physics object
-		modelShape = new ConvexHullShape(new ObjectArrayList<javax.vecmath.Vector3f>());
+		// Setup the physics object (@TODO: Support for other collision shapes)
+		ConvexHullShape modelShape = new ConvexHullShape(new ObjectArrayList<javax.vecmath.Vector3f>());
 
 		// Split face list into a list of face lists, each having their own material.
 		mapMaterialToFaces = new HashMap<>();
@@ -151,7 +152,7 @@ public class Model {
 			// Put each 'Vertex' in one FloatBuffer
 			ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(materialFaces.size() *  3 * VertexData.stride); //TODO : Allocating proper amount
 			FloatBuffer verticesFloatBuffer = verticesByteBuffer.asFloatBuffer();
-			HashMap<VertexData, Integer> vboIndexMap = new HashMap<VertexData, Integer>();
+			Map<VertexData, Integer> vboIndexMap = new HashMap<VertexData, Integer>();
 			List<Integer> vboIndex = new ArrayList<Integer>();
 			VertexData tempVertexData;
 
@@ -278,15 +279,7 @@ public class Model {
 		modelMatrix = new Matrix4f(); 
 		
 		// Create and initialize the physics model
-		Transform modelTransform = new Transform(new javax.vecmath.Matrix4f());
-		MotionState modelMotionState = new DefaultMotionState(modelTransform);
-        javax.vecmath.Vector3f modelInertia = new javax.vecmath.Vector3f(0, 0, 0);
-        modelShape.calculateLocalInertia(2.5f, modelInertia);
-        RigidBodyConstructionInfo modelConstructionInfo = new RigidBodyConstructionInfo(2.5f, modelMotionState, modelShape, modelInertia);
-        modelConstructionInfo.restitution = 0.5f;
-        modelConstructionInfo.angularDamping = 0.95f;
-        modelRigidBody = new RigidBody(modelConstructionInfo);
-        modelRigidBody.setActivationState(CollisionObject.DISABLE_DEACTIVATION);
+		physicsModel = setupPhysicsModel(modelShape);
 	
 		System.out.println("Model loading to GPU: " + (System.currentTimeMillis() - curTime));
 	}
@@ -388,13 +381,13 @@ public class Model {
 	}
 	
 	/**
-	 * Get the rigid body that represents the model
-	 * @return 
+	 * Get the physics model associated with this model.
+	 * @return
 	 */
-	public RigidBody getRigidBody() {
-		return modelRigidBody;
+	public PhysicsModel getPhysicsModel() {
+		return physicsModel;
 	}
-
+	
 	/**
 	 * Add a light to this model 
 	 * @param light
@@ -436,5 +429,23 @@ public class Model {
 
 		this.faces.removeAll(removeFaces);
 		this.faces.addAll(addFaces); 
+	}
+	
+	private PhysicsModel setupPhysicsModel(CollisionShape modelShape) {
+		Transform modelTransform = new Transform(new javax.vecmath.Matrix4f());
+		MotionState modelMotionState = new DefaultMotionState(modelTransform);
+        javax.vecmath.Vector3f modelInertia = new javax.vecmath.Vector3f(0, 0, 0);
+        
+        modelShape.calculateLocalInertia(2.5f, modelInertia);
+        RigidBodyConstructionInfo modelConstructionInfo = new RigidBodyConstructionInfo(2.5f, modelMotionState, modelShape, modelInertia);
+        modelConstructionInfo.restitution = 0.5f;
+        modelConstructionInfo.angularDamping = 0.95f;
+        
+        RigidBody modelRigidBody = new RigidBody(modelConstructionInfo);
+        modelRigidBody.setActivationState(CollisionObject.DISABLE_DEACTIVATION);
+        PhysicsModel model = new PhysicsModel(modelShape, 
+        		modelRigidBody);
+        
+        return model;
 	}
 }

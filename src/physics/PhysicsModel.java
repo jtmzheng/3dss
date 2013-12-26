@@ -2,6 +2,7 @@ package physics;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.ConvexHullShape;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.Transform;
@@ -9,10 +10,10 @@ import com.bulletphysics.linearmath.Transform;
 public class PhysicsModel {
 
 	@SuppressWarnings("unused")
-	private final ConvexHullShape modelShape;
+	private final CollisionShape modelShape;
 	private RigidBody modelRigidBody;
 	
-	public PhysicsModel(ConvexHullShape modelShape,
+	public PhysicsModel(CollisionShape modelShape,
 			RigidBody modelRigidBody) {
 		this.modelShape = modelShape;
 		this.modelRigidBody = modelRigidBody;
@@ -52,7 +53,8 @@ public class PhysicsModel {
 		modelRigidBody.applyCentralForce(force);
 	}
 	
-	private void init() {
-		
-	}	
+	/**
+	 * Stub for future initialization 
+	 */
+	private void init() {}	
 }
