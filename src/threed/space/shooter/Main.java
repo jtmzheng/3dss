@@ -12,6 +12,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 
 import renderer.Camera;
+import renderer.Model;
 import renderer.ModelFactory;
 import renderer.Renderer;
 import characters.Player;
@@ -68,7 +69,12 @@ public class Main {
 		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
 		gameRenderer = new Renderer(600, 600, gameCam, 60);
 		try{
-			gameRenderer.bindNewModel(ModelFactory.loadObjModel(new File("res/obj/sphere.obj")));
+			Model a = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"));
+			a.translate(new Vector3f(5, 0, 5));
+			Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"));
+			b.translate(new Vector3f(-5, 0, -5));
+			gameRenderer.bindNewModel(a);
+			gameRenderer.bindNewModel(b);
 		}
 		catch(IOException e){
 			e.printStackTrace();
