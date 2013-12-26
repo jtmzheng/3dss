@@ -464,7 +464,7 @@ public class Model {
         RigidBodyConstructionInfo modelConstructionInfo = new RigidBodyConstructionInfo(1.0f, modelMotionState, modelShape, modelInertia);
         modelConstructionInfo.restitution = 0.5f;
         modelConstructionInfo.angularDamping = 0.95f;
-        modelConstructionInfo.mass = 10;
+        modelConstructionInfo.mass = Integer.MAX_VALUE;
         
         RigidBody modelRigidBody = new RigidBody(modelConstructionInfo);
         modelRigidBody.setActivationState(CollisionObject.DISABLE_DEACTIVATION);

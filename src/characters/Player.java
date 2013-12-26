@@ -10,7 +10,6 @@ import input.MouseMoveEvent;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector3f;
 
-import physics.PhysicsModel;
 import renderer.Camera;
 import renderer.Light;
 import renderer.LightHandle;
@@ -18,8 +17,7 @@ import renderer.LightManager;
 import renderer.Model;
 import system.Settings;
 
-import com.bulletphysics.linearmath.DefaultMotionState;
-import com.bulletphysics.linearmath.MotionState;
+import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.Transform;
 
 import event.PubSubListener;
@@ -146,7 +144,7 @@ public class Player implements InputListener {
 			if (dPress) speed_x = MAX_SPEED;
 		}
 		
-		// Move our player.
+		// Move player
 		strafe();
 		moveFrontBack();
 
@@ -158,6 +156,14 @@ public class Player implements InputListener {
 		}
 	
 		lightManager.updateAllLights();
+		
+		// Update the physics model
+		RigidBody playerRigidBody = playerModel.getPhysicsModel().getRigidBody();
+		Vector3f position = playerCam.getLocation();
+		playerRigidBody.setWorldTransform(new Transform(new javax.vecmath.Matrix4f(new Quat4f(0, 0, 0, 1), 
+        		new javax.vecmath.Vector3f(position.x, position.y, position.z), 
+        		1)));
+		
 	}
 
 	/**
@@ -219,6 +225,14 @@ public class Player implements InputListener {
 		if (code == Keyboard.KEY_S) sPress = pressed;
 		if (code == Keyboard.KEY_D) dPress = pressed;
 	}
+	
+	/**
+	 * Get the player model 
+	 * @return
+	 */
+	public Model getModel() {
+		return playerModel;
+	}
 
 	private class EnemyDeathListener implements PubSubListener {
 		@Override
@@ -226,4 +240,5 @@ public class Player implements InputListener {
 			System.out.println("Congrats, " + name + ". You killed an enemy!");
 		}
 	}
+	
 }

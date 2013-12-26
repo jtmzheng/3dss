@@ -96,6 +96,7 @@ public class Main {
 		try {
 			Model a = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"));
 			player = new Player(gameCam, a);
+			gameWorld.addModel(a);
 		} catch (InterruptedException | IOException e) {
 			e.printStackTrace();
 			return;

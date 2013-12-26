@@ -18,6 +18,7 @@ public class Camera {
 	// Euler angles to keep track of our orientation.
 	private float yaw = 3.14f;
 	private float pitch = 0.0f; 
+	@SuppressWarnings("unused")
 	private float roll = 0.0f;
 	
 	// Direction vector of our camera.
