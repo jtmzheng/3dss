@@ -1,5 +1,7 @@
 package physics;
 
+import java.util.Arrays;
+
 import org.lwjgl.util.vector.Vector3f;
 
 import com.bulletphysics.collision.shapes.CollisionShape;
@@ -25,12 +27,16 @@ public class PhysicsModel {
 	 * @return
 	 */
 	public float[] getTransformMatrix() {
-		Transform worldTransform = modelRigidBody.getWorldTransform(null);
+		Transform worldTransform = modelRigidBody.getWorldTransform(new Transform());
 		float [] glMatrix = new float [16]; // 4 x 4 matrix
 		worldTransform.getOpenGLMatrix(glMatrix);
 		
-		System.out.println(glMatrix);
+		System.out.println(Arrays.toString(glMatrix));
 		return glMatrix;
+	}
+	
+	public RigidBody getRigidBody() {
+		return modelRigidBody;
 	}
 	
 	/**

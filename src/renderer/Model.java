@@ -322,6 +322,7 @@ public class Model {
 			// Draw the vertices
 			GL11.glDrawElements(GL11.GL_TRIANGLES, mapIndiceCount.get(material), GL11.GL_UNSIGNED_INT, 0);
 		}
+		physicsModel.getTransformMatrix();
 	}
 
 	/**

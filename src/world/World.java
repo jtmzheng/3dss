@@ -33,15 +33,21 @@ public class World {
 	
 	public void addModel(Model model) {
 		renderer.bindNewModel(model);
+		dynamicsWorld.addRigidBody(model.getPhysicsModel().getRigidBody());
 	}
 	
 	public void removeModel(Model model) {
 		// @TODO: Removal of model
 	}
 	
+	public void simulate() {
+		renderer.renderScene();
+		dynamicsWorld.stepSimulation(1.0f / renderer.getFrameRate());
+	}
 	
 	/**
-	 * Set up the physics (JBullets) of the World 
+	 * Set up the physics (JBullets) of the World
+	 * @see PhysicsModel 
 	 */
 	private void setupPhysics() {
 		BroadphaseInterface broadphase = new DbvtBroadphase();
@@ -49,10 +55,6 @@ public class World {
         CollisionDispatcher dispatcher = new CollisionDispatcher(collisionConfiguration);
         ConstraintSolver solver = new SequentialImpulseConstraintSolver();
         dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-	}
-	
-	private void simulate() {
-		dynamicsWorld.stepSimulation(1.0f / renderer.getFrameRate());
 	}
 	
 	/**

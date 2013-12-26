@@ -15,6 +15,7 @@ import renderer.Camera;
 import renderer.Model;
 import renderer.ModelFactory;
 import renderer.Renderer;
+import world.World;
 import characters.Player;
 
 /**
@@ -23,6 +24,11 @@ import characters.Player;
  * @author Adi
  */
 public class Main {
+	
+	/**
+	 * The world object
+	 */
+	static World gameWorld;
 
 	/**
 	 * The renderer the game uses.
@@ -45,7 +51,8 @@ public class Main {
 	static ArrayList<Input> rawInputs = new ArrayList<Input>();
 	
 	public static void main(String [] args){
-		setupRenderer();
+		// setupRenderer();
+		setupWorld();
 		setupPlayer();
 
 		// Game loop.
@@ -56,9 +63,7 @@ public class Main {
 			}
 			
 			player.move();
-			
-			// Render a new frame.
-			gameRenderer.renderScene();
+			gameWorld.simulate();
 		}
 	}
 	
@@ -97,5 +102,30 @@ public class Main {
 			i.initialize();
 			i.setListener(player);
 		}
+	}
+	
+	/**
+	 * Sets up the world
+	 */
+	public static void setupWorld() {
+		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
+		gameRenderer = new Renderer(600, 600, gameCam, 60);
+		gameWorld = new World(gameRenderer);
+		
+		try{
+			Model a = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"));
+			a.translate(new Vector3f(5, 0, 5));
+			Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"));
+			b.translate(new Vector3f(-5, 0, -5));
+			gameWorld.addModel(a);
+			gameWorld.addModel(b);
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+		catch(InterruptedException e){
+			e.printStackTrace();
+		}
+		
 	}
 }
