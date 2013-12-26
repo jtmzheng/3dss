@@ -1,5 +1,7 @@
 package characters;
 
+import javax.vecmath.Quat4f;
+
 import input.InputListener;
 import input.KeyEvent;
 import input.MouseClickEvent;
@@ -8,11 +10,18 @@ import input.MouseMoveEvent;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector3f;
 
+import physics.PhysicsModel;
 import renderer.Camera;
 import renderer.Light;
 import renderer.LightHandle;
 import renderer.LightManager;
+import renderer.Model;
 import system.Settings;
+
+import com.bulletphysics.linearmath.DefaultMotionState;
+import com.bulletphysics.linearmath.MotionState;
+import com.bulletphysics.linearmath.Transform;
+
 import event.PubSubListener;
 import event.PublishEventType;
 import event.Publisher;
@@ -30,6 +39,7 @@ import event.Publisher;
 public class Player implements InputListener {
 	// Camera object that the player uses.
 	private Camera playerCam;
+	private Model playerModel;
 	
 	//Light parameters
 	private Vector3f m_Ld;
@@ -40,8 +50,6 @@ public class Player implements InputListener {
 	private LightHandle cameraLight;
 	private LightManager lightManager = null; 
 	
-
-
 	// Player attributes
 	private float shields = 100f;
 	private float HP = 100F;
@@ -68,8 +76,10 @@ public class Player implements InputListener {
 	 * Constructs a Player with a Camera.
 	 * @param c The Camera object that abstracts out the view matrix logic.
 	 */
-	public Player(Camera c) {
+	public Player(Camera c, 
+			Model m) {
 		playerCam = c;
+		playerModel = m;
 		setup();
 	}
 

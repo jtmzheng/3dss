@@ -93,7 +93,13 @@ public class Main {
 	 * Sets up the game player.
 	 */
 	public static void setupPlayer() {
-		player = new Player(gameCam);
+		try {
+			Model a = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"));
+			player = new Player(gameCam, a);
+		} catch (InterruptedException | IOException e) {
+			e.printStackTrace();
+			return;
+		}
 		
 		rawInputs.add(new MouseInput());
 		rawInputs.add(new KeyInput());
@@ -114,11 +120,11 @@ public class Main {
 		
 		try{
 			Model a = ModelFactory.loadObjModel(new File("res/obj/ATAT.obj"), new Vector3f(5, 0, 5));
-			// a.translate(new Vector3f(5, 0, 5));
-			//Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), new Vector3f(-5, 0, -5));
-			// b.translate(new Vector3f(-5, 0, -5));
+			a.applyForce(new Vector3f(5, 0, 5));
+			Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), new Vector3f(-5, 0, -5));
+			b.applyForce(new Vector3f(-5, 0, -5));
 			gameWorld.addModel(a);
-			//gameWorld.addModel(b);
+			gameWorld.addModel(b);
 		}
 		catch(IOException e){
 			e.printStackTrace();

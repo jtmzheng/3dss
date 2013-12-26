@@ -1,11 +1,8 @@
 package physics;
 
-import java.util.Arrays;
-
 import org.lwjgl.util.vector.Vector3f;
 
 import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.collision.shapes.ConvexHullShape;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.Transform;
 
@@ -62,5 +59,7 @@ public class PhysicsModel {
 	/**
 	 * Stub for future initialization 
 	 */
-	private void init() {}	
+	private void init() {
+		modelRigidBody.setFriction(100);
+	}	
 }

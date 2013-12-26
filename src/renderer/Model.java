@@ -56,7 +56,7 @@ public class Model {
 	private Map<Material, List<Face>> mapMaterialToFaces;
 
 	// LightHandle of the model
-	private LightHandle m_LightHandle = null;
+	private LightHandle mLightHandle = null;
 	
 	// TextureManager instance
 	private TextureManager texManager;
@@ -77,7 +77,7 @@ public class Model {
 		this.translate(pos);
 
 		// Setup the light associated with this model
-		m_LightHandle = new LightHandle(this, new Light(pos, ls, ld, la, null));
+		mLightHandle = new LightHandle(this, new Light(pos, ls, ld, la, null));
 	}
 
 	public Model(List<Face> f, Vector3f pos){
@@ -119,9 +119,8 @@ public class Model {
 		this.triangulate();
 
 		// Setup the physics object (@TODO: Support for other collision shapes)
-		ConvexHullShape modelShape;
-		ObjectArrayList<javax.vecmath.Vector3f> modelShapePoints = new ObjectArrayList<javax.vecmath.Vector3f>();
-	
+		ConvexHullShape modelShape = new ConvexHullShape(new ObjectArrayList<javax.vecmath.Vector3f>());
+
 		// Split face list into a list of face lists, each having their own material.
 		mapMaterialToFaces = new HashMap<>();
 		
@@ -132,7 +131,7 @@ public class Model {
 		
 		Material currentMaterial = null;
 
-		// Split the faces up by material.
+		// Split the faces up by material
 		for (Face face : this.faces) {
 			currentMaterial = face.getMaterial();
 
@@ -176,7 +175,7 @@ public class Model {
 				}
 				else{
 					vboIndex.add(vboIndexMap.get(tempVertexData));
-					modelShapePoints.add(new javax.vecmath.Vector3f(tempVertexData.getXYZ())); // @TODO: Very slow call
+					modelShape.addPoint(new javax.vecmath.Vector3f(tempVertexData.getXYZ())); // @TODO: Very slow call
 				}
 
 				//Add second vertex of the face
@@ -188,7 +187,7 @@ public class Model {
 				}
 				else{
 					vboIndex.add(vboIndexMap.get(tempVertexData));
-					modelShapePoints.add(new javax.vecmath.Vector3f(tempVertexData.getXYZ()));
+					modelShape.addPoint(new javax.vecmath.Vector3f(tempVertexData.getXYZ()));
 				}
 
 				//Add third vertex of the face
@@ -200,7 +199,7 @@ public class Model {
 				}
 				else{
 					vboIndex.add(vboIndexMap.get(tempVertexData));
-					modelShapePoints.add(new javax.vecmath.Vector3f(tempVertexData.getXYZ()));
+					modelShape.addPoint(new javax.vecmath.Vector3f(tempVertexData.getXYZ()));
 				}
 
 			}
@@ -283,7 +282,6 @@ public class Model {
 		modelMatrix = new Matrix4f(); 
 		
 		// Create and initialize the physics model
-		modelShape = new ConvexHullShape(modelShapePoints);
 		physicsModel = setupPhysicsModel(modelShape, initialPosition);
 	
 		System.out.println("Model loading to GPU: " + (System.currentTimeMillis() - curTime));
@@ -333,14 +331,20 @@ public class Model {
 	/**
 	 * Translate the model by a given vector.
 	 * @param s The translation vector.
+	 * @deprecated
 	 */
-	public void translate(Vector3f s){
+	public void translate(Vector3f s) {
 		Matrix4f.translate(s, modelMatrix, modelMatrix);
+	}
+	
+	public void applyForce(Vector3f force) {
+		physicsModel.applyForce(force);
 	}
 
 	/**
 	 * Rotate Y axis.
 	 * @param angle The angle to rotate by.
+	 * @deprecated
 	 */
 	public void rotateY(float angle){
 		Matrix4f.rotate(angle, new Vector3f(0f, 1f, 0f), modelMatrix, modelMatrix);
@@ -349,6 +353,7 @@ public class Model {
 	/**
 	 * Rotate X axis.
 	 * @param angle The angle to rotate by.
+	 * @deprecated
 	 */	
 	public void rotateX(float angle){
 		Matrix4f.rotate(angle, new Vector3f(1f, 0f, 0f), modelMatrix, modelMatrix);
@@ -357,6 +362,7 @@ public class Model {
 	/**
 	 * Rotate Z axis.
 	 * @param angle The angle to rotate by.
+	 * @deprecated
 	 */
 	public void rotateZ(float angle){
 		Matrix4f.rotate(angle, new Vector3f(0f, 0f, 1f), modelMatrix, modelMatrix);
@@ -365,6 +371,7 @@ public class Model {
 	/**
 	 * Scale the model by a given vector.
 	 * @param scale The scale vector to scale by.
+	 * @deprecated
 	 */
 	public void scale(Vector3f scale){
 		Matrix4f.scale(scale, modelMatrix, modelMatrix);
@@ -373,6 +380,7 @@ public class Model {
 	/**
 	 * Scale the model by a scalar.
 	 * @param scale The scalar to scale by.
+	 * @deprecated
 	 */
 	public void scale(float scale){
 		Matrix4f.scale(new Vector3f(scale, scale, scale), modelMatrix, modelMatrix);
@@ -403,19 +411,19 @@ public class Model {
 	 * @param light
 	 */
 	public void addLight(Light light) {
-		if(m_LightHandle != null) {
-			m_LightHandle.invalidate();
+		if(mLightHandle != null) {
+			mLightHandle.invalidate();
 		}
 
-		m_LightHandle = new LightHandle(this, light);
+		mLightHandle = new LightHandle(this, light);
 	}
 
 	/**
 	 * Remove the light associated with this model
 	 */
 	public void removeLight() {
-		if(m_LightHandle != null) {
-			m_LightHandle.invalidate();
+		if(mLightHandle != null) {
+			mLightHandle.invalidate();
 		}
 	}
 
@@ -455,6 +463,7 @@ public class Model {
         RigidBodyConstructionInfo modelConstructionInfo = new RigidBodyConstructionInfo(1.0f, modelMotionState, modelShape, modelInertia);
         modelConstructionInfo.restitution = 0.5f;
         modelConstructionInfo.angularDamping = 0.95f;
+        modelConstructionInfo.mass = 10;
         
         RigidBody modelRigidBody = new RigidBody(modelConstructionInfo);
         modelRigidBody.setActivationState(CollisionObject.DISABLE_DEACTIVATION);
