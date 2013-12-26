@@ -119,7 +119,7 @@ public class Model {
 		this.triangulate();
 
 		// Setup the physics object (@TODO: Support for other collision shapes)
-		ConvexHullShape modelShape = new ConvexHullShape(new ObjectArrayList<javax.vecmath.Vector3f>());
+		ObjectArrayList<javax.vecmath.Vector3f> modelShapePoints = new ObjectArrayList<>();
 
 		// Split face list into a list of face lists, each having their own material.
 		mapMaterialToFaces = new HashMap<>();
@@ -175,7 +175,7 @@ public class Model {
 				}
 				else{
 					vboIndex.add(vboIndexMap.get(tempVertexData));
-					modelShape.addPoint(new javax.vecmath.Vector3f(tempVertexData.getXYZ())); // @TODO: Very slow call
+					modelShapePoints.add(new javax.vecmath.Vector3f(tempVertexData.getXYZ()));
 				}
 
 				//Add second vertex of the face
@@ -187,7 +187,7 @@ public class Model {
 				}
 				else{
 					vboIndex.add(vboIndexMap.get(tempVertexData));
-					modelShape.addPoint(new javax.vecmath.Vector3f(tempVertexData.getXYZ()));
+					modelShapePoints.add(new javax.vecmath.Vector3f(tempVertexData.getXYZ()));
 				}
 
 				//Add third vertex of the face
@@ -199,7 +199,7 @@ public class Model {
 				}
 				else{
 					vboIndex.add(vboIndexMap.get(tempVertexData));
-					modelShape.addPoint(new javax.vecmath.Vector3f(tempVertexData.getXYZ()));
+					modelShapePoints.add(new javax.vecmath.Vector3f(tempVertexData.getXYZ()));
 				}
 
 			}
@@ -282,6 +282,7 @@ public class Model {
 		modelMatrix = new Matrix4f(); 
 		
 		// Create and initialize the physics model
+		ConvexHullShape modelShape = new ConvexHullShape(modelShapePoints);
 		physicsModel = setupPhysicsModel(modelShape, initialPosition);
 	
 		System.out.println("Model loading to GPU: " + (System.currentTimeMillis() - curTime));
