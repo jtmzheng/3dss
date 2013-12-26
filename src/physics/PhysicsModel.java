@@ -31,7 +31,7 @@ public class PhysicsModel {
 		float [] glMatrix = new float [16]; // 4 x 4 matrix
 		worldTransform.getOpenGLMatrix(glMatrix);
 		
-		System.out.println("Test" + Arrays.toString(glMatrix));
+		// System.out.println("Test" + Arrays.toString(glMatrix));
 		return glMatrix;
 	}
 	

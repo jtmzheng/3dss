@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.vecmath.Quat4f;
+
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -69,7 +71,7 @@ public class Model {
 		texManager = TextureManager.getInstance();
 
 		// Setup the model 
-		setup();
+		setup(pos);
 
 		// Transform
 		this.translate(pos);
@@ -85,7 +87,7 @@ public class Model {
 		texManager = TextureManager.getInstance();
 
 		// Setup the model 
-		setup();
+		setup(pos);
 
 		// Transform
 		this.translate(pos);
@@ -101,15 +103,16 @@ public class Model {
 		// Get instance of texture manager
 		texManager = TextureManager.getInstance();
 
-		setup();
+		setup(new Vector3f(0, 0, 0));
 	}
 
 
 	/**
 	 * Common setup for constructor
 	 * @param f
+	 * @param initialPosition
 	 */
-	public void setup(){
+	public void setup(Vector3f initialPosition){
 		long curTime = System.currentTimeMillis();
 		
 		// Strip any quads / polygons. 
@@ -279,7 +282,7 @@ public class Model {
 		modelMatrix = new Matrix4f(); 
 		
 		// Create and initialize the physics model
-		physicsModel = setupPhysicsModel(modelShape);
+		physicsModel = setupPhysicsModel(modelShape, initialPosition);
 	
 		System.out.println("Model loading to GPU: " + (System.currentTimeMillis() - curTime));
 	}
@@ -436,13 +439,18 @@ public class Model {
 		this.faces.addAll(addFaces); 
 	}
 	
-	private PhysicsModel setupPhysicsModel(CollisionShape modelShape) {
-		Transform modelTransform = new Transform(new javax.vecmath.Matrix4f());
-		MotionState modelMotionState = new DefaultMotionState(modelTransform);
-        javax.vecmath.Vector3f modelInertia = new javax.vecmath.Vector3f(0, 0, 0);
+	private PhysicsModel setupPhysicsModel(CollisionShape modelShape,
+			Vector3f position) {
+		System.out.println("InitialPos: " + position);
+		// Set up the model in the initial position
+        MotionState modelMotionState = new DefaultMotionState(new Transform(new javax.vecmath.Matrix4f(new Quat4f(0, 0, 0, 1), 
+        		new javax.vecmath.Vector3f(position.x, position.y, position.z), 
+        		1)));
         
-        modelShape.calculateLocalInertia(2.5f, modelInertia);
-        RigidBodyConstructionInfo modelConstructionInfo = new RigidBodyConstructionInfo(2.5f, modelMotionState, modelShape, modelInertia);
+        javax.vecmath.Vector3f modelInertia = new javax.vecmath.Vector3f();
+        
+        modelShape.calculateLocalInertia(1.0f, modelInertia);
+        RigidBodyConstructionInfo modelConstructionInfo = new RigidBodyConstructionInfo(1.0f, modelMotionState, modelShape, modelInertia);
         modelConstructionInfo.restitution = 0.5f;
         modelConstructionInfo.angularDamping = 0.95f;
         
