@@ -113,9 +113,9 @@ public class Main {
 		gameWorld = new World(gameRenderer);
 		
 		try{
-			Model a = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), new Vector3f(5, 0, 5));
+			Model a = ModelFactory.loadObjModel(new File("res/obj/ATAT.obj"), new Vector3f(5, 0, 5));
 			// a.translate(new Vector3f(5, 0, 5));
-			Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), new Vector3f(-5, 0, -5));
+			//Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), new Vector3f(-5, 0, -5));
 			// b.translate(new Vector3f(-5, 0, -5));
 			gameWorld.addModel(a);
 			//gameWorld.addModel(b);
