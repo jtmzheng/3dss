@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
+import org.lwjgl.util.vector.Vector3f;
+
 import util.Parser;
 
 /**
@@ -34,6 +36,18 @@ public class ModelFactory {
 		faces = parseFile.getFaces();
 		
 		Model m = new Model(faces);
+		return m;
+	}
+	
+	public static Model loadObjModel(File file, Vector3f pos) throws InterruptedException, IOException {
+		List<Face> faces;
+
+		Parser parseFile = new Parser();
+		parseFile.parseOBJFile(file);
+		
+		faces = parseFile.getFaces();
+		
+		Model m = new Model(faces, pos);
 		return m;
 	}
 }

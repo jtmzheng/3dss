@@ -1,5 +1,8 @@
 package world;
 
+import javax.vecmath.Vector3f;
+
+import physics.PhysicsModel;
 import renderer.Model;
 import renderer.Renderer;
 
@@ -55,6 +58,7 @@ public class World {
         CollisionDispatcher dispatcher = new CollisionDispatcher(collisionConfiguration);
         ConstraintSolver solver = new SequentialImpulseConstraintSolver();
         dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+        dynamicsWorld.setGravity(new Vector3f(0.0f, 0.0f, 0.0f));
 	}
 	
 	/**
