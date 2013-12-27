@@ -55,8 +55,8 @@ public class Player implements InputListener {
 	private float speed_y = 0.0f;
 
 	private boolean enableAcceleration;
-	private float acceleration = 0.01f;
-	private float MAX_SPEED = 0.17f;
+	private float acceleration = 100f;
+	private float MAX_SPEED = 1700f;
 	private float drag = 0.001f;
 
 	// Key press flags.
@@ -82,7 +82,7 @@ public class Player implements InputListener {
 	/**
 	 * Sets up all necessary player attributes and listeners.
 	 */
-	public void setup() {
+	private void setup() {
 		// Setup the player light (spotlight)
 		m_Ls = new Vector3f(1.0f, 1.0f, 1.0f);
 		m_Ld = new Vector3f(0.7f, 0.7f, 0.7f);
@@ -102,20 +102,6 @@ public class Player implements InputListener {
 		
 		// Subscribe the enemy death listener to the "enemy death" event.
 		Publisher.getInstance().bindSubscriber(new EnemyDeathListener(), PublishEventType.ENEMY_DEATH);
-	}
-
-	/**
-	 * Strafes the player (uses playerCam).
-	 */
-	private void strafe(){
-		playerCam.strafe(speed_x);
-	}
-
-	/**
-	 * Moves the player forward and backwards (uses playerCam).
-	 */
-	private void moveFrontBack(){
-		playerCam.moveFrontBack(speed_y);
 	}
 
 	/**
@@ -145,11 +131,12 @@ public class Player implements InputListener {
 			if (dPress) speed_x = MAX_SPEED;
 		}
 		
-		// Move player
-		RigidBody playerRigidBody = playerModel.getPhysicsModel().getRigidBody();
-		javax.vecmath.Vector3f oldPosition = playerRigidBody.getWorldTransform(new Transform()).origin;
+		// Set the camera location to the current model origin
+		javax.vecmath.Vector3f oldPosition = playerModel.getModelOrigin();
 		playerCam.setLocation(new Vector3f(oldPosition.x, oldPosition.y, oldPosition.z));
+		
 		/*
+		// Move player
 		strafe();
 		moveFrontBack();
 		*/
@@ -163,24 +150,8 @@ public class Player implements InputListener {
 	
 		lightManager.updateAllLights();
 		
-		// Update the physics model
-		javax.vecmath.Vector3f forceRight = new javax.vecmath.Vector3f(speed_x * 20 * playerCam.getRight().x,
-				speed_x * 20 * playerCam.getRight().y,
-				speed_x * 20 * playerCam.getRight().z);
-		javax.vecmath.Vector3f forceDirection = new javax.vecmath.Vector3f(speed_y * 20 * playerCam.getDirection().x,
-				speed_y * 20 * playerCam.getDirection().y,
-				speed_y * 20 * playerCam.getDirection().z);
-		
-		forceDirection.add(forceRight);
-		playerRigidBody.setLinearVelocity(forceDirection);
-		/*
-		Vector3f position = playerCam.getLocation();
-		playerRigidBody.setWorldTransform(new Transform(new javax.vecmath.Matrix4f(new Quat4f(0, 0, 0, 1), 
-        		new javax.vecmath.Vector3f(position.x, position.y, position.z), 
-        		1)));
-        		*/
-		
-		
+		// Update the player related physics (apply forces)	
+		updatePhysics();
 	}
 
 	/**
@@ -250,6 +221,41 @@ public class Player implements InputListener {
 	public Model getModel() {
 		return playerModel;
 	}
+	
+	/**
+	 * Strafes the player (uses playerCam).
+	 * @deprecated
+	 */
+	private void strafe(){
+		playerCam.strafe(speed_x);
+	}
+
+	/**
+	 * Moves the player forward and backwards (uses playerCam).
+	 * @deprecated
+	 */
+	private void moveFrontBack(){
+		playerCam.moveFrontBack(speed_y);
+	}
+	
+	/**
+	 * Update the player's model physics using JBullet
+	 */
+	private void updatePhysics() {
+		// Reset the forces and the velocity
+		playerModel.resetModelForces();
+		playerModel.resetModelKinematics();
+		
+		javax.vecmath.Vector3f forceRight = new javax.vecmath.Vector3f(speed_x * playerCam.getRight().x,
+				speed_x * playerCam.getRight().y,
+				speed_x * playerCam.getRight().z);
+		javax.vecmath.Vector3f forceDirection = new javax.vecmath.Vector3f(speed_y * playerCam.getDirection().x,
+				speed_y * playerCam.getDirection().y,
+				speed_y * playerCam.getDirection().z);
+
+		forceDirection.add(forceRight);
+		playerModel.getPhysicsModel().applyForce(forceDirection);
+	}
 
 	private class EnemyDeathListener implements PubSubListener {
 		@Override
@@ -257,5 +263,6 @@ public class Player implements InputListener {
 			System.out.println("Congrats, " + name + ". You killed an enemy!");
 		}
 	}
+	
 	
 }
