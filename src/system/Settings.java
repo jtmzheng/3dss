@@ -30,8 +30,15 @@ public class Settings {
 		settings.put("log_folder", "logs/");
 		settings.put("pwd", System.getProperty("user.dir"));
 		settings.put("playerAcceleration", false);
+
+		// Default physics model properties.
+		settings.put("defaultRestitution", 0.5f);
+		settings.put("defaultMass", 100f);
+		settings.put("defaultAngularDamping", 0.1f);
+		settings.put("defaultLinearDamping", 0.1f);
+		settings.put("defaultFriction", 1f);
 	}
-	
+
 	/**
 	 * Adds an integer value to our settings.
 	 * @param key
@@ -40,7 +47,7 @@ public class Settings {
 	public static void putInteger (String key, int val) {
 		settings.put(key, new Integer(val));
 	}
-	
+
 	/**
 	 * Adds a string value to our settings.
 	 * @param key
@@ -49,7 +56,7 @@ public class Settings {
 	public static void putString (String key, String val) {
 		settings.put(key, val);
 	}
-	
+
 	/**
 	 * Adds a float value to our settings.
 	 * @param key
@@ -58,7 +65,7 @@ public class Settings {
 	public static void putFloat (String key, float val) {
 		settings.put(key, new Float(val));
 	}
-	
+
 	/**
 	 * Adds a boolean value to our settings.
 	 * @param key
@@ -67,7 +74,7 @@ public class Settings {
 	public static void putBoolean (String key, boolean val) {
 		settings.put(key, new Boolean(val));
 	}
-	
+
 	/**
 	 * Gets an integer.
 	 * @param key
@@ -81,7 +88,7 @@ public class Settings {
 		
 		return val.intValue();
 	}
-	
+
 	/**
 	 * Gets a String.
 	 * @param key
@@ -95,7 +102,7 @@ public class Settings {
 		
 		return val;
 	}
-	
+
 	/**
 	 * Gets a float.
 	 * @param key
@@ -109,7 +116,7 @@ public class Settings {
 		
 		return val.floatValue();
 	}
-	
+
 	/**
 	 * Gets a boolean.
 	 * @param key
@@ -123,7 +130,7 @@ public class Settings {
 		
 		return val.booleanValue();
 	}
-	
+
 	/**
 	 * Gets a string representation of our settings.
 	 * @return the string representation
