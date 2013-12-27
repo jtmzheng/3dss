@@ -516,7 +516,7 @@ public class Model {
 	 * @param rigidBodyProp
 	 * @return
 	 */
-	protected PhysicsModel setupPhysicsModel(CollisionShape modelShape,
+	private PhysicsModel setupPhysicsModel(CollisionShape modelShape,
 			Vector3f position,
 			PhysicsModelProperties rigidBodyProp) {
 		
