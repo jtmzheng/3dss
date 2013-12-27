@@ -58,8 +58,8 @@ public class Camera {
 	/**
 	 * Sets the location of the camera in world space.
 	 */
-	public void setLocation (Vector3f loc) {
-		this.cameraPosition = loc;
+	public void setLocation (Vector3f cameraPosition) {
+		this.cameraPosition = cameraPosition;
 		applyTransformations();
 	}
 	
@@ -84,10 +84,6 @@ public class Camera {
 	 * @return the view matrix
 	 */
 	public Matrix4f getViewMatrix(){
-		if(viewMatrix == null){
-			return null;
-		}
-		
 		return viewMatrix;
 	}
 	
@@ -185,12 +181,5 @@ public class Camera {
 						null);
 		
 		applyTransformations();
-		/*
-		Matrix4f.translate(new Vector3f(translationVector.x,
-				translationVector.y,
-				translationVector.z),
-				viewMatrix,
-				viewMatrix);
-				*/
 	}
 }

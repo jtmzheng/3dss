@@ -25,7 +25,6 @@ import texture.Material;
 import texture.Texture;
 import texture.TextureManager;
 
-import com.bulletphysics.collision.dispatch.CollisionFlags;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.ConvexHullShape;
@@ -313,6 +312,11 @@ public class Model {
 	 */
 	public void render() {
 		if(renderFlag) {
+			FloatBuffer modelMatrixBuffer = BufferUtils.createFloatBuffer(16);
+			modelMatrixBuffer.put(getModelMatrixBuffer()); modelMatrixBuffer.flip();
+			// m.getModelMatrix().store(matrix44Buffer); matrix44Buffer.flip(); // @TODO: Move to model class
+			GL20.glUniformMatrix4(ShaderController.getModelMatrixLocation(), false, modelMatrixBuffer);
+			
 			// Do bind and draw for each material's faces
 			for(Material material : mapMaterialToFaces.keySet()) {
 				// Loop through all texture Ids for a given material
@@ -348,7 +352,15 @@ public class Model {
 			}
 		}
 	}
-
+	
+	/**
+	 * Apply a force on the model 
+	 * @param force
+	 */
+	public void applyForce(Vector3f force) {
+		physicsModel.applyForce(force);
+	}
+	
 	/**
 	 * Translate the model by a given vector.
 	 * @param s The translation vector.
@@ -356,10 +368,6 @@ public class Model {
 	 */
 	public void translate(Vector3f s) {
 		Matrix4f.translate(s, modelMatrix, modelMatrix);
-	}
-	
-	public void applyForce(Vector3f force) {
-		physicsModel.applyForce(force);
 	}
 
 	/**
@@ -491,16 +499,15 @@ public class Model {
 	 * Remove the non-triangle faces from the model
 	 * @param List to remove non-triangles from
 	 */
-	private void triangulate (){
+	private void triangulate() {
 		List<Face> removeFaces = new ArrayList<Face>();
 		List<Face> addFaces = new ArrayList<Face>();
 		for (Face face : this.faces) {
 			if (face.faceData.size() == 4) {
 				removeFaces.add(face);
-				addFaces.add(new Face( face.getVertex(0) , face.getVertex(1) , face.getVertex(2), face.getMaterial() ));
-				addFaces.add(new Face( face.getVertex(0) , face.getVertex(2) , face.getVertex(3), face.getMaterial() ));
-			}
-			else if (face.faceData.size() > 4){
+				addFaces.add(new Face(face.getVertex(0) , face.getVertex(1) , face.getVertex(2), face.getMaterial()));
+				addFaces.add(new Face(face.getVertex(0) , face.getVertex(2) , face.getVertex(3), face.getMaterial()));
+			} else if (face.faceData.size() > 4){
 				removeFaces.add(face);
 			}
 		}

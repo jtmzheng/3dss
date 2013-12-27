@@ -134,12 +134,6 @@ public class Player implements InputListener {
 		// Set the camera location to the current model origin
 		javax.vecmath.Vector3f oldPosition = playerModel.getModelOrigin();
 		playerCam.setLocation(new Vector3f(oldPosition.x, oldPosition.y, oldPosition.z));
-		
-		/*
-		// Move player
-		strafe();
-		moveFrontBack();
-		*/
 
 		// Update the camera light fields
 		if(cameraLight.isValid()) {
