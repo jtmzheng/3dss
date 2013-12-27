@@ -41,22 +41,22 @@ public class PhysicsModel {
 		javax.vecmath.Matrix4f tMat = worldTransform.getMatrix(new javax.vecmath.Matrix4f());
 		Matrix4f tMatConv = new Matrix4f();
 		
-		// Copy the values over
+		// Copy the values over (transposed)
 		tMatConv.m00 = tMat.m00;
-		tMatConv.m01 = tMat.m01;
-		tMatConv.m02 = tMat.m02;
-		tMatConv.m03 = tMat.m03;
-		tMatConv.m10 = tMat.m10;
+		tMatConv.m01 = tMat.m10;
+		tMatConv.m02 = tMat.m20;
+		tMatConv.m03 = tMat.m30;
+		tMatConv.m10 = tMat.m01;
 		tMatConv.m11 = tMat.m11;
-		tMatConv.m12 = tMat.m12;
-		tMatConv.m13 = tMat.m13;		
-		tMatConv.m20 = tMat.m20;
-		tMatConv.m21 = tMat.m21;
+		tMatConv.m12 = tMat.m21;
+		tMatConv.m13 = tMat.m31;		
+		tMatConv.m20 = tMat.m02;
+		tMatConv.m21 = tMat.m12;
 		tMatConv.m22 = tMat.m22;
-		tMatConv.m23 = tMat.m23;
-		tMatConv.m30 = tMat.m30;
-		tMatConv.m31 = tMat.m31;
-		tMatConv.m32 = tMat.m32;
+		tMatConv.m23 = tMat.m32;
+		tMatConv.m30 = tMat.m03;
+		tMatConv.m31 = tMat.m13;
+		tMatConv.m32 = tMat.m23;
 		tMatConv.m33 = tMat.m33;
 
 		return tMatConv;

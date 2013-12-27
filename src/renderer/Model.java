@@ -313,8 +313,11 @@ public class Model {
 	public void render() {
 		if(renderFlag) {
 			FloatBuffer modelMatrixBuffer = BufferUtils.createFloatBuffer(16);
-			modelMatrixBuffer.put(getModelMatrixBuffer()); modelMatrixBuffer.flip();
-			// m.getModelMatrix().store(matrix44Buffer); matrix44Buffer.flip(); 
+			modelMatrix = physicsModel.getTransformMatrix();
+
+			modelMatrix.store(modelMatrixBuffer);
+			modelMatrixBuffer.flip();
+	 
 			GL20.glUniformMatrix4(ShaderController.getModelMatrixLocation(), false, modelMatrixBuffer);
 			
 			// Do bind and draw for each material's faces
