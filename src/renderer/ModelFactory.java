@@ -99,33 +99,7 @@ public class ModelFactory {
 		
 		faces = parseFile.getFaces();
 		
-		Model m = new Model(faces, rigidBodyProp);
+		Model m = new Model(faces, pos, rigidBodyProp);
 		return m;
-	}
-
-	// TODO: Use a better ground than just a cube.
-	public static Model loadGround(File file) throws InterruptedException, IOException {
-		Parser parseFile = new Parser();
-		parseFile.parseOBJFile(file);
-		
-		PhysicsModelProperties groundProps = new PhysicsModelProperties();
-		groundProps.setProperty("mass", 0f);
-		groundProps.setProperty("restitution", 0.9f);
-		groundProps.setProperty("damping", 0.9f);
-		groundProps.setProperty("collisionFlags", CollisionFlags.STATIC_OBJECT);
-		return new Model(parseFile.getFaces(), new Vector3f(0, -10, 0), groundProps);
-	}
-	
-	// TODO: Use a better ground than just a cube.
-	public static Model loadGround(File file, Vector3f pos) throws InterruptedException, IOException {
-		Parser parseFile = new Parser();
-		parseFile.parseOBJFile(file);
-
-		PhysicsModelProperties groundProps = new PhysicsModelProperties();
-		groundProps.setProperty("mass", 0f);
-		groundProps.setProperty("restitution", 0.9f);
-		groundProps.setProperty("damping", 0.9f);
-		groundProps.setProperty("collisionFlags", CollisionFlags.STATIC_OBJECT);
-		return new Model(parseFile.getFaces(), pos, groundProps);
 	}
 }

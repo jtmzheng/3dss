@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 
+import com.bulletphysics.collision.dispatch.CollisionFlags;
+
 import physics.PhysicsModelProperties;
 import renderer.Camera;
 import renderer.Model;
@@ -127,9 +129,14 @@ public class Main {
 		try{
 			Model a = ModelFactory.loadObjModel(new File("res/obj/ATAT.obj"), new Vector3f(5, 0, 5));
 			Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), new Vector3f(-5, 0, -5));
-			b.applyForce(new Vector3f(-5, 0, -5));
-			
-			Model ground = ModelFactory.loadGround(new File("res/obj/cube.obj"), new Vector3f(-25, -55, -25));
+
+			PhysicsModelProperties groundProps = new PhysicsModelProperties();
+			groundProps.setProperty("mass", 0f);
+			groundProps.setProperty("restitution", 0.9f);
+			groundProps.setProperty("damping", 0.9f);
+			groundProps.setProperty("collisionFlags", CollisionFlags.STATIC_OBJECT);
+			Model ground = ModelFactory.loadObjModel(new File("res/obj/cube.obj"), new Vector3f(-25, -55, -25), groundProps);
+
 			gameWorld.addModel(a);
 			gameWorld.addModel(b);
 			gameWorld.addModel(ground);
@@ -140,6 +147,5 @@ public class Main {
 		catch(InterruptedException e){
 			e.printStackTrace();
 		}
-		
 	}
 }
