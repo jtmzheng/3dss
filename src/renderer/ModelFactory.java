@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import com.bulletphysics.collision.dispatch.CollisionFlags;
+
 import physics.PhysicsModelProperties;
 import util.Parser;
 
@@ -79,7 +81,7 @@ public class ModelFactory {
 		Model m = new Model(faces, rigidBodyProp);
 		return m;
 	}
-	
+
 	/**
 	 * Loads a 3D model at an initial position and with specified physics properties
 	 * @param file
@@ -97,8 +99,7 @@ public class ModelFactory {
 		
 		faces = parseFile.getFaces();
 		
-		Model m = new Model(faces, rigidBodyProp);
+		Model m = new Model(faces, pos, rigidBodyProp);
 		return m;
 	}
-	
 }

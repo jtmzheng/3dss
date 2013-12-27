@@ -25,6 +25,7 @@ import texture.Material;
 import texture.Texture;
 import texture.TextureManager;
 
+import com.bulletphysics.collision.dispatch.CollisionFlags;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.ConvexHullShape;
@@ -130,7 +131,7 @@ public class Model {
 	 */
 	public void setup(Vector3f initialPosition, PhysicsModelProperties rigidBodyProp){
 		long curTime = System.currentTimeMillis();
-		
+
 		// Strip any quads / polygons. 
 		this.triangulate();
 
@@ -532,9 +533,13 @@ public class Model {
         // Retrieve the properties from the PhysicsModelProperties
         modelConstructionInfo.restitution = rigidBodyProp.getProperty("restitution") == null ? 0.5f : (Float)rigidBodyProp.getProperty("restitution");
         modelConstructionInfo.angularDamping = rigidBodyProp.getProperty("angularDamping") == null ? 0.95f : (Float)rigidBodyProp.getProperty("angularDamping");
-        modelConstructionInfo.mass = rigidBodyProp.getProperty("mass") == null ? Integer.MAX_VALUE : (Float)rigidBodyProp.getProperty("mass");
+        modelConstructionInfo.mass = rigidBodyProp.getProperty("mass") == null ? 100 : (Float)rigidBodyProp.getProperty("mass");
         
         RigidBody modelRigidBody = new RigidBody(modelConstructionInfo);
+        modelRigidBody.setCollisionFlags((Integer) (rigidBodyProp.getProperty("collisionFlags") == null ? modelRigidBody.getCollisionFlags() :
+        	rigidBodyProp.getProperty("collisionFlags")));
+        modelRigidBody.setDamping((Float) (rigidBodyProp.getProperty("damping") == null ? 0f : rigidBodyProp.getProperty("damping")),
+        						  (Float) (rigidBodyProp.getProperty("damping") == null ? 0f : rigidBodyProp.getProperty("damping")));
         modelRigidBody.setActivationState(CollisionObject.DISABLE_DEACTIVATION);
         PhysicsModel model = new PhysicsModel(modelShape, 
         		modelRigidBody);
