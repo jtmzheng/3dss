@@ -11,11 +11,11 @@ import java.util.ArrayList;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 
+import physics.PhysicsModelProperties;
 import renderer.Camera;
 import renderer.Model;
 import renderer.ModelFactory;
 import renderer.Renderer;
-import world.Ground;
 import world.World;
 import characters.Player;
 
@@ -95,7 +95,11 @@ public class Main {
 	 */
 	public static void setupPlayer() {
 		try {
-			Model a = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"));
+			PhysicsModelProperties playerProperties = new PhysicsModelProperties();
+			playerProperties.setProperty("mass", 10f);
+			playerProperties.setProperty("restitution", 0.75f);
+			
+			Model a = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), playerProperties);
 			player = new Player(gameCam, a);
 			gameWorld.addModel(a);
 		} catch (InterruptedException | IOException e) {
@@ -122,11 +126,10 @@ public class Main {
 		
 		try{
 			Model a = ModelFactory.loadObjModel(new File("res/obj/ATAT.obj"), new Vector3f(5, 0, 5));
-			a.applyForce(new Vector3f(5, 0, 5));
 			Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), new Vector3f(-5, 0, -5));
 			b.applyForce(new Vector3f(-5, 0, -5));
 			
-			Ground ground = ModelFactory.loadGround(new File("res/obj/cube.obj"), new Vector3f(-25, -55, -25));
+			Model ground = ModelFactory.loadGround(new File("res/obj/cube.obj"), new Vector3f(-25, -55, -25));
 			gameWorld.addModel(a);
 			gameWorld.addModel(b);
 			gameWorld.addModel(ground);

@@ -20,6 +20,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
 import physics.PhysicsModel;
+import physics.PhysicsModelProperties;
 import texture.Material;
 import texture.Texture;
 import texture.TextureManager;
@@ -68,14 +69,20 @@ public class Model {
 	// Flag for whether this model should be rendered
 	private boolean renderFlag;	
 
-	public Model(List<Face> f, Vector3f pos, Vector3f ld, Vector3f ls, Vector3f la){
+	public Model(List<Face> f, 
+			Vector3f pos, 
+			Vector3f ld, 
+			Vector3f ls, 
+			Vector3f la, 
+			PhysicsModelProperties rigidBodyProp){
+		
 		this.faces = f;
 
 		// Get instance of texture manager
 		texManager = TextureManager.getInstance();
 
 		// Setup the model 
-		setup(pos);
+		setup(pos, rigidBodyProp);
 
 		// Transform
 		this.translate(pos);
@@ -84,30 +91,35 @@ public class Model {
 		mLightHandle = new LightHandle(this, new Light(pos, ls, ld, la, null));
 	}
 
-	public Model(List<Face> f, Vector3f pos){
+	public Model(List<Face> f,
+			Vector3f pos,
+			PhysicsModelProperties rigidBodyProp){
+		
 		this.faces = f;
 		
 		// Get instance of texture manager
 		texManager = TextureManager.getInstance();
 
 		// Setup the model 
-		setup(pos);
+		setup(pos, rigidBodyProp);
 
 		// Transform
-		this.translate(pos);
+		// this.translate(pos);
 	}
 
 	/**
 	 * Creates a model with a list of faces.
 	 * @param f The list of faces.
 	 */
-	public Model(List<Face> f){
+	public Model(List<Face> f,
+			PhysicsModelProperties rigidBodyProp){
+		
 		this.faces = f;
 		
 		// Get instance of texture manager
 		texManager = TextureManager.getInstance();
 
-		setup(new Vector3f(0, 0, 0));
+		setup(new Vector3f(0, 0, 0), rigidBodyProp);
 	}
 
 
@@ -115,8 +127,9 @@ public class Model {
 	 * Common setup for constructor
 	 * @param f
 	 * @param initialPosition
+	 * @param rigidBodyProp
 	 */
-	public void setup(Vector3f initialPosition){
+	public void setup(Vector3f initialPosition, PhysicsModelProperties rigidBodyProp){
 		long curTime = System.currentTimeMillis();
 
 		// Strip any quads / polygons. 
@@ -287,7 +300,7 @@ public class Model {
 		
 		// Create and initialize the physics model
 		ConvexHullShape modelShape = new ConvexHullShape(modelShapePoints);
-		physicsModel = setupPhysicsModel(modelShape, initialPosition);
+		physicsModel = setupPhysicsModel(modelShape, initialPosition, rigidBodyProp);
 	
 		renderFlag = true;
 		
@@ -431,6 +444,14 @@ public class Model {
 	}
 	
 	/**
+	 * Get the origin of the model
+	 * @return
+	 */
+	public javax.vecmath.Vector3f getModelOrigin() {
+		return physicsModel.getRigidBody().getWorldTransform(new Transform()).origin;
+	}
+	
+	/**
 	 * Add a light to this model 
 	 * @param light
 	 */
@@ -440,6 +461,21 @@ public class Model {
 		}
 
 		mLightHandle = new LightHandle(this, light);
+	}
+	
+	/**
+	 * Resets the model kinematics
+	 */
+	public void resetModelKinematics() {
+		physicsModel.getRigidBody().setAngularVelocity(new javax.vecmath.Vector3f());
+		physicsModel.getRigidBody().setLinearVelocity(new javax.vecmath.Vector3f());
+	}
+	
+	/**
+	 * Resets the model forces
+	 */
+	public void resetModelForces() {
+		physicsModel.getRigidBody().clearForces();
 	}
 
 	/**
@@ -473,9 +509,17 @@ public class Model {
 		this.faces.addAll(addFaces); 
 	}
 	
+	/**
+	 * Helper method to set up the PhysicsModel associated with this Model
+	 * @param modelShape
+	 * @param position
+	 * @param rigidBodyProp
+	 * @return
+	 */
 	protected PhysicsModel setupPhysicsModel(CollisionShape modelShape,
-			Vector3f position) {
-		System.out.println("InitialPos: " + position);
+			Vector3f position,
+			PhysicsModelProperties rigidBodyProp) {
+		
 		// Set up the model in the initial position
         MotionState modelMotionState = new DefaultMotionState(new Transform(new javax.vecmath.Matrix4f(new Quat4f(0, 0, 0, 1), 
         		new javax.vecmath.Vector3f(position.x, position.y, position.z), 
@@ -485,11 +529,17 @@ public class Model {
         
         modelShape.calculateLocalInertia(1.0f, modelInertia);
         RigidBodyConstructionInfo modelConstructionInfo = new RigidBodyConstructionInfo(1.0f, modelMotionState, modelShape, modelInertia);
-        modelConstructionInfo.restitution = 0.5f;
-        modelConstructionInfo.angularDamping = 0.95f;
-        modelConstructionInfo.mass = 100;
+        
+        // Retrieve the properties from the PhysicsModelProperties
+        modelConstructionInfo.restitution = rigidBodyProp.getProperty("restitution") == null ? 0.5f : (Float)rigidBodyProp.getProperty("restitution");
+        modelConstructionInfo.angularDamping = rigidBodyProp.getProperty("angularDamping") == null ? 0.95f : (Float)rigidBodyProp.getProperty("angularDamping");
+        modelConstructionInfo.mass = rigidBodyProp.getProperty("mass") == null ? 100 : (Float)rigidBodyProp.getProperty("mass");
         
         RigidBody modelRigidBody = new RigidBody(modelConstructionInfo);
+        modelRigidBody.setCollisionFlags((Integer) (rigidBodyProp.getProperty("collisionFlags") == null ? modelRigidBody.getCollisionFlags() :
+        	rigidBodyProp.getProperty("collisionFlags")));
+        modelRigidBody.setDamping((Float) (rigidBodyProp.getProperty("damping") == null ? 0f : rigidBodyProp.getProperty("damping")),
+        						  (Float) (rigidBodyProp.getProperty("damping") == null ? 0f : rigidBodyProp.getProperty("damping")));
         modelRigidBody.setActivationState(CollisionObject.DISABLE_DEACTIVATION);
         PhysicsModel model = new PhysicsModel(modelShape, 
         		modelRigidBody);
