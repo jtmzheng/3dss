@@ -15,6 +15,7 @@ import renderer.Camera;
 import renderer.Model;
 import renderer.ModelFactory;
 import renderer.Renderer;
+import world.Ground;
 import world.World;
 import characters.Player;
 
@@ -120,12 +121,16 @@ public class Main {
 		gameWorld = new World(gameRenderer);
 		
 		try{
-			Model a = ModelFactory.loadObjModel(new File("res/obj/ATAT.obj"), new Vector3f(5, 0, 5));
+			Model a = ModelFactory.loadObjModel(new File("res/obj/cube.obj"), new Vector3f(5, 0, 5));
 			a.applyForce(new Vector3f(5, 0, 5));
-			Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), new Vector3f(-5, 0, -5));
-			b.applyForce(new Vector3f(-5, 0, -5));
+			
+			//Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), new Vector3f(-5, 0, -5));
+			//b.applyForce(new Vector3f(-5, 0, -5));
+			
+			Ground ground = new Ground(new Vector3f(0, -1, 0), 100, 100);
 			gameWorld.addModel(a);
-			gameWorld.addModel(b);
+			//gameWorld.addModel(b);
+			gameWorld.addModel(ground);
 		}
 		catch(IOException e){
 			e.printStackTrace();

@@ -472,7 +472,7 @@ public class Model {
 		this.faces.addAll(addFaces); 
 	}
 	
-	private PhysicsModel setupPhysicsModel(CollisionShape modelShape,
+	protected PhysicsModel setupPhysicsModel(CollisionShape modelShape,
 			Vector3f position) {
 		System.out.println("InitialPos: " + position);
 		// Set up the model in the initial position
