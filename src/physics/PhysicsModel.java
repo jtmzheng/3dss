@@ -68,7 +68,7 @@ public class PhysicsModel {
 	
 	/**
 	 * Apply a force on the model (gets applied on next world simulate)
-	 * @param force
+	 * @param force The force vector that is to be applied on the model
 	 */
 	public void applyForce(Vector3f force) {
 		javax.vecmath.Vector3f convertedVec = new javax.vecmath.Vector3f(force.x,
@@ -79,12 +79,49 @@ public class PhysicsModel {
 	
 	/**
 	 * Apply a force on the model (gets applied on next world simulate)
-	 * @param force 
+	 * @param force The force vector that is to be applied on the model
 	 */
 	public void applyForce(javax.vecmath.Vector3f force) {
 		modelRigidBody.activate(true);
 		modelRigidBody.applyCentralForce(force);
 	}
+		
+	/**
+	 * Translate the model
+	 * @param vec The vector to translate the model by
+	 */
+	public void translate(javax.vecmath.Vector3f vec) {
+		Transform worldTransform = modelRigidBody.getWorldTransform(new Transform());
+		worldTransform.getMatrix(new javax.vecmath.Matrix4f()).setTranslation(vec);
+	}
+	
+	/**
+	 * Rotate about the y-axis.
+	 * @param angle The angle to rotate by.
+	 */
+	public void rotateY(float angle) {
+		Transform worldTransform = modelRigidBody.getWorldTransform(new Transform());
+		worldTransform.getMatrix(new javax.vecmath.Matrix4f()).rotY(angle);
+	}
+
+	/**
+	 * Rotate about the x-axis.
+	 * @param angle The angle to rotate by
+	 */	
+	public void rotateX(float angle) {
+		Transform worldTransform = modelRigidBody.getWorldTransform(new Transform());
+		worldTransform.getMatrix(new javax.vecmath.Matrix4f()).rotX(angle);
+	}
+
+	/**
+	 * Rotate about the z-axis.
+	 * @param angle The angle to rotate by.
+	 */
+	public void rotateZ(float angle) {
+		Transform worldTransform = modelRigidBody.getWorldTransform(new Transform());
+		worldTransform.getMatrix(new javax.vecmath.Matrix4f()).rotX(angle);
+	}
+
 	
 	/**
 	 * Stub for future initialization 
