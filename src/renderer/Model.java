@@ -24,6 +24,7 @@ import texture.Material;
 import texture.Texture;
 import texture.TextureManager;
 
+import com.bulletphysics.collision.dispatch.CollisionFlags;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.ConvexHullShape;
@@ -486,7 +487,7 @@ public class Model {
         RigidBodyConstructionInfo modelConstructionInfo = new RigidBodyConstructionInfo(1.0f, modelMotionState, modelShape, modelInertia);
         modelConstructionInfo.restitution = 0.5f;
         modelConstructionInfo.angularDamping = 0.95f;
-        modelConstructionInfo.mass = Integer.MAX_VALUE;
+        modelConstructionInfo.mass = 100;
         
         RigidBody modelRigidBody = new RigidBody(modelConstructionInfo);
         modelRigidBody.setActivationState(CollisionObject.DISABLE_DEACTIVATION);

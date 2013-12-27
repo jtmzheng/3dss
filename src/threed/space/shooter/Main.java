@@ -126,7 +126,7 @@ public class Main {
 			Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), new Vector3f(-5, 0, -5));
 			b.applyForce(new Vector3f(-5, 0, -5));
 			
-			Ground ground = new Ground(new Vector3f(0, -5, 0), 20, 20);
+			Ground ground = ModelFactory.loadGround(new File("res/obj/cube.obj"), new Vector3f(-25, -55, -25));
 			gameWorld.addModel(a);
 			gameWorld.addModel(b);
 			gameWorld.addModel(ground);

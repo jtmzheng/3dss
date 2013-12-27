@@ -58,7 +58,7 @@ public class World {
         CollisionDispatcher dispatcher = new CollisionDispatcher(collisionConfiguration);
         ConstraintSolver solver = new SequentialImpulseConstraintSolver();
         dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-        dynamicsWorld.setGravity(new Vector3f(0.0f, 0.0f, 0.0f));
+        dynamicsWorld.setGravity(new Vector3f(0.0f, -1f, 0.0f));
 	}
 	
 	/**

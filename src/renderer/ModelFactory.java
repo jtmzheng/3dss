@@ -8,6 +8,7 @@ import java.util.List;
 import org.lwjgl.util.vector.Vector3f;
 
 import util.Parser;
+import world.Ground;
 
 /**
  * Static utility class to load in .obj files (and eventually other stuff).
@@ -49,5 +50,19 @@ public class ModelFactory {
 		
 		Model m = new Model(faces, pos);
 		return m;
+	}
+
+	// TODO: Use a better ground than just a cube.
+	public static Ground loadGround(File file) throws InterruptedException, IOException {
+		Parser parseFile = new Parser();
+		parseFile.parseOBJFile(file);
+		return new Ground(parseFile.getFaces(), new Vector3f(0, -10, 0));
+	}
+	
+	// TODO: Use a better ground than just a cube.
+	public static Ground loadGround(File file, Vector3f pos) throws InterruptedException, IOException {
+		Parser parseFile = new Parser();
+		parseFile.parseOBJFile(file);
+		return new Ground(parseFile.getFaces(), pos);
 	}
 }
