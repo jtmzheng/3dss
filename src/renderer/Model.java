@@ -117,7 +117,7 @@ public class Model {
 	 */
 	public void setup(Vector3f initialPosition){
 		long curTime = System.currentTimeMillis();
-		
+
 		// Strip any quads / polygons. 
 		this.triangulate();
 
