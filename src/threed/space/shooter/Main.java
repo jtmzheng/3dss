@@ -127,9 +127,13 @@ public class Main {
 		gameWorld = new World(gameRenderer);
 		
 		try{
+			PhysicsModelProperties bProperties = new PhysicsModelProperties();
+			bProperties.setProperty("mass", 100f);
+			bProperties.setProperty("restitution", 0.75f);
+			
 			Model a = ModelFactory.loadObjModel(new File("res/obj/ATAT.obj"), new Vector3f(5, 0, 5));
-			Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), new Vector3f(-5, 0, -5));
-
+			Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), new Vector3f(-5, 0, -5), bProperties);
+			
 			PhysicsModelProperties groundProps = new PhysicsModelProperties();
 			groundProps.setProperty("mass", 0f);
 			groundProps.setProperty("restitution", 0.9f);

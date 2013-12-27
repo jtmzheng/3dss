@@ -534,13 +534,14 @@ public class Model {
         modelConstructionInfo.restitution = rigidBodyProp.getProperty("restitution") == null ? 0.5f : (Float)rigidBodyProp.getProperty("restitution");
         modelConstructionInfo.angularDamping = rigidBodyProp.getProperty("angularDamping") == null ? 0.95f : (Float)rigidBodyProp.getProperty("angularDamping");
         modelConstructionInfo.mass = rigidBodyProp.getProperty("mass") == null ? 100 : (Float)rigidBodyProp.getProperty("mass");
+        modelConstructionInfo.angularDamping = rigidBodyProp.getProperty("angularDamping") == null ? 0f : (Float)rigidBodyProp.getProperty("angularDamping");
+        modelConstructionInfo.linearDamping =  rigidBodyProp.getProperty("linearDamping") == null ? 0f : (Float)rigidBodyProp.getProperty("linearDamping");
         
         RigidBody modelRigidBody = new RigidBody(modelConstructionInfo);
         modelRigidBody.setCollisionFlags((Integer) (rigidBodyProp.getProperty("collisionFlags") == null ? modelRigidBody.getCollisionFlags() :
         	rigidBodyProp.getProperty("collisionFlags")));
-        modelRigidBody.setDamping((Float) (rigidBodyProp.getProperty("damping") == null ? 0f : rigidBodyProp.getProperty("damping")),
-        						  (Float) (rigidBodyProp.getProperty("damping") == null ? 0f : rigidBodyProp.getProperty("damping")));
         modelRigidBody.setActivationState(CollisionObject.DISABLE_DEACTIVATION);
+        
         PhysicsModel model = new PhysicsModel(modelShape, 
         		modelRigidBody);
         
