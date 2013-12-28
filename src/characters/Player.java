@@ -252,7 +252,6 @@ public class Player implements InputListener {
 	 */
 	private void triggerLight() {
 		if(cameraLight.isValid()) {
-			System.out.println("Invalidate");
 			cameraLight.invalidate();
 		} else {
 			cameraLight.reset(new Light(new Vector3f(playerCam.getLocation()), 
@@ -260,7 +259,6 @@ public class Player implements InputListener {
 					new Vector3f(mLd), 
 					new Vector3f(mLa), 
 					new Vector3f(playerCam.getDirection())));
-			System.out.println("Validate");
 		}
 		lightManager.updateAllLights();
 	}
