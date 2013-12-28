@@ -97,11 +97,7 @@ public class PhysicsModel {
 	 * @param vec The vector to translate the model by
 	 */
 	public void translate(javax.vecmath.Vector3f vec) {
-		Transform worldTransform = modelRigidBody.getWorldTransform(new Transform());
-		javax.vecmath.Matrix4f mat = worldTransform.getMatrix(new javax.vecmath.Matrix4f());
-		mat.setTranslation(vec);
-		worldTransform.set(mat);
-		modelRigidBody.setWorldTransform(worldTransform);
+		modelRigidBody.translate(vec);
 	}
 	
 	/**
