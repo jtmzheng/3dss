@@ -21,6 +21,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import physics.PhysicsModel;
 import physics.PhysicsModelProperties;
+import system.Settings;
 import texture.Material;
 import texture.Texture;
 import texture.TextureManager;
@@ -533,12 +534,11 @@ public class Model {
         RigidBodyConstructionInfo modelConstructionInfo = new RigidBodyConstructionInfo(1.0f, modelMotionState, modelShape, modelInertia);
         
         // Retrieve the properties from the PhysicsModelProperties
-        modelConstructionInfo.restitution = rigidBodyProp.getProperty("restitution") == null ? 0.5f : (Float)rigidBodyProp.getProperty("restitution");
-        modelConstructionInfo.angularDamping = rigidBodyProp.getProperty("angularDamping") == null ? 0.95f : (Float)rigidBodyProp.getProperty("angularDamping");
-        modelConstructionInfo.mass = rigidBodyProp.getProperty("mass") == null ? 100 : (Float)rigidBodyProp.getProperty("mass");
-        modelConstructionInfo.angularDamping = rigidBodyProp.getProperty("angularDamping") == null ? 0.1f : (Float)rigidBodyProp.getProperty("angularDamping");
-        modelConstructionInfo.linearDamping = rigidBodyProp.getProperty("linearDamping") == null ? 0.1f : (Float)rigidBodyProp.getProperty("linearDamping");
-        modelConstructionInfo.friction = rigidBodyProp.getProperty("friction") == null ? 1f : (Float)rigidBodyProp.getProperty("friction");
+        modelConstructionInfo.restitution = rigidBodyProp.getProperty("restitution") == null ? Settings.getFloat("defaultRestitution") : (Float)rigidBodyProp.getProperty("restitution");
+        modelConstructionInfo.mass = rigidBodyProp.getProperty("mass") == null ? Settings.getFloat("defaultMass") : (Float)rigidBodyProp.getProperty("mass");
+        modelConstructionInfo.angularDamping = rigidBodyProp.getProperty("angularDamping") == null ? Settings.getFloat("defaultAngularDamping") : (Float)rigidBodyProp.getProperty("angularDamping");
+        modelConstructionInfo.linearDamping = rigidBodyProp.getProperty("linearDamping") == null ? Settings.getFloat("defaultLinearDamping") : (Float)rigidBodyProp.getProperty("linearDamping");
+        modelConstructionInfo.friction = rigidBodyProp.getProperty("friction") == null ? Settings.getFloat("defaultFriction") : (Float)rigidBodyProp.getProperty("friction");
         
         RigidBody modelRigidBody = new RigidBody(modelConstructionInfo);
         modelRigidBody.setCollisionFlags((Integer) (rigidBodyProp.getProperty("collisionFlags") == null ? modelRigidBody.getCollisionFlags() :
