@@ -88,9 +88,12 @@ public class Player implements InputListener {
 
 		enableAcceleration = Settings.getBoolean("playerAcceleration");
 		
-		// The player model should not be rendererd
+		// The player model should not be rendered.
 		playerModel.setRenderFlag(false);
-		
+
+		// Translate the player's model to its initial location.
+		playerModel.translate(playerCam.getLocation());
+
 		// Subscribe the enemy death listener to the "enemy death" event.
 		Publisher.getInstance().bindSubscriber(new EnemyDeathListener(), PublishEventType.ENEMY_DEATH);
 	}
