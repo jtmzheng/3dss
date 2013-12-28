@@ -1,9 +1,13 @@
 package physics;
 
-import javax.vecmath.Quat4f;
+import java.nio.FloatBuffer;
 
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+
+import renderer.ShaderController;
 
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
@@ -14,17 +18,23 @@ import com.bulletphysics.linearmath.Transform;
  */
 public class PhysicsMotionState extends MotionState{
 
+	@SuppressWarnings("unused")
 	private final Vector3f X_AXIS = new Vector3f(1, 0, 0);
+	@SuppressWarnings("unused")
 	private final Vector3f Y_AXIS = new Vector3f(0, 1, 0);
+	@SuppressWarnings("unused")
 	private final Vector3f Z_AXIS = new Vector3f(0, 0, 1);
 
 	private Matrix4f modelMatrix;
+	private FloatBuffer modelMatrixBuffer;
 	private Transform transform;
 	
 	public PhysicsMotionState(Transform transform,
 			Matrix4f modelMatrix) {
 		this.transform = transform;
 		this.modelMatrix = modelMatrix;
+		this.modelMatrixBuffer = BufferUtils.createFloatBuffer(16);
+
 	}
 	
 	@Override
@@ -37,17 +47,40 @@ public class PhysicsMotionState extends MotionState{
 		if(worldTrans == null)
 			return;
 		
-		modelMatrix.setIdentity();
-		Quat4f rot = worldTrans.getRotation(new Quat4f());
-		modelMatrix.rotate(rot.x, X_AXIS);
-		modelMatrix.rotate(rot.y, Y_AXIS);
-		modelMatrix.rotate(rot.z, Z_AXIS);	
-		javax.vecmath.Vector3f pos = worldTrans.origin;
-		Matrix4f.translate(new Vector3f(pos.x,
-				pos.y,
-				pos.z),
-				modelMatrix,
-				modelMatrix);
+		transform = worldTrans;
+		modelMatrix = convertMatToLWJGL(worldTrans.getMatrix(new javax.vecmath.Matrix4f()));
+
+		if(ShaderController.getCurrentProgram() != 0) {
+			GL20.glUseProgram(ShaderController.getCurrentProgram());
+			modelMatrix.store(modelMatrixBuffer);
+			modelMatrixBuffer.flip();
+			GL20.glUniformMatrix4(ShaderController.getModelMatrixLocation(), false, modelMatrixBuffer);
+			GL20.glUseProgram(0);
+		}
+	}
+	
+	private Matrix4f convertMatToLWJGL(javax.vecmath.Matrix4f tMat) {
+		Matrix4f tMatConv = new Matrix4f();
+		
+		// Copy the values over (transposed)
+		tMatConv.m00 = tMat.m00;
+		tMatConv.m01 = tMat.m10;
+		tMatConv.m02 = tMat.m20;
+		tMatConv.m03 = tMat.m30;
+		tMatConv.m10 = tMat.m01;
+		tMatConv.m11 = tMat.m11;
+		tMatConv.m12 = tMat.m21;
+		tMatConv.m13 = tMat.m31;		
+		tMatConv.m20 = tMat.m02;
+		tMatConv.m21 = tMat.m12;
+		tMatConv.m22 = tMat.m22;
+		tMatConv.m23 = tMat.m32;
+		tMatConv.m30 = tMat.m03;
+		tMatConv.m31 = tMat.m13;
+		tMatConv.m32 = tMat.m23;
+		tMatConv.m33 = tMat.m33;
+
+		return tMatConv;
 	}
 
 }
