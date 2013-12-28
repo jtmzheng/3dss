@@ -138,8 +138,8 @@ public class Renderer {
 		projectionMatrix.store(matrix44Buffer); matrix44Buffer.flip();
 		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
 		
+		// Render each model
 		for(Model m: models){
-			// Render the model
 			m.render();
 		}
         		
@@ -163,7 +163,7 @@ public class Renderer {
 	
 	/**
 	 * Get the camera associated with this renderer.
-	 * @return the camera
+	 * @return camera the camera
 	 * @throws NullPointerException
 	 */
 	public Camera getCamera() throws NullPointerException{
@@ -176,10 +176,26 @@ public class Renderer {
 	
 	/**
 	 * Get the max frame rate of the renderer
-	 * @return
+	 * @return frameRate the frame rate 
 	 */
 	public int getFrameRate() {
 		return frameRate;
+	}
+	
+	/**
+	 * Get the fog 
+	 * @return fog 
+	 */
+	public Fog getFog() {
+		return fog;
+	}
+	
+	/**
+	 * Set the fog
+	 * @param fog New fog for the renderer
+	 */
+	public void setFog(Fog fog) {
+		this.fog = fog;
 	}
 	
 	/**
@@ -209,7 +225,7 @@ public class Renderer {
 			System.exit(-1); //quit if opengl context fails
 		}
 		
-		//XNA like background color
+		// XNA like background color
 		GL11.glClearColor(0.4f, 0.6f, 0.9f, 0f);		
 		//GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE ); //for debug
 		GL11.glEnable(GL11.GL_CULL_FACE);
