@@ -5,6 +5,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 /**
  * This class takes care of the view matrix.
+ *
  * @author Max 
  * @author Adi
  */
@@ -16,7 +17,7 @@ public class Camera {
 	private Vector3f cameraPosition;
 
 	// Euler angles to keep track of our orientation.
-	private float yaw = 3.14f;
+	private float yaw = -0.4f;
 	private float pitch = 0.0f; 
 	@SuppressWarnings("unused")
 	private float roll = 0.0f;
@@ -37,8 +38,10 @@ public class Camera {
 	private float cameraSensitivity = 0.005f;
 	
 	/**
-	 *  Constructor with a given position.
-	 *  @param pos The initial position of the camera.
+	 * Constructor with a given position.
+	 * 
+	 * TODO: Add constructor that takes in a position and an initial direction.
+	 * @param pos The initial position of the camera.
 	 */
 	public Camera (Vector3f pos) {
 		cameraPosition = pos;	
