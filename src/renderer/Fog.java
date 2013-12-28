@@ -1,5 +1,9 @@
-package world;
+package renderer;
 
+import java.nio.FloatBuffer;
+
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Vector3f;
 
 /**
@@ -10,6 +14,8 @@ public class Fog {
 	private Vector3f color;
 	private float minDistance;
 	private float maxDistance;
+	
+	private FloatBuffer dataBuffer = BufferUtils.createFloatBuffer(3);
 	
 	/**
 	 * Constructor for the Fog class 
@@ -23,6 +29,33 @@ public class Fog {
 		this.color = color;
 		this.minDistance = minDistance;
 		this.maxDistance = maxDistance;
+	}
+	
+	/**
+	 * Update the uniform variables in the fragment shader
+	 * @param colorLocation the fog color location (vec3) 
+	 * @param minLocation the minimum distance location (float)
+	 * @param maxLocation the maximum distance location (float)
+	 * @return success whether the uniforms were updated successfully
+	 */
+	public boolean updateFog(int colorLocation,
+			int minLocation,
+			int maxLocation) {
+		
+		// Fail if any location is invalid
+		if(colorLocation < 0 || minLocation < 0 || maxLocation < 0)
+			return false;
+		
+		// Set the color
+		color.store(dataBuffer);
+		dataBuffer.flip();
+		GL20.glUniform3(colorLocation, dataBuffer);
+		
+		// Set the min and max distances	
+		GL20.glUniform1f(minLocation, minDistance);
+		GL20.glUniform1f(maxLocation, maxDistance);
+		
+		return true;
 	}
 	
 	/**
