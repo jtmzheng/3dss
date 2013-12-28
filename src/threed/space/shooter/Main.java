@@ -102,7 +102,7 @@ public class Main {
 	 */
 	public static void setupWorld() {
 		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
-		gameRenderer = new Renderer(600, 600, gameCam, 60);
+		gameRenderer = new Renderer(600, 600, gameCam, 60, null);
 		gameWorld = new World(gameRenderer);
 		
 		try{

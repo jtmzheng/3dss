@@ -41,8 +41,11 @@ public class Renderer {
 	
 	private FloatBuffer matrix44Buffer = null;
 	
-	//Camera variables (TODO: will be moved to a camera class in the future)
+	// The view matrix will be calculated based off this camera
 	private Camera camera = null;    
+	
+	// Fog instance
+	private Fog fog = null;
 
 	/**
 	 * Creates the renderer.
@@ -51,11 +54,17 @@ public class Renderer {
 	 * @param height The height of the renderer.
 	 * @param camera The camera associated with the renderer.
 	 */
-	public Renderer(int width, int height, Camera camera, int frameRate){
+	public Renderer(int width, 
+			int height, 
+			Camera camera, 
+			int frameRate,
+			Fog fog){
+		
 		this.camera = camera;
 		this.WIDTH = width;
 		this.HEIGHT = height;
 		this.frameRate = frameRate;
+		this.fog = fog;
 		
 		if (width == 0 && height == 0)
 			this.initOpenGL(true); 
