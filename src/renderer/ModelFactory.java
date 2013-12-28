@@ -7,8 +7,6 @@ import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import com.bulletphysics.collision.dispatch.CollisionFlags;
-
 import physics.PhysicsModelProperties;
 import util.Parser;
 

@@ -14,10 +14,6 @@ import renderer.LightHandle;
 import renderer.LightManager;
 import renderer.Model;
 import system.Settings;
-
-import com.bulletphysics.dynamics.RigidBody;
-import com.bulletphysics.linearmath.Transform;
-
 import event.PubSubListener;
 import event.PublishEventType;
 import event.Publisher;
@@ -47,7 +43,9 @@ public class Player implements InputListener {
 	private LightManager lightManager = null; 
 	
 	// Player attributes
+	@SuppressWarnings("unused")
 	private float shields = 100f;
+	@SuppressWarnings("unused")
 	private float HP = 100F;
 
 	// Movement fields.

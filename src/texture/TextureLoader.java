@@ -8,9 +8,7 @@ import java.nio.ByteBuffer;
 import javax.imageio.ImageIO;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL20;
 
-import renderer.ShaderController;
 import system.Settings;
 
 /**

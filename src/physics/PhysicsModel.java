@@ -5,7 +5,6 @@ import org.lwjgl.util.vector.Vector3f;
 
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.dynamics.RigidBody;
-import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 
 public class PhysicsModel {
