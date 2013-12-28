@@ -13,10 +13,8 @@ import renderer.VertexData;
 import texture.Material;
 
 /**
- * This class offers basic primitive models to be used for testing and debugging. No
- * object loading is done to create these models and the models do not have proper
- * texture coordinates. The models all have an optional parameter for custom physics
- * model properties.
+ * This class offers basic primitive 3D models to be used for testing and debugging. No object loading
+ * is done to create these models. Also, the models are not created with proper texture coordinates.
  *
  * @author Adi
  */

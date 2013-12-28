@@ -77,18 +77,13 @@ public class Main {
 	 * Sets up the game player.
 	 */
 	public static void setupPlayer() {
-		try {
-			PhysicsModelProperties playerProperties = new PhysicsModelProperties();
-			playerProperties.setProperty("mass", 10f);
-			playerProperties.setProperty("restitution", 0.75f);
-			
-			Model a = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), playerProperties);
-			player = new Player(gameCam, a);
-			gameWorld.addModel(a);
-		} catch (InterruptedException | IOException e) {
-			e.printStackTrace();
-			return;
-		}
+		PhysicsModelProperties playerProperties = new PhysicsModelProperties();
+		playerProperties.setProperty("mass", 10f);
+		playerProperties.setProperty("restitution", 0.75f);
+		
+		Model a = Primitives.getRectangularPrism(5, 5, 10, playerProperties);
+		player = new Player(gameCam, a);
+		gameWorld.addModel(a);
 		
 		rawInputs.add(new MouseInput());
 		rawInputs.add(new KeyInput());
