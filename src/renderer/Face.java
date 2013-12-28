@@ -7,6 +7,7 @@ import texture.Material;
 
 /**
  * Represents a face in a model.
+ *
  * @author Max
  * @author Adi
  */
@@ -85,7 +86,7 @@ public class Face {
 	
 	public VertexData getVertex(int index){
 		if( index > faceData.size() ){
-			return null; //TODO: Add exception handling
+			throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + faceData.size());
 		}
 		
 		return faceData.get(index);
@@ -93,7 +94,7 @@ public class Face {
 	
 	/**
 	 * Get the material from the face (if applicable)
-	 * @return
+	 * @return the material of the face
 	 */
 	public Material getMaterial() {
 		return material;

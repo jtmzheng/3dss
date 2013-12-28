@@ -10,6 +10,11 @@ import renderer.Face;
 import renderer.VertexData;
 import texture.Material;
 
+/**
+ * Utility functions used by the file parser.
+ *
+ * @author Adi
+ */
 public class ParseUtils {
 	
 	// Prevent instantiation.

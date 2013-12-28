@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 
-import com.bulletphysics.collision.dispatch.CollisionFlags;
-
 import physics.PhysicsModelProperties;
 import renderer.Camera;
 import renderer.Model;
@@ -20,6 +18,8 @@ import renderer.ModelFactory;
 import renderer.Renderer;
 import world.World;
 import characters.Player;
+
+import com.bulletphysics.collision.dispatch.CollisionFlags;
 
 /**
  * Main class for our game.
@@ -56,7 +56,6 @@ public class Main {
 	static ArrayList<Input> rawInputs = new ArrayList<Input>();
 	
 	public static void main(String [] args){
-		// setupRenderer();
 		setupWorld();
 		setupPlayer();
 
@@ -71,29 +70,7 @@ public class Main {
 			gameWorld.simulate();
 		}
 	}
-	
-	/**
-	 * Sets up the game renderer.
-	 */
-	public static void setupRenderer() {
-		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
-		gameRenderer = new Renderer(600, 600, gameCam, 60);
-		try{
-			Model a = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"));
-			a.translate(new Vector3f(5, 0, 5));
-			Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"));
-			b.translate(new Vector3f(-5, 0, -5));
-			gameRenderer.bindNewModel(a);
-			gameRenderer.bindNewModel(b);
-		}
-		catch(IOException e){
-			e.printStackTrace();
-		}
-		catch(InterruptedException e){
-			e.printStackTrace();
-		}
-	}
-	
+
 	/**
 	 * Sets up the game player.
 	 */

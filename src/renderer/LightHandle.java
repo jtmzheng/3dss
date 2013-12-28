@@ -28,7 +28,6 @@ public class LightHandle {
 		else {
 			m_valid = true;
 		}
-		
 	}
 	
 	/*
@@ -83,5 +82,4 @@ public class LightHandle {
 	public Light getLight() {
 		return m_light;
 	}
-
 }

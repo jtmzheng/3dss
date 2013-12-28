@@ -7,6 +7,12 @@ import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.Transform;
 
+/**
+ * Representation of a model for the physics engine. Handles translation, rotation,
+ * and forces applied on the model.
+ *
+ * @author Max
+ */
 public class PhysicsModel {
 
 	@SuppressWarnings("unused")
@@ -135,7 +141,6 @@ public class PhysicsModel {
 		modelRigidBody.setWorldTransform(worldTransform);
 	}
 
-	
 	/**
 	 * Stub for future initialization 
 	 */

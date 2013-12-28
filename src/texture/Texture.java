@@ -14,7 +14,8 @@ import org.lwjgl.opengl.GL30;
 import renderer.ShaderController;
 
 /**
- * Basic texture class used by the Renderer
+ * Basic texture class used by the Renderer.
+ *
  * @author Adi
  * @author Max
  */
@@ -157,7 +158,6 @@ public class Texture {
 
 			isBound = true;
 		}
-
 	}
 
 	/**
@@ -168,5 +168,4 @@ public class Texture {
 		texId = -1;
 		isBound = false;
 	}
-
 }

@@ -6,7 +6,6 @@ package input;
  * and key presses, and respond accordingly.
  * 
  * @author Adi
- *
  */
 public interface InputListener {
 	/**

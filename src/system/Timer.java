@@ -2,6 +2,7 @@ package system;
 
 /**
  * Timer class using System.nanoTime().
+ *
  * @author Adi
  */
 public class Timer {

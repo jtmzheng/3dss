@@ -7,7 +7,8 @@ import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 
 /**
- * This class is used to interface between the physics engine and OpenGL
+ * This class is used to interface between the physics engine and OpenGL.
+ *
  * @author Max
  */
 public class PhysicsMotionState extends MotionState{
@@ -69,5 +70,4 @@ public class PhysicsMotionState extends MotionState{
 
 		return tMatConv;
 	}
-
 }

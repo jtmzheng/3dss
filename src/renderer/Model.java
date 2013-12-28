@@ -39,6 +39,8 @@ import com.bulletphysics.util.ObjectArrayList;
 /**
  * Model class is an abstraction used by both the renderer and the physics engine. Each model represents a physical object
  * in the environment. The OpenGL attributes will be passed as an interleaved VBO. Changes are applied to the physics model.
+ *
+ * TODO: This class needs cleanup.
  * @author Max
  * @author Adi
  */

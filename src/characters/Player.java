@@ -41,12 +41,6 @@ public class Player implements InputListener {
 	// Light associated with the camera
 	private LightHandle cameraLight;
 	private LightManager lightManager = null; 
-	
-	// Player attributes
-	@SuppressWarnings("unused")
-	private float shields = 100f;
-	@SuppressWarnings("unused")
-	private float HP = 100F;
 
 	// Movement fields.
 	private float speed_x = 0.0f;
@@ -70,8 +64,7 @@ public class Player implements InputListener {
 	 * Constructs a Player with a Camera.
 	 * @param c The Camera object that abstracts out the view matrix logic.
 	 */
-	public Player(Camera c, 
-			Model m) {
+	public Player(Camera c, Model m) {
 		playerCam = c;
 		playerModel = m;
 		setup();
@@ -166,7 +159,6 @@ public class Player implements InputListener {
 			}
 			lightManager.updateAllLights();
 		}
-		else {}
 	}
 
 	/**
@@ -255,6 +247,4 @@ public class Player implements InputListener {
 			System.out.println("Congrats, " + name + ". You killed an enemy!");
 		}
 	}
-	
-	
 }

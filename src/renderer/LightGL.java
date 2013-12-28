@@ -3,7 +3,8 @@ package renderer;
 import org.lwjgl.opengl.GL20;
 
 /**
- * This class holds all the uniform locations for a given light
+ * This class holds all the uniform locations for a given light.
+ *
  * @author Max
  */
 public class LightGL {
@@ -74,5 +75,4 @@ public class LightGL {
 	public int getAttenuation(){
 		return attenuation;
 	}
-	
 }

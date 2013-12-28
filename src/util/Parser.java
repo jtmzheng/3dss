@@ -276,15 +276,4 @@ public class Parser {
 			}
     	}
     }
-
-    public static void main (String[] args) throws IOException, InterruptedException {
-    	for (int i = 0; i < 10; i++) {
-    		Parser parseFile = new Parser();
-    		parseFile.parseOBJFile(new File("res/obj/ATAT.obj"));
-    	}
-
-		
-		//faces = parseFile.getFaces();
-		//System.out.println(faces.get(20000).material.toString());
-    }
 }

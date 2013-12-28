@@ -7,9 +7,9 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Vector3f;
 
 /**
- * Phong lighting implementation
- * @author Max
+ * Phong lighting implementation.
  *
+ * @author Max
  */
 public class Light {
 	
@@ -103,5 +103,4 @@ public class Light {
 	public void setDirection(Vector3f direction) {
 		m_spot = direction;
 	}
-
 }
