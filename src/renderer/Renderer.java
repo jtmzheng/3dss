@@ -77,9 +77,8 @@ public class Renderer {
 		// Initialize shaders
 		Map<String, Integer> sh = new HashMap<String, Integer>();
 		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		
-		shader.setProgram(sh); //TO DO: Error checking
+		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);		
+		shader.setProgram(sh); //@TODO: Error checking
 		
 		// Set up view and projection matrices
 		projectionMatrix = new Matrix4f();
@@ -103,14 +102,26 @@ public class Renderer {
 		
 		// Create a FloatBuffer with the proper size to store our matrices later
 		matrix44Buffer = BufferUtils.createFloatBuffer(16);
+		
+		// Initialize the uniform variables
+		GL20.glUseProgram(ShaderController.getCurrentProgram());
+		
+		viewMatrix.store(matrix44Buffer);
+		matrix44Buffer.flip();
+		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
+		projectionMatrix.store(matrix44Buffer); 
+		matrix44Buffer.flip();
+		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
+		fog.updateFogUniforms(ShaderController.getFogColorLocation(),
+				ShaderController.getFogMinDistanceLocation(), 
+				ShaderController.getFogMaxDistanceLocation(), 
+				ShaderController.getFogEnabledLocation());
+		
+		GL20.glUseProgram(0);
 	}
 	
 	/**
-	 * There will be a class called "Model" which will have all the data that will be bound to a VBO 
-	 * (anything needed to render) and then bound to a VAO(such as texture, vertex position, color, etc). 
-	 * This will PROBABLY make things easier becaues it will abstract creating new models and the actual 
-	 * rendering.  
-	 * 
+	 * Bind a new model to the renderer
 	 * @return <code>true</code> if the binding was successful and false otherwise.
 	 * @see Model
 	 */
@@ -132,11 +143,10 @@ public class Renderer {
 			
 		// Set the uniform values of the projection and view matrices 
 		viewMatrix = camera.getViewMatrix();
-		viewMatrix.store(matrix44Buffer); matrix44Buffer.flip();
+		viewMatrix.store(matrix44Buffer); 
+		matrix44Buffer.flip();
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixFragLocation(), false, matrix44Buffer);
-		projectionMatrix.store(matrix44Buffer); matrix44Buffer.flip();
-		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
 		
 		// Render each model
 		for(Model m: models){

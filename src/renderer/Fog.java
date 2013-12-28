@@ -14,6 +14,7 @@ public class Fog {
 	private Vector3f color;
 	private float minDistance;
 	private float maxDistance;
+	private boolean enabled;
 	
 	private FloatBuffer dataBuffer = BufferUtils.createFloatBuffer(3);
 	
@@ -25,10 +26,12 @@ public class Fog {
 	 */
 	public Fog(Vector3f color,
 			float minDistance,
-			float maxDistance) {
+			float maxDistance,
+			boolean enabled) {
 		this.color = color;
 		this.minDistance = minDistance;
 		this.maxDistance = maxDistance;
+		this.enabled = enabled;
 	}
 	
 	/**
@@ -36,14 +39,16 @@ public class Fog {
 	 * @param colorLocation the fog color location (vec3) 
 	 * @param minLocation the minimum distance location (float)
 	 * @param maxLocation the maximum distance location (float)
+	 * @param enabledLocation location for fog flag (int)
 	 * @return success whether the uniforms were updated successfully
 	 */
 	public boolean updateFogUniforms(int colorLocation,
 			int minLocation,
-			int maxLocation) {
+			int maxLocation,
+			int enabledLocation) {
 		
 		// Fail if any location is invalid
-		if(colorLocation < 0 || minLocation < 0 || maxLocation < 0)
+		if(colorLocation < 0 || minLocation < 0 || maxLocation < 0 || enabledLocation < 0)
 			return false;
 		
 		// Set the color
@@ -54,6 +59,9 @@ public class Fog {
 		// Set the min and max distances	
 		GL20.glUniform1f(minLocation, minDistance);
 		GL20.glUniform1f(maxLocation, maxDistance);
+		
+		// Set enabled flag
+		GL20.glUniform1i(enabledLocation, enabled ? 1 : 0);
 		
 		return true;
 	}
@@ -101,6 +109,20 @@ public class Fog {
 		GL20.glUniform1f(maxLocation, minDistance);
 		return true;
 	}
+	
+	/**
+	 * 
+	 * @param enabledLocation
+	 * @return
+	 */
+	public boolean updateEnabledUniform(int enabledLocation) {
+		if(enabledLocation < 0) 
+			return false;
+		
+		// Set enabled flag
+		GL20.glUniform1i(enabledLocation, enabled ? 1 : 0);		
+		return true;
+	}
 
 	/**
 	 * Get the minimum distance for fogging to occur
@@ -128,6 +150,14 @@ public class Fog {
 	
 	/**
 	 * 
+	 * @return
+	 */
+	public boolean getEnabled() {
+		return enabled;
+	}
+	
+	/**
+	 * 
 	 * @param minDistance
 	 */
 	public void setMinDistance(float minDistance) {
@@ -142,7 +172,19 @@ public class Fog {
 		this.maxDistance = maxDistance;
 	}
 	
+	/**
+	 * 
+	 * @param color
+	 */
 	public void setColor(Vector3f color) {
 		this.color = color;
+	}
+	
+	/**
+	 * 
+	 * @param enabled
+	 */
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 }
