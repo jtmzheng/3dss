@@ -1,13 +1,7 @@
 package physics;
 
-import java.nio.FloatBuffer;
-
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
-
-import renderer.ShaderController;
 
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
@@ -26,15 +20,12 @@ public class PhysicsMotionState extends MotionState{
 	private final Vector3f Z_AXIS = new Vector3f(0, 0, 1);
 
 	private Matrix4f modelMatrix;
-	private FloatBuffer modelMatrixBuffer;
 	private Transform transform;
 	
 	public PhysicsMotionState(Transform transform,
 			Matrix4f modelMatrix) {
 		this.transform = transform;
 		this.modelMatrix = modelMatrix;
-		this.modelMatrixBuffer = BufferUtils.createFloatBuffer(16);
-
 	}
 	
 	@Override
@@ -46,17 +37,13 @@ public class PhysicsMotionState extends MotionState{
 	public void setWorldTransform(Transform worldTrans) {
 		if(worldTrans == null)
 			return;
-		
+				
 		transform = worldTrans;
-		modelMatrix = convertMatToLWJGL(worldTrans.getMatrix(new javax.vecmath.Matrix4f()));
-
-		if(ShaderController.getCurrentProgram() != 0) {
-			GL20.glUseProgram(ShaderController.getCurrentProgram());
-			modelMatrix.store(modelMatrixBuffer);
-			modelMatrixBuffer.flip();
-			GL20.glUniformMatrix4(ShaderController.getModelMatrixLocation(), false, modelMatrixBuffer);
-			GL20.glUseProgram(0);
-		}
+		modelMatrix = convertMatToLWJGL(transform.getMatrix(new javax.vecmath.Matrix4f()));
+	}
+	
+	public Matrix4f getModelMatrix() {
+		return modelMatrix;
 	}
 	
 	private Matrix4f convertMatToLWJGL(javax.vecmath.Matrix4f tMat) {

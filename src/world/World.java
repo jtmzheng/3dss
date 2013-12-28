@@ -44,8 +44,8 @@ public class World {
 	}
 	
 	public void simulate() {
-		renderer.renderScene();
 		dynamicsWorld.stepSimulation(1.0f / renderer.getFrameRate());
+		renderer.renderScene();
 	}
 	
 	/**

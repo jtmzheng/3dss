@@ -118,11 +118,11 @@ public class Model {
 
 	/**
 	 * Common setup for constructor
-	 * @param f
-	 * @param initialPosition
-	 * @param rigidBodyProp
+	 * @param f list of faces 
+	 * @param initialPosition the initial position of the model
+	 * @param rigidBodyProp properties of the physics model
 	 */
-	public void setup(Vector3f initialPosition, PhysicsModelProperties rigidBodyProp){
+	private void setup(Vector3f initialPosition, PhysicsModelProperties rigidBodyProp){
 		long curTime = System.currentTimeMillis();
 
 		// Strip any quads / polygons. 
@@ -292,7 +292,7 @@ public class Model {
 		modelMatrix = new Matrix4f(); 
 		
 		// Create and initialize the physics model
-		ConvexHullShape modelShape = new ConvexHullShape(modelShapePoints);
+		CollisionShape modelShape = new ConvexHullShape(modelShapePoints);
 		physicsModel = setupPhysicsModel(modelShape, initialPosition, rigidBodyProp);
 	
 		renderFlag = true;
@@ -536,8 +536,9 @@ public class Model {
         modelConstructionInfo.restitution = rigidBodyProp.getProperty("restitution") == null ? 0.5f : (Float)rigidBodyProp.getProperty("restitution");
         modelConstructionInfo.angularDamping = rigidBodyProp.getProperty("angularDamping") == null ? 0.95f : (Float)rigidBodyProp.getProperty("angularDamping");
         modelConstructionInfo.mass = rigidBodyProp.getProperty("mass") == null ? 100 : (Float)rigidBodyProp.getProperty("mass");
-        modelConstructionInfo.angularDamping = rigidBodyProp.getProperty("angularDamping") == null ? 0f : (Float)rigidBodyProp.getProperty("angularDamping");
-        modelConstructionInfo.linearDamping =  rigidBodyProp.getProperty("linearDamping") == null ? 0f : (Float)rigidBodyProp.getProperty("linearDamping");
+        modelConstructionInfo.angularDamping = rigidBodyProp.getProperty("angularDamping") == null ? 0.1f : (Float)rigidBodyProp.getProperty("angularDamping");
+        modelConstructionInfo.linearDamping = rigidBodyProp.getProperty("linearDamping") == null ? 0.1f : (Float)rigidBodyProp.getProperty("linearDamping");
+        modelConstructionInfo.friction = rigidBodyProp.getProperty("friction") == null ? 1f : (Float)rigidBodyProp.getProperty("friction");
         
         RigidBody modelRigidBody = new RigidBody(modelConstructionInfo);
         modelRigidBody.setCollisionFlags((Integer) (rigidBodyProp.getProperty("collisionFlags") == null ? modelRigidBody.getCollisionFlags() :
