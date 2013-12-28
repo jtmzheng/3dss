@@ -13,6 +13,11 @@ import org.lwjgl.opengl.GL30;
 
 import renderer.ShaderController;
 
+/**
+ * Basic texture class used by the Renderer
+ * @author Adi
+ * @author Max
+ */
 public class Texture {
 	// Unique texture ID assigned by OpenGL.
 	private int texId;
@@ -36,11 +41,12 @@ public class Texture {
 	private int colorFormat;
 
 	/**
-	 * Constructs a texture given a width, height, and unique ID assigned by OpenGL.
-	 * @param width
-	 * @param height
-	 * @param id
-	 * @param unitId
+	 * Constructs a texture
+	 * @param width the width of the texture
+	 * @param height the height of the texture 
+	 * @param buffer the ByteBuffer with the image data
+	 * @param name the name associated with the texture
+	 * @param alpha boolean for whether the texture has alpha
 	 */
 	public Texture (int width, int height, ByteBuffer buffer, String name, boolean alpha) {
 		this.width = width;

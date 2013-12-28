@@ -24,7 +24,9 @@ import characters.Player;
 /**
  * Main class for our game.
  * Contains the game loop.
+ * @TODO: Start using JUnit
  * @author Adi
+ * @author Max
  */
 public class Main {
 	

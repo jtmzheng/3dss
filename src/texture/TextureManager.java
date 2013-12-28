@@ -11,8 +11,9 @@ import org.lwjgl.opengl.GL13;
 
 /**
  * Singleton that manages loading, adding, and removing texture maps.
- * 
+ * @TODO This class severely needs cleaning up 
  * @author Adi
+ * @author Max
  */
 public class TextureManager {
 	private static TextureManager instance = null;
@@ -55,7 +56,6 @@ public class TextureManager {
 			
 			// Add all supported LWJGL texture slot Ids to list of available slot IDs
 			for(int i = GL13.GL_TEXTURE0; i < GL13.GL_TEXTURE31; i++) {
-				System.out.println("TexSlot = " + i);
  				texSlotIds.add(i);
 			}
 			

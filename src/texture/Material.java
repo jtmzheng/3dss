@@ -8,6 +8,7 @@ import java.util.List;
  * "newmtl" tags in .mtl files. 
  * 
  * @author Adi
+ * @author Max
  */
 public class Material {	
 	// Default material values when no material is currently selected.
@@ -85,7 +86,7 @@ public class Material {
 	
 	/**
 	 * Gets the texture Ids of all bound textures
-	 * @return
+	 * @return a List<Integer> with the all the active textures' Ids
 	 */
 	public List<Integer> getActiveTextureIds() {
 		List<Integer> activeTextures = new ArrayList<Integer>();

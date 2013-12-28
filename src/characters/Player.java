@@ -19,14 +19,14 @@ import event.PublishEventType;
 import event.Publisher;
 
 /**
- * Player class which contains a camera,
+ * Player class which contains a camera, model, light
  * weapons, attributes, and other things.
  * 
  * The player implements InputListener, and responds to events from raw inputs.
  * See Main.java and the "input" package to see how the binding works.
- * TODO: Character will eventually extend model
  * 
  * @author Adi
+ * @author Max
  */
 public class Player implements InputListener {
 	// Camera object that the player uses.
@@ -34,9 +34,9 @@ public class Player implements InputListener {
 	private Model playerModel;
 	
 	//Light parameters
-	private Vector3f m_Ld;
-	private Vector3f m_Ls;
-	private Vector3f m_La;
+	private Vector3f mLd;
+	private Vector3f mLs;
+	private Vector3f mLa;
 	
 	// Light associated with the camera
 	private LightHandle cameraLight;
@@ -82,13 +82,13 @@ public class Player implements InputListener {
 	 */
 	private void setup() {
 		// Setup the player light (spotlight)
-		m_Ls = new Vector3f(1.0f, 1.0f, 1.0f);
-		m_Ld = new Vector3f(0.7f, 0.7f, 0.7f);
-		m_La = new Vector3f(0.2f, 0.2f, 0.2f);
+		mLs = new Vector3f(1.0f, 1.0f, 1.0f);
+		mLd = new Vector3f(0.7f, 0.7f, 0.7f);
+		mLa = new Vector3f(0.2f, 0.2f, 0.2f);
 		cameraLight = new LightHandle(this, new Light(new Vector3f(playerCam.getLocation()), 
-				new Vector3f(m_Ls), 
-				new Vector3f(m_Ld), 
-				new Vector3f(m_La), 
+				new Vector3f(mLs), 
+				new Vector3f(mLd), 
+				new Vector3f(mLa), 
 				new Vector3f(playerCam.getDirection())));
 		
 		lightManager = LightManager.getLightManagerHandle();
@@ -159,9 +159,9 @@ public class Player implements InputListener {
 			}
 			else {
 				cameraLight.reset(new Light(new Vector3f(playerCam.getLocation()), 
-						new Vector3f(m_Ls), 
-						new Vector3f(m_Ld), 
-						new Vector3f(m_La), 
+						new Vector3f(mLs), 
+						new Vector3f(mLd), 
+						new Vector3f(mLa), 
 						new Vector3f(playerCam.getDirection())));
 			}
 			lightManager.updateAllLights();
@@ -208,7 +208,7 @@ public class Player implements InputListener {
 	
 	/**
 	 * Get the player model 
-	 * @return
+	 * @return playerModel model used to represent the player
 	 */
 	public Model getModel() {
 		return playerModel;

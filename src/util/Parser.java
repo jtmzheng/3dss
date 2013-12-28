@@ -25,6 +25,7 @@ import texture.Material;
  * 
  * @TODO: Support smoothing groups.
  * @TODO: Add error checking 
+ * @TODO: Add documentation
  * @author Adi
  */
 public class Parser {

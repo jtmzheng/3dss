@@ -16,6 +16,7 @@ import system.Settings;
  * used in the texture manager.
  * 
  * @author Adi
+ * @author Max
  */
 public class TextureLoader {
 	/**

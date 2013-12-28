@@ -8,6 +8,8 @@ import java.util.Map;
  * This creates an instance at load time. There isn't a need to use a singleton
  * because we don't need control over when to create or destroy this, it needs
  * to be initialized at load time.
+ * 
+ * @author Adi
  */
 public class Settings {
 	
