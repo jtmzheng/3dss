@@ -1,7 +1,16 @@
 package util;
 
-import renderer.Model;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.lwjgl.util.vector.Vector2f;
+import org.lwjgl.util.vector.Vector3f;
+
 import physics.PhysicsModelProperties;
+import renderer.Model;
+import renderer.Face;
+import renderer.VertexData;
+import texture.Material;
 
 /**
  * This class offers basic primitive models to be used for testing and debugging. No
@@ -39,7 +48,7 @@ public class Primitives {
      * @return a rectangular prism
      */
     public static Model getRectangularPrism(float width, float length, float height) {
-        return null;
+        return getRectangularPrism(width, length, height, new PhysicsModelProperties());
     }
 
     /**
@@ -51,7 +60,43 @@ public class Primitives {
      * @return a rectangular prism
      */
     public static Model getRectangularPrism(float width, float length, float height, PhysicsModelProperties props) {
-        return null;
+        Material mat = new Material();
+        Vector3f[] v = {
+            new Vector3f(0, 0, 0),
+            new Vector3f(0, 0, length),
+            new Vector3f(0, height, 0),
+            new Vector3f(0, height, length),
+            new Vector3f(width, 0, 0),
+            new Vector3f(width, 0, length),
+            new Vector3f(width, height, 0),
+            new Vector3f(width, height, length)
+        };
+        Vector2f tex = new Vector2f(0, 0);
+        Vector3f[] vn = {
+            new Vector3f(0, 0, 1),
+            new Vector3f(0, 0, -1),
+            new Vector3f(0, 1, 0),
+            new Vector3f(0, -1, 0),
+            new Vector3f(1, 0, 0),
+            new Vector3f(-1, 0, 0)
+        };
+
+        // Create the list of twelve faces.
+        List<Face> faceList = new ArrayList<Face>();
+        faceList.add(new Face(new VertexData(v[0], tex, vn[1]), new VertexData(v[6], tex, vn[1]), new VertexData(v[4], tex, vn[1]), mat));
+        faceList.add(new Face(new VertexData(v[0], tex, vn[1]), new VertexData(v[2], tex, vn[1]), new VertexData(v[6], tex, vn[1]), mat));
+        faceList.add(new Face(new VertexData(v[0], tex, vn[5]), new VertexData(v[3], tex, vn[5]), new VertexData(v[2], tex, vn[5]), mat));
+        faceList.add(new Face(new VertexData(v[0], tex, vn[5]), new VertexData(v[1], tex, vn[5]), new VertexData(v[3], tex, vn[5]), mat));
+        faceList.add(new Face(new VertexData(v[2], tex, vn[2]), new VertexData(v[7], tex, vn[2]), new VertexData(v[6], tex, vn[2]), mat));
+        faceList.add(new Face(new VertexData(v[2], tex, vn[2]), new VertexData(v[3], tex, vn[2]), new VertexData(v[7], tex, vn[2]), mat));
+        faceList.add(new Face(new VertexData(v[4], tex, vn[4]), new VertexData(v[6], tex, vn[4]), new VertexData(v[7], tex, vn[4]), mat));
+        faceList.add(new Face(new VertexData(v[4], tex, vn[4]), new VertexData(v[7], tex, vn[4]), new VertexData(v[5], tex, vn[4]), mat));
+        faceList.add(new Face(new VertexData(v[0], tex, vn[3]), new VertexData(v[4], tex, vn[3]), new VertexData(v[5], tex, vn[3]), mat));
+        faceList.add(new Face(new VertexData(v[0], tex, vn[3]), new VertexData(v[5], tex, vn[3]), new VertexData(v[1], tex, vn[3]), mat));
+        faceList.add(new Face(new VertexData(v[1], tex, vn[0]), new VertexData(v[5], tex, vn[0]), new VertexData(v[7], tex, vn[0]), mat));
+        faceList.add(new Face(new VertexData(v[1], tex, vn[0]), new VertexData(v[7], tex, vn[0]), new VertexData(v[3], tex, vn[0]), mat));
+        
+        return new Model(faceList, props);
     }
 
     /**
@@ -80,7 +125,7 @@ public class Primitives {
      * @return a plane
      */
     public static Model getPlane(float width, float length) {
-        return getRectangularPrism(width, length, 1);
+        return getRectangularPrism(width, length, 0f);
     }
 
     /**
@@ -91,6 +136,6 @@ public class Primitives {
      * @return a plane
      */
     public static Model getPlane(float width, float length, PhysicsModelProperties props) {
-        return getRectangularPrism(width, length, 1, props);
+    	return getRectangularPrism(width, length, 0f, props);
     }
 }
