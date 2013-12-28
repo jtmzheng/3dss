@@ -10,6 +10,7 @@ uniform mat4 viewMatrixFrag;
 uniform vec3 fogColor = vec3(0.2, 0.2, 0.2); // grey
 uniform float fogMinDistance = 2.0;
 uniform float fogMaxDistance = 10.0;
+uniform int fogOn = 0;
 
 // Texturing
 uniform sampler2D textureSampler;
@@ -106,8 +107,15 @@ void main(void) {
 	    
 	}
 	
-	float fogFactor = getFogFactor(length(position_eye));
-	vec4 texel = texture(textureSampler, pass_texture);  
-	out_Color = mix(vec4(lightTotal, 1.0) + texel, vec4(fogColor, 1.0), fogFactor);
+	// Get the textured color
+	vec4 texel = texture(textureSampler, pass_texture);
+	
+	// Mix the color with the fog color if fog is enabled
+	if(fogOn == 1) {  
+		float fogFactor = getFogFactor(length(position_eye));
+		out_Color = mix(vec4(lightTotal, 1.0) + texel, vec4(fogColor, 1.0), fogFactor);
+	} else {
+		out_Color = vec4(lightTotal, 1.0) + texel;
+	}
 	
 }

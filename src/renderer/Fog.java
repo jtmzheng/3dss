@@ -38,7 +38,7 @@ public class Fog {
 	 * @param maxLocation the maximum distance location (float)
 	 * @return success whether the uniforms were updated successfully
 	 */
-	public boolean updateFog(int colorLocation,
+	public boolean updateFogUniforms(int colorLocation,
 			int minLocation,
 			int maxLocation) {
 		
@@ -58,6 +58,50 @@ public class Fog {
 		return true;
 	}
 	
+	/**
+	 * Update the fog color uniform variable
+	 * @param colorLocation the uniform location in the shader (vec3)
+	 * @return success whether the color was updated successfully
+	 */
+	public boolean updateFogColorUniform(int colorLocation) {
+		if(colorLocation < 0) 
+			return false;
+		
+		// Set the color
+		color.store(dataBuffer);
+		dataBuffer.flip();
+		GL20.glUniform3(colorLocation, dataBuffer);
+		
+		return true;
+	}
+	
+	/**
+	 * @param minLocation
+	 * @return
+	 */
+	public boolean updateFogMinDistanceUniform(int minLocation) {
+		if(minLocation < 0) 
+			return false;
+		
+		// Set the min and max distances	
+		GL20.glUniform1f(minLocation, minDistance);
+		return true;
+	}
+	
+	/**
+	 * 
+	 * @param maxLocation
+	 * @return
+	 */
+	public boolean updateFogMaxDistanceUniform(int maxLocation) {
+		if(maxLocation < 0) 
+			return false;
+		
+		// Set the min and max distances	
+		GL20.glUniform1f(maxLocation, minDistance);
+		return true;
+	}
+
 	/**
 	 * Get the minimum distance for fogging to occur
 	 * @return minDistance minimum distance
@@ -82,10 +126,18 @@ public class Fog {
 		return color;
 	}
 	
+	/**
+	 * 
+	 * @param minDistance
+	 */
 	public void setMinDistance(float minDistance) {
 		this.minDistance = minDistance;
 	}
 	
+	/**
+	 * 
+	 * @param maxDistance
+	 */
 	public void setMaxDistance(float maxDistance) {
 		this.maxDistance = maxDistance;
 	}
