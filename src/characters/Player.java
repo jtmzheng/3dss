@@ -145,20 +145,7 @@ public class Player implements InputListener {
 	 */
 	@Override
 	public void onMouseClickedEvent(MouseClickEvent evt) {
-		// Turn the camera light on and off 
-		if (evt.isPress()) {
-			if(cameraLight.isValid()) {
-				cameraLight.invalidate();
-			}
-			else {
-				cameraLight.reset(new Light(new Vector3f(playerCam.getLocation()), 
-						new Vector3f(mLs), 
-						new Vector3f(mLd), 
-						new Vector3f(mLa), 
-						new Vector3f(playerCam.getDirection())));
-			}
-			lightManager.updateAllLights();
-		}
+		// Stub
 	}
 
 	/**
@@ -191,13 +178,32 @@ public class Player implements InputListener {
 		// Determine whether this is a press or a release event.
 		boolean pressed = evt.isPress() ? true : false;
 
-		// Set the appropriate movement flag.
-		if (code == Keyboard.KEY_W) wPress = pressed;
-		if (code == Keyboard.KEY_A) aPress = pressed;
-		if (code == Keyboard.KEY_S) sPress = pressed;
-		if (code == Keyboard.KEY_D) dPress = pressed;
+		// Process the key event
+		switch (code) {
+		case Keyboard.KEY_W: {
+			wPress = pressed;
+			break;
+		}
+		case Keyboard.KEY_A: {
+			aPress = pressed;
+			break;
+		}
+		case Keyboard.KEY_S: {
+			sPress = pressed;
+			break;
+		}
+		case Keyboard.KEY_D: {
+			dPress = pressed;
+			break;
+		}
+		case Keyboard.KEY_F: {
+			if (pressed) {
+				triggerLight();
+			}
+		}
+		}
 	}
-	
+
 	/**
 	 * Get the player model 
 	 * @return playerModel model used to represent the player
@@ -239,6 +245,24 @@ public class Player implements InputListener {
 
 		forceDirection.add(forceRight);
 		playerModel.getPhysicsModel().applyForce(forceDirection);
+	}
+	
+	/**
+	 * Light is triggered to opposite of current state
+	 */
+	private void triggerLight() {
+		if(cameraLight.isValid()) {
+			System.out.println("Invalidate");
+			cameraLight.invalidate();
+		} else {
+			cameraLight.reset(new Light(new Vector3f(playerCam.getLocation()), 
+					new Vector3f(mLs), 
+					new Vector3f(mLd), 
+					new Vector3f(mLa), 
+					new Vector3f(playerCam.getDirection())));
+			System.out.println("Validate");
+		}
+		lightManager.updateAllLights();
 	}
 
 	private class EnemyDeathListener implements PubSubListener {
