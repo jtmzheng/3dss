@@ -5,6 +5,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.dynamics.RigidBody;
+import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 
 public class PhysicsModel {
@@ -13,6 +14,11 @@ public class PhysicsModel {
 	private final CollisionShape modelShape;
 	private RigidBody modelRigidBody;
 	
+	/**
+	 * Constructor for PhysicsModel takes a CollisionShape and a RigidBody
+	 * @param modelShape
+	 * @param modelRigidBody
+	 */
 	public PhysicsModel(CollisionShape modelShape,
 			RigidBody modelRigidBody) {
 		this.modelShape = modelShape;
@@ -22,7 +28,7 @@ public class PhysicsModel {
 	
 	/**
 	 * Returns a float array representing a 4 x 4 OpenGL model matrix
-	 * @return
+	 * @return A float array of size 16
 	 */
 	public float[] getOpenGLTransformMatrix() {
 		Transform worldTransform = modelRigidBody.getWorldTransform(new Transform());
@@ -92,7 +98,10 @@ public class PhysicsModel {
 	 */
 	public void translate(javax.vecmath.Vector3f vec) {
 		Transform worldTransform = modelRigidBody.getWorldTransform(new Transform());
-		worldTransform.getMatrix(new javax.vecmath.Matrix4f()).setTranslation(vec);
+		javax.vecmath.Matrix4f mat = worldTransform.getMatrix(new javax.vecmath.Matrix4f());
+		mat.setTranslation(vec);
+		worldTransform.set(mat);
+		modelRigidBody.setWorldTransform(worldTransform);
 	}
 	
 	/**
@@ -101,7 +110,10 @@ public class PhysicsModel {
 	 */
 	public void rotateY(float angle) {
 		Transform worldTransform = modelRigidBody.getWorldTransform(new Transform());
-		worldTransform.getMatrix(new javax.vecmath.Matrix4f()).rotY(angle);
+		javax.vecmath.Matrix4f mat = worldTransform.getMatrix(new javax.vecmath.Matrix4f());
+		mat.rotY(angle);
+		worldTransform.set(mat);
+		modelRigidBody.setWorldTransform(worldTransform);
 	}
 
 	/**
@@ -110,7 +122,10 @@ public class PhysicsModel {
 	 */	
 	public void rotateX(float angle) {
 		Transform worldTransform = modelRigidBody.getWorldTransform(new Transform());
-		worldTransform.getMatrix(new javax.vecmath.Matrix4f()).rotX(angle);
+		javax.vecmath.Matrix4f mat = worldTransform.getMatrix(new javax.vecmath.Matrix4f());
+		mat.rotX(angle);
+		worldTransform.set(mat);
+		modelRigidBody.setWorldTransform(worldTransform);
 	}
 
 	/**
@@ -119,7 +134,10 @@ public class PhysicsModel {
 	 */
 	public void rotateZ(float angle) {
 		Transform worldTransform = modelRigidBody.getWorldTransform(new Transform());
-		worldTransform.getMatrix(new javax.vecmath.Matrix4f()).rotX(angle);
+		javax.vecmath.Matrix4f mat = worldTransform.getMatrix(new javax.vecmath.Matrix4f());
+		mat.rotZ(angle);
+		worldTransform.set(mat);
+		modelRigidBody.setWorldTransform(worldTransform);
 	}
 
 	

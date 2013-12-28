@@ -36,8 +36,8 @@ import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.ObjectArrayList;
 
 /**
- * Model class is an abstraction used by Renderer. Each model represents a physical object
- * in the environment. The OpenGL attributes will be passed as an interleaved VBO.
+ * Model class is an abstraction used by both the renderer and the physics engine. Each model represents a physical object
+ * in the environment. The OpenGL attributes will be passed as an interleaved VBO. Changes are applied to the physics model.
  * @author Max
  * @author Adi
  */
@@ -83,9 +83,6 @@ public class Model {
 		// Setup the model 
 		setup(pos, rigidBodyProp);
 
-		// Transform
-		this.translate(pos);
-
 		// Setup the light associated with this model
 		mLightHandle = new LightHandle(this, new Light(pos, ls, ld, la, null));
 	}
@@ -101,9 +98,6 @@ public class Model {
 
 		// Setup the model 
 		setup(pos, rigidBodyProp);
-
-		// Transform
-		// this.translate(pos);
 	}
 
 	/**
@@ -365,39 +359,37 @@ public class Model {
 	}
 	
 	/**
-	 * Translate the model by a given vector.
-	 * @param s The translation vector.
-	 * @deprecated
+	 * Translate the model by a given vector
+	 * @param s The displacement vector
 	 */
 	public void translate(Vector3f s) {
-		Matrix4f.translate(s, modelMatrix, modelMatrix);
+		physicsModel.translate(new javax.vecmath.Vector3f(s.x,
+				s.y,
+				s.z));
 	}
 
 	/**
-	 * Rotate Y axis.
+	 * Rotate about the y-axis
 	 * @param angle The angle to rotate by.
-	 * @deprecated
 	 */
 	public void rotateY(float angle){
-		Matrix4f.rotate(angle, new Vector3f(0f, 1f, 0f), modelMatrix, modelMatrix);
+		physicsModel.rotateY(angle);
 	}
 
 	/**
-	 * Rotate X axis.
+	 * Rotate about the x-axis
 	 * @param angle The angle to rotate by.
-	 * @deprecated
 	 */	
 	public void rotateX(float angle){
-		Matrix4f.rotate(angle, new Vector3f(1f, 0f, 0f), modelMatrix, modelMatrix);
+		physicsModel.rotateX(angle);
 	}
 
 	/**
-	 * Rotate Z axis.
+	 * Rotate about the z-axis
 	 * @param angle The angle to rotate by.
-	 * @deprecated
 	 */
 	public void rotateZ(float angle){
-		Matrix4f.rotate(angle, new Vector3f(0f, 0f, 1f), modelMatrix, modelMatrix);
+		physicsModel.rotateZ(angle);
 	}
 
 	/**
