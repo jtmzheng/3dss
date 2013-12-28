@@ -12,6 +12,8 @@ import system.Settings;
 
 /**
  * ShaderController will manage our shaders.
+ * @TODO: Refactor
+ * @TODO: Shader class
  * @author Max 
  */
 public class ShaderController {
@@ -31,6 +33,10 @@ public class ShaderController {
 	private static int textureKdSamplerLocation = 0;
 	private static int textureKsSamplerLocation = 0;
 	private static int textureKaSamplerLocation = 0;
+	private static int fogEnabledLocation = 0;
+	private static int fogColorLocation = 0;
+	private static int fogMinDistanceLocation = 0;
+	private static int fogMaxDistanceLocation = 0;
 	
 	private static int currentProgram = 0;
 
@@ -79,14 +85,21 @@ public class ShaderController {
 		viewMatrixLocation = GL20.glGetUniformLocation(currentProgram,  "viewMatrix");
 		modelMatrixLocation = GL20.glGetUniformLocation(currentProgram,  "modelMatrix");
 		viewMatrixFragLocation = GL20.glGetUniformLocation(currentProgram, "viewMatrixFrag");
-		// lightPositionLocation = GL20.glGetUniformLocation(currentProgram,  "light_position");
-		// specularLocation = GL20.glGetUniformLocation(currentProgram,  "Ls");
-		// diffuseLocation = GL20.glGetUniformLocation(currentProgram,  "Ld");
-		ambientLocation = GL20.glGetUniformLocation(currentProgram,  "La");		
+		
+		// Light uniform location
+		ambientLocation = GL20.glGetUniformLocation(currentProgram,  "La");
+		
+		// Texture uniform locations
 		textureSamplerLocation = GL20.glGetUniformLocation(currentProgram, "textureSampler");
 		textureKdSamplerLocation = GL20.glGetUniformLocation(currentProgram, "textureSamplers[0]"); 
 		textureKsSamplerLocation = GL20.glGetUniformLocation(currentProgram, "textureSamplers[1]");		
 		textureKaSamplerLocation = GL20.glGetUniformLocation(currentProgram, "textureSamplers[2]");
+		
+		// Fog uniform locations
+		fogEnabledLocation = GL20.glGetUniformLocation(currentProgram, "fogOn");
+		fogColorLocation = GL20.glGetUniformLocation(currentProgram, "fogColor");
+		fogMinDistanceLocation = GL20.glGetUniformLocation(currentProgram, "fogMinDistance");
+		fogMaxDistanceLocation = GL20.glGetUniformLocation(currentProgram, "fogMaxDistance");
 		
 		return true;
 	}
@@ -158,6 +171,22 @@ public class ShaderController {
 	
 	public static int getTexKaSamplerLocation(){
 		return textureKaSamplerLocation;
+	}
+	
+	public static int getFogEnabledLocation(){
+		return fogEnabledLocation;
+	}
+	
+	public static int getFogColorLocation(){
+		return fogColorLocation;
+	}
+	
+	public static int getFogMinDistanceLocation(){
+		return fogMinDistanceLocation;
+	}
+	
+	public static int getFogMaxDistanceLocation(){
+		return fogMaxDistanceLocation;
 	}
 	
 	/**
