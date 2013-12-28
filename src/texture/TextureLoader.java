@@ -8,9 +8,7 @@ import java.nio.ByteBuffer;
 import javax.imageio.ImageIO;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL20;
 
-import renderer.ShaderController;
 import system.Settings;
 
 /**
@@ -40,6 +38,8 @@ public class TextureLoader {
 		
 		if (!image.getColorModel().hasAlpha())
 			BYTES_PER_PIXEL = 3;
+		else 
+			BYTES_PER_PIXEL = 4;
 		
 		int[] pixels = new int[image.getWidth() * image.getHeight()];
 		image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
@@ -62,7 +62,6 @@ public class TextureLoader {
         }
 
         buffer.flip();
-        
         Texture tex = new Texture(image.getWidth(), 
         		image.getHeight(), 
         		buffer,

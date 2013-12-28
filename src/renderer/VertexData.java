@@ -1,6 +1,5 @@
 package renderer;
 
-import java.awt.List;
 import java.util.Arrays;
 
 import org.lwjgl.util.vector.Vector2f;
@@ -18,6 +17,7 @@ public class VertexData {
 	private float[] ambRefl = new float[] {1f, 1f, 1f}; //ambient
 	private float[] st = new float[] {0f, 0f};
 	private float[] norm = new float[]{0f, 0f, 0f, 1f};
+	@SuppressWarnings("unused")
 	private boolean isTextured = false;
 	
 	//Specular power 
@@ -171,6 +171,10 @@ public class VertexData {
 	
 	public float[] getXYZW() {
 		return new float[] {this.xyzw[0], this.xyzw[1], this.xyzw[2], this.xyzw[3]};
+	}
+	
+	public float[] getXYZ() {
+		return new float[] {this.xyzw[0], this.xyzw[1], this.xyzw[2]};
 	}
 	
 	public float[] getGeometric() {

@@ -12,6 +12,7 @@ import renderer.Camera;
 import renderer.Light;
 import renderer.LightHandle;
 import renderer.LightManager;
+import renderer.Model;
 import system.Settings;
 import event.PubSubListener;
 import event.PublishEventType;
@@ -30,6 +31,7 @@ import event.Publisher;
 public class Player implements InputListener {
 	// Camera object that the player uses.
 	private Camera playerCam;
+	private Model playerModel;
 	
 	//Light parameters
 	private Vector3f m_Ld;
@@ -40,10 +42,10 @@ public class Player implements InputListener {
 	private LightHandle cameraLight;
 	private LightManager lightManager = null; 
 	
-
-
 	// Player attributes
+	@SuppressWarnings("unused")
 	private float shields = 100f;
+	@SuppressWarnings("unused")
 	private float HP = 100F;
 
 	// Movement fields.
@@ -51,8 +53,8 @@ public class Player implements InputListener {
 	private float speed_y = 0.0f;
 
 	private boolean enableAcceleration;
-	private float acceleration = 0.01f;
-	private float MAX_SPEED = 0.17f;
+	private float acceleration = 100f;
+	private float MAX_SPEED = 1700f;
 	private float drag = 0.001f;
 
 	// Key press flags.
@@ -68,15 +70,17 @@ public class Player implements InputListener {
 	 * Constructs a Player with a Camera.
 	 * @param c The Camera object that abstracts out the view matrix logic.
 	 */
-	public Player(Camera c) {
+	public Player(Camera c, 
+			Model m) {
 		playerCam = c;
+		playerModel = m;
 		setup();
 	}
 
 	/**
 	 * Sets up all necessary player attributes and listeners.
 	 */
-	public void setup() {
+	private void setup() {
 		// Setup the player light (spotlight)
 		m_Ls = new Vector3f(1.0f, 1.0f, 1.0f);
 		m_Ld = new Vector3f(0.7f, 0.7f, 0.7f);
@@ -91,22 +95,11 @@ public class Player implements InputListener {
 
 		enableAcceleration = Settings.getBoolean("playerAcceleration");
 		
+		// The player model should not be rendererd
+		playerModel.setRenderFlag(false);
+		
 		// Subscribe the enemy death listener to the "enemy death" event.
 		Publisher.getInstance().bindSubscriber(new EnemyDeathListener(), PublishEventType.ENEMY_DEATH);
-	}
-
-	/**
-	 * Strafes the player (uses playerCam).
-	 */
-	private void strafe(){
-		playerCam.strafe(speed_x);
-	}
-
-	/**
-	 * Moves the player forward and backwards (uses playerCam).
-	 */
-	private void moveFrontBack(){
-		playerCam.moveFrontBack(speed_y);
 	}
 
 	/**
@@ -136,9 +129,9 @@ public class Player implements InputListener {
 			if (dPress) speed_x = MAX_SPEED;
 		}
 		
-		// Move our player.
-		strafe();
-		moveFrontBack();
+		// Set the camera location to the current model origin
+		javax.vecmath.Vector3f oldPosition = playerModel.getModelOrigin();
+		playerCam.setLocation(new Vector3f(oldPosition.x, oldPosition.y, oldPosition.z));
 
 		// Update the camera light fields
 		if(cameraLight.isValid()) {
@@ -148,6 +141,9 @@ public class Player implements InputListener {
 		}
 	
 		lightManager.updateAllLights();
+		
+		// Update the player related physics (apply forces)	
+		updatePhysics();
 	}
 
 	/**
@@ -209,6 +205,49 @@ public class Player implements InputListener {
 		if (code == Keyboard.KEY_S) sPress = pressed;
 		if (code == Keyboard.KEY_D) dPress = pressed;
 	}
+	
+	/**
+	 * Get the player model 
+	 * @return
+	 */
+	public Model getModel() {
+		return playerModel;
+	}
+	
+	/**
+	 * Strafes the player (uses playerCam).
+	 * @deprecated
+	 */
+	private void strafe(){
+		playerCam.strafe(speed_x);
+	}
+
+	/**
+	 * Moves the player forward and backwards (uses playerCam).
+	 * @deprecated
+	 */
+	private void moveFrontBack(){
+		playerCam.moveFrontBack(speed_y);
+	}
+	
+	/**
+	 * Update the player's model physics using JBullet
+	 */
+	private void updatePhysics() {
+		// Reset the forces and the velocity
+		playerModel.resetModelForces();
+		playerModel.resetModelKinematics();
+		
+		javax.vecmath.Vector3f forceRight = new javax.vecmath.Vector3f(speed_x * playerCam.getRight().x,
+				speed_x * playerCam.getRight().y,
+				speed_x * playerCam.getRight().z);
+		javax.vecmath.Vector3f forceDirection = new javax.vecmath.Vector3f(speed_y * playerCam.getDirection().x,
+				speed_y * playerCam.getDirection().y,
+				speed_y * playerCam.getDirection().z);
+
+		forceDirection.add(forceRight);
+		playerModel.getPhysicsModel().applyForce(forceDirection);
+	}
 
 	private class EnemyDeathListener implements PubSubListener {
 		@Override
@@ -216,4 +255,6 @@ public class Player implements InputListener {
 			System.out.println("Congrats, " + name + ". You killed an enemy!");
 		}
 	}
+	
+	
 }

@@ -11,9 +11,14 @@ import java.util.ArrayList;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 
+import com.bulletphysics.collision.dispatch.CollisionFlags;
+
+import physics.PhysicsModelProperties;
 import renderer.Camera;
+import renderer.Model;
 import renderer.ModelFactory;
 import renderer.Renderer;
+import world.World;
 import characters.Player;
 
 /**
@@ -22,6 +27,11 @@ import characters.Player;
  * @author Adi
  */
 public class Main {
+	
+	/**
+	 * The world object
+	 */
+	static World gameWorld;
 
 	/**
 	 * The renderer the game uses.
@@ -44,7 +54,8 @@ public class Main {
 	static ArrayList<Input> rawInputs = new ArrayList<Input>();
 	
 	public static void main(String [] args){
-		setupRenderer();
+		// setupRenderer();
+		setupWorld();
 		setupPlayer();
 
 		// Game loop.
@@ -55,9 +66,7 @@ public class Main {
 			}
 			
 			player.move();
-			
-			// Render a new frame.
-			gameRenderer.renderScene();
+			gameWorld.simulate();
 		}
 	}
 	
@@ -66,9 +75,14 @@ public class Main {
 	 */
 	public static void setupRenderer() {
 		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
-		gameRenderer = new Renderer(600, 600, gameCam);
+		gameRenderer = new Renderer(600, 600, gameCam, 60);
 		try{
-			gameRenderer.bindNewModel(ModelFactory.loadObjModel(new File("res/obj/bunny.obj")));
+			Model a = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"));
+			a.translate(new Vector3f(5, 0, 5));
+			Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"));
+			b.translate(new Vector3f(-5, 0, -5));
+			gameRenderer.bindNewModel(a);
+			gameRenderer.bindNewModel(b);
 		}
 		catch(IOException e){
 			e.printStackTrace();
@@ -82,7 +96,18 @@ public class Main {
 	 * Sets up the game player.
 	 */
 	public static void setupPlayer() {
-		player = new Player(gameCam);
+		try {
+			PhysicsModelProperties playerProperties = new PhysicsModelProperties();
+			playerProperties.setProperty("mass", 10f);
+			playerProperties.setProperty("restitution", 0.75f);
+			
+			Model a = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), playerProperties);
+			player = new Player(gameCam, a);
+			gameWorld.addModel(a);
+		} catch (InterruptedException | IOException e) {
+			e.printStackTrace();
+			return;
+		}
 		
 		rawInputs.add(new MouseInput());
 		rawInputs.add(new KeyInput());
@@ -90,6 +115,41 @@ public class Main {
 		for (Input i : rawInputs) {
 			i.initialize();
 			i.setListener(player);
+		}
+	}
+	
+	/**
+	 * Sets up the world
+	 */
+	public static void setupWorld() {
+		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
+		gameRenderer = new Renderer(600, 600, gameCam, 60);
+		gameWorld = new World(gameRenderer);
+		
+		try{
+			PhysicsModelProperties bProperties = new PhysicsModelProperties();
+			bProperties.setProperty("mass", 100f);
+			bProperties.setProperty("restitution", 0.75f);
+			
+			Model a = ModelFactory.loadObjModel(new File("res/obj/ATAT.obj"), new Vector3f(5, 0, 5));
+			Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), new Vector3f(-5, 0, -5), bProperties);
+			
+			PhysicsModelProperties groundProps = new PhysicsModelProperties();
+			groundProps.setProperty("mass", 0f);
+			groundProps.setProperty("restitution", 0.9f);
+			groundProps.setProperty("damping", 0.9f);
+			groundProps.setProperty("collisionFlags", CollisionFlags.STATIC_OBJECT);
+			Model ground = ModelFactory.loadObjModel(new File("res/obj/cube.obj"), new Vector3f(-25, -55, -25), groundProps);
+
+			gameWorld.addModel(a);
+			gameWorld.addModel(b);
+			gameWorld.addModel(ground);
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+		catch(InterruptedException e){
+			e.printStackTrace();
 		}
 	}
 }

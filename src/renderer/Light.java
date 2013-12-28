@@ -16,6 +16,7 @@ public class Light {
 	private Vector3f m_position; // position of camera
 	private Vector3f m_Ls; // white specular colour
 	private Vector3f m_Ld; // dull white diffuse light colour
+	@SuppressWarnings("unused")
 	private Vector3f m_La; // grey ambient colour (currently ambient light is global)
 	
 	private Vector3f m_spot = null; // spot light direction

@@ -18,6 +18,7 @@ public class Camera {
 	// Euler angles to keep track of our orientation.
 	private float yaw = 3.14f;
 	private float pitch = 0.0f; 
+	@SuppressWarnings("unused")
 	private float roll = 0.0f;
 	
 	// Direction vector of our camera.
@@ -57,8 +58,8 @@ public class Camera {
 	/**
 	 * Sets the location of the camera in world space.
 	 */
-	public void setLocation (Vector3f loc) {
-		this.cameraPosition = loc;
+	public void setLocation (Vector3f cameraPosition) {
+		this.cameraPosition = cameraPosition;
 		applyTransformations();
 	}
 	
@@ -71,14 +72,18 @@ public class Camera {
 	}
 	
 	/**
+	 * Gets the right vector for the camera
+	 * @return
+	 */
+	public Vector3f getRight() {
+		return cameraRight;
+	}
+	
+	/**
 	 * Returns the view matrix the Camera controls.
 	 * @return the view matrix
 	 */
 	public Matrix4f getViewMatrix(){
-		if(viewMatrix == null){
-			return null;
-		}
-		
 		return viewMatrix;
 	}
 	
@@ -176,12 +181,5 @@ public class Camera {
 						null);
 		
 		applyTransformations();
-		/*
-		Matrix4f.translate(new Vector3f(translationVector.x,
-				translationVector.y,
-				translationVector.z),
-				viewMatrix,
-				viewMatrix);
-				*/
 	}
 }
