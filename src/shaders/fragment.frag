@@ -3,8 +3,14 @@
 const float SPOT_ARC = cos(13.66 / 90.0);
 const int MAX_NUM_LIGHTS = 30;
 
-uniform vec3 La = vec3(0.2, 0.2, 0.2); //grey ambient
+uniform vec3 La = vec3(0.2, 0.2, 0.2); // grey ambient
 uniform mat4 viewMatrixFrag;
+
+// Fog variables
+uniform vec3 fogColor = vec3(0.2, 0.2, 0.2); // grey
+uniform float fogMinDistance = 2.0;
+uniform float fogMaxDistance = 10.0;
+uniform int fogOn = 0;
 
 // Texturing
 uniform sampler2D textureSampler;
@@ -32,6 +38,13 @@ in vec2 pass_texture;
 in vec3 position_eye, normal_eye;
 
 out vec4 out_Color;
+
+float getFogFactor(float dist) {
+	// Calculate the fog factor
+	float fogFactor = (dist - fogMinDistance) / (fogMaxDistance - fogMinDistance);
+	// Clamp the fog factor between 0 and 1
+	return clamp (fogFactor, 0.0, 1.0);
+} 
 
 void main(void) {
 	vec3 Ia = La * sKa / 2;
@@ -94,7 +107,15 @@ void main(void) {
 	    
 	}
 	
-	vec4 texel = texture(textureSampler, pass_texture);  
-	out_Color = vec4(lightTotal, 1.0) + texel;
+	// Get the textured color
+	vec4 texel = texture(textureSampler, pass_texture);
+	
+	// Mix the color with the fog color if fog is enabled
+	if(fogOn == 1) {  
+		float fogFactor = getFogFactor(length(position_eye));
+		out_Color = mix(vec4(lightTotal, 1.0) + texel, vec4(fogColor, 1.0), fogFactor);
+	} else {
+		out_Color = vec4(lightTotal, 1.0) + texel;
+	}
 	
 }

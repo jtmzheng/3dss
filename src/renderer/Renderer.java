@@ -3,6 +3,7 @@ package renderer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.lwjgl.BufferUtils;
@@ -25,14 +26,16 @@ import system.Settings;
  * @author Max
  */
 public class Renderer {
-	/*
-	 * For each model there will have a VAO with all the data bound to it. This ArrayList
-	 * will be iterated over every render loop. 
-	 */
-	public ArrayList<Model> models; //Arraylist of the models that will be renderered
-	private int WIDTH = 320;
-	private int HEIGHT = 240;
-	private int frameRate = 60;
+	// Defaults 
+	private final int DEFAULT_WIDTH = 320;
+	private final int DEFAULT_HEIGHT = 240;
+	private final int DEFAULT_FRAME_RATE = 60;
+	
+	// List of the models that will be rendered
+	private List<Model> models; 
+	private int width;
+	private int height;
+	private int frameRate;
 	private ShaderController shader;
 	
 	// Matrix variables (should be moved to camera class in the future)
@@ -41,67 +44,84 @@ public class Renderer {
 	
 	private FloatBuffer matrix44Buffer = null;
 	
-	//Camera variables (TODO: will be moved to a camera class in the future)
+	// The view matrix will be calculated based off this camera
 	private Camera camera = null;    
+	
+	// Fog instance
+	private Fog fog = null;
 
 	/**
-	 * Creates the renderer.
-	 * If zero is passed in for width and height, it runs fullscreen.
+	 * Default constructor
+	 * @param camera The camera associated with the renderer
+	 */
+	public Renderer(Camera camera) {
+		this.camera = camera;
+		this.width = DEFAULT_WIDTH;
+		this.height = DEFAULT_HEIGHT;
+		this.frameRate = DEFAULT_FRAME_RATE;
+		this.fog = new Fog(false);
+		
+		init();
+	}
+	
+	/**
+	 * Constructor for the renderer (no fog) 
 	 * @param width The width of the renderer.
 	 * @param height The height of the renderer.
 	 * @param camera The camera associated with the renderer.
 	 */
-	public Renderer(int width, int height, Camera camera, int frameRate){
+	public Renderer(int width, int height, Camera camera) {
 		this.camera = camera;
-		this.WIDTH = width;
-		this.HEIGHT = height;
-		this.frameRate = frameRate;
+		this.width = width;
+		this.height = height;
+		this.frameRate = DEFAULT_FRAME_RATE;
+		this.fog = new Fog(false);
 		
-		if (width == 0 && height == 0)
-			this.initOpenGL(true); 
-		else
-			this.initOpenGL(false);
-
-		models = new ArrayList<Model>();
-		shader = new ShaderController();
-		
-		// Initialize shaders
-		Map<String, Integer> sh = new HashMap<String, Integer>();
-		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		
-		shader.setProgram(sh); //TO DO: Error checking
-		
-		// Set up view and projection matrices
-		projectionMatrix = new Matrix4f();
-		float fieldOfView = 45f;
-		float aspectRatio = (float)WIDTH / (float)HEIGHT;
-		float near_plane = 0.1f;
-		float far_plane = 100f;
-		
-		float y_scale = (float)(1/Math.tan((Math.toRadians(fieldOfView / 2f))));
-		float x_scale = y_scale / aspectRatio;
-		float frustum_length = far_plane - near_plane;
-		
-		projectionMatrix.m00 = x_scale;
-		projectionMatrix.m11 = y_scale;
-		projectionMatrix.m22 = -((far_plane + near_plane) / frustum_length);
-		projectionMatrix.m23 = -1;
-		projectionMatrix.m32 = -((2 * near_plane * far_plane) / frustum_length);
-		projectionMatrix.m33 = 0;
-		
-		viewMatrix = new Matrix4f();
-		
-		// Create a FloatBuffer with the proper size to store our matrices later
-		matrix44Buffer = BufferUtils.createFloatBuffer(16);
+		init();
 	}
 	
 	/**
-	 * There will be a class called "Model" which will have all the data that will be bound to a VBO 
-	 * (anything needed to render) and then bound to a VAO(such as texture, vertex position, color, etc). 
-	 * This will PROBABLY make things easier becaues it will abstract creating new models and the actual 
-	 * rendering.  
-	 * 
+	 * Constructor for the renderer (no fog)
+	 * @param width The width of the renderer.
+	 * @param height The height of the renderer.
+	 * @param camera The camera associated with the renderer.
+	 * @param frameRate The frame rate. 
+	 */
+	public Renderer(int width, int height, Camera camera, int frameRate) {
+		this.camera = camera;
+		this.width = width;
+		this.height = height;
+		this.frameRate = frameRate;
+		this.fog = new Fog(false);
+		
+		init();
+	}
+	
+	/**
+	 * Constructor for the renderer
+	 * @param width The width of the renderer.
+	 * @param height The height of the renderer.
+	 * @param camera The camera associated with the renderer.
+	 * @param frameRate The frame rate. 
+	 * @param fog The fog
+	 */
+	public Renderer(int width, 
+			int height, 
+			Camera camera, 
+			int frameRate,
+			Fog fog) {
+		
+		this.camera = camera;
+		this.width = width;
+		this.height = height;
+		this.frameRate = frameRate;
+		this.fog = fog;
+		
+		init();
+	}	
+	
+	/**
+	 * Bind a new model to the renderer
 	 * @return <code>true</code> if the binding was successful and false otherwise.
 	 * @see Model
 	 */
@@ -118,19 +138,18 @@ public class Renderer {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 		
-		// Select our shader program.
+		// Select shader program.
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
 			
 		// Set the uniform values of the projection and view matrices 
 		viewMatrix = camera.getViewMatrix();
-		viewMatrix.store(matrix44Buffer); matrix44Buffer.flip();
+		viewMatrix.store(matrix44Buffer); 
+		matrix44Buffer.flip();
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixFragLocation(), false, matrix44Buffer);
-		projectionMatrix.store(matrix44Buffer); matrix44Buffer.flip();
-		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
 		
+		// Render each model
 		for(Model m: models){
-			// Render the model
 			m.render();
 		}
         		
@@ -154,7 +173,7 @@ public class Renderer {
 	
 	/**
 	 * Get the camera associated with this renderer.
-	 * @return the camera
+	 * @return camera the camera
 	 * @throws NullPointerException
 	 */
 	public Camera getCamera() throws NullPointerException{
@@ -167,10 +186,92 @@ public class Renderer {
 	
 	/**
 	 * Get the max frame rate of the renderer
-	 * @return
+	 * @return frameRate the frame rate 
 	 */
 	public int getFrameRate() {
 		return frameRate;
+	}
+	
+	/**
+	 * Get the fog 
+	 * @return fog 
+	 */
+	public Fog getFog() {
+		return fog;
+	}
+	
+	/**
+	 * Set the fog
+	 * @param fog New fog for the renderer
+	 */
+	public void setFog(Fog fog) {
+		this.fog = fog;
+		
+		// Update the shader uniforms
+		if(ShaderController.getCurrentProgram() > 0) {
+			GL20.glUseProgram(ShaderController.getCurrentProgram());
+			fog.updateFogUniforms(ShaderController.getFogColorLocation(),
+					ShaderController.getFogMinDistanceLocation(), 
+					ShaderController.getFogMaxDistanceLocation(), 
+					ShaderController.getFogEnabledLocation());
+			GL20.glUseProgram(ShaderController.getCurrentProgram());
+		}
+	}
+	
+	/**
+	 * Initializes the renderer
+	 */
+	private void init() {
+		// Initialize the OpenGL context
+		initOpenGL(width <= 0 && height <= 0); 
+
+		models = new ArrayList<Model>();
+		shader = new ShaderController();
+
+		// Initialize shaders
+		Map<String, Integer> sh = new HashMap<String, Integer>();
+		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);		
+		shader.setProgram(sh); //@TODO: Error checking
+
+		// Set up view and projection matrices
+		projectionMatrix = new Matrix4f();
+		float fieldOfView = 45f;
+		float aspectRatio = (float)width / (float)height;
+		float near_plane = 0.1f;
+		float far_plane = 100f;
+
+		float y_scale = (float)(1/Math.tan((Math.toRadians(fieldOfView / 2f))));
+		float x_scale = y_scale / aspectRatio;
+		float frustum_length = far_plane - near_plane;
+
+		projectionMatrix.m00 = x_scale;
+		projectionMatrix.m11 = y_scale;
+		projectionMatrix.m22 = -((far_plane + near_plane) / frustum_length);
+		projectionMatrix.m23 = -1;
+		projectionMatrix.m32 = -((2 * near_plane * far_plane) / frustum_length);
+		projectionMatrix.m33 = 0;
+
+		viewMatrix = new Matrix4f();
+
+		// Create a FloatBuffer with the proper size to store our matrices later
+		matrix44Buffer = BufferUtils.createFloatBuffer(16);
+
+		// Initialize the uniform variables
+		GL20.glUseProgram(ShaderController.getCurrentProgram());
+
+		viewMatrix.store(matrix44Buffer);
+		matrix44Buffer.flip();
+		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
+		projectionMatrix.store(matrix44Buffer); 
+		matrix44Buffer.flip();
+		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
+		fog.updateFogUniforms(ShaderController.getFogColorLocation(),
+				ShaderController.getFogMinDistanceLocation(), 
+				ShaderController.getFogMaxDistanceLocation(), 
+				ShaderController.getFogEnabledLocation());
+
+		GL20.glUseProgram(0);
 	}
 	
 	/**
@@ -187,22 +288,22 @@ public class Renderer {
 			if (fullscreen) 
 				Display.setFullscreen(true);
 			else 
-				Display.setDisplayMode(new DisplayMode(this.WIDTH, this.HEIGHT));
+				Display.setDisplayMode(new DisplayMode(this.width, this.height));
 
 			Display.setTitle("Game the Name 2.0");
 			Display.create(pixelFormat, contextAtr);
 			
-			if (WIDTH != 0 && HEIGHT != 0)
-				setViewPort(0, 0, this.WIDTH, this.HEIGHT);
+			if (width != 0 && height != 0)
+				setViewPort(0, 0, this.width, this.height);
 			
 		} catch (LWJGLException e){
 			e.printStackTrace();
 			System.exit(-1); //quit if opengl context fails
 		}
 		
-		//XNA like background color
+		// XNA like background color
 		GL11.glClearColor(0.4f, 0.6f, 0.9f, 0f);		
-		GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE ); //for debug
+		// GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE ); //for debug
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glCullFace(GL11.GL_BACK);
@@ -216,6 +317,6 @@ public class Renderer {
 	 * @param height
 	 */
 	private void setViewPort (int x, int y, int width, int height){
-		GL11.glViewport(0, 0, WIDTH, HEIGHT);
+		GL11.glViewport(0, 0, width, height);
 	}	
 }

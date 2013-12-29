@@ -13,6 +13,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import physics.PhysicsModelProperties;
 import renderer.Camera;
+import renderer.Fog;
 import renderer.Model;
 import renderer.ModelFactory;
 import renderer.Renderer;
@@ -101,8 +102,11 @@ public class Main {
 	 * Sets up the world
 	 */
 	public static void setupWorld() {
+		// Create fog
+		Fog worldFog = new Fog(true);
+		
 		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
-		gameRenderer = new Renderer(600, 600, gameCam, 60);
+		gameRenderer = new Renderer(600, 600, gameCam, 60, worldFog);
 		gameWorld = new World(gameRenderer);
 		
 		try{
