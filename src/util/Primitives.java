@@ -20,25 +20,6 @@ import texture.Material;
  */
 public class Primitives {
     /**
-     * Creates and returns a sphere.
-     * @param radius The radius of the sphere.
-     * @return a sphere
-     */
-    public static Model getSphere(float radius) {
-        return null;
-    }
-
-    /**
-     * Creates and returns a sphere with any custom physics properties.
-     * @param radius The radius of the sphere.
-     * @param props Any custom physics properties.
-     * @return a sphere
-     */
-    public static Model getSphere(float radius, PhysicsModelProperties props) {
-        return null;
-    }
-
-    /**
      * Creates and returns a rectangular prism.
      * @param width Width of the box.
      * @param length Length of the box.

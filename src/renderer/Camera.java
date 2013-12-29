@@ -38,9 +38,7 @@ public class Camera {
 	private float cameraSensitivity = 0.005f;
 	
 	/**
-	 * Constructor with a given position.
-	 * 
-	 * TODO: Add constructor that takes in a position and an initial direction.
+	 * Constructs a camera with a given position.
 	 * @param pos The initial position of the camera.
 	 */
 	public Camera (Vector3f pos) {
@@ -49,7 +47,24 @@ public class Camera {
 		applyTransformations();
 	}
 	
-	
+	/**
+	 * Constructs a camera with a given position, facing a certain direction.
+	 * @param pos The initial position of the camera.
+	 * @param direction The initial direction the camera should face.
+	 */
+	public Camera (Vector3f pos, Vector3f direction){
+		cameraPosition = pos;
+		
+		direction.normalise(direction);
+
+		yaw = (float) Math.atan2((double) direction.x, (double) direction.z);
+		pitch = (float) Math.asin(direction.y);
+
+		viewMatrix = new Matrix4f();		
+		recalculateCameraVectors();
+		applyTransformations();
+	}
+
 	/**
 	 * Gets the location of the camera in world space.
 	 * @return the location of the camera in world space.
@@ -121,6 +136,14 @@ public class Camera {
 		pitch += deltaY * cameraSensitivity;
 		yaw -= deltaX * cameraSensitivity; // why inverted???
 		
+		recalculateCameraVectors();
+		applyTransformations();
+	}
+	
+	/**
+	 * Recalculates camera direction and right vectors.
+	 */
+	private void recalculateCameraVectors() {
 		cameraDirection.x = (float)(Math.cos(pitch) * Math.sin(yaw));
 		cameraDirection.y = (float)(Math.sin(pitch));
 		cameraDirection.z = (float)(Math.cos(pitch) * Math.cos(yaw));
@@ -128,8 +151,6 @@ public class Camera {
 		cameraRight.x = (float)(Math.sin(yaw - 3.14f/2.0f));
 		cameraRight.y = 0f;
 		cameraRight.z = (float)(Math.cos(yaw - 3.14f/2.0f));
-				
-		applyTransformations();
 	}
 	
 	/**
