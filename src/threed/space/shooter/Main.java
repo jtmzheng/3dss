@@ -98,7 +98,7 @@ public class Main {
 	 * Sets up the world
 	 */
 	public static void setupWorld() {
-		gameCam = new Camera(new Vector3f(10.0f, 0.0f, -20.0f));
+		gameCam = new Camera(new Vector3f(10.0f, 0f, -10.0f), new Vector3f(2, 0, 1));
 		gameRenderer = new Renderer(600, 600, gameCam, 60);
 		gameWorld = new World(gameRenderer);
 
@@ -110,6 +110,7 @@ public class Main {
 		
 		// TODO: Use a plane when we figure out why some objects are falling through the plane.
 		//Model ground = Primitives.getPlane(50, 50, groundProps);
+		//ground.translate(new Vector3f(-25, -5, -25));
 		Model ground = Primitives.getCube(50, groundProps);
 		ground.translate(new Vector3f(-25, -55, -25));
 
@@ -124,9 +125,9 @@ public class Main {
 		
 		// Create and add rectangular prisms of varying sizes.
 		for (int i = 0; i < 5; i++) {
-			float width = rand.nextFloat()*2 + 1;
-			float length = rand.nextFloat()*2 + 1;
-			float height = rand.nextFloat()*2 + 1;
+			float width = rand.nextFloat()*2.5f + 1;
+			float length = rand.nextFloat()*2.5f + 1;
+			float height = rand.nextFloat()*2.5f + 1;
 			Model rectPrism = Primitives.getRectangularPrism(width, length, height);
 			rectPrism.translate(new Vector3f(-10, 1, 3*i + 1));
 			gameWorld.addModel(rectPrism);
