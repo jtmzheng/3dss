@@ -26,11 +26,6 @@ import system.Settings;
  * @author Max
  */
 public class Renderer {
-	/*
-	 * For each model there will have a VAO with all the data bound to it. This ArrayList
-	 * will be iterated over every render loop. 
-	 */
-	
 	// Defaults 
 	private final int DEFAULT_WIDTH = 320;
 	private final int DEFAULT_HEIGHT = 240;
@@ -38,9 +33,9 @@ public class Renderer {
 	
 	// List of the models that will be rendered
 	private List<Model> models; 
-	private int width = 320;
-	private int height = 240;
-	private int frameRate = 60;
+	private int width;
+	private int height;
+	private int frameRate;
 	private ShaderController shader;
 	
 	// Matrix variables (should be moved to camera class in the future)
@@ -143,7 +138,7 @@ public class Renderer {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 		
-		// Select our shader program.
+		// Select shader program.
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
 			
 		// Set the uniform values of the projection and view matrices 
@@ -211,6 +206,16 @@ public class Renderer {
 	 */
 	public void setFog(Fog fog) {
 		this.fog = fog;
+		
+		// Update the shader uniforms
+		if(ShaderController.getCurrentProgram() > 0) {
+			GL20.glUseProgram(ShaderController.getCurrentProgram());
+			fog.updateFogUniforms(ShaderController.getFogColorLocation(),
+					ShaderController.getFogMinDistanceLocation(), 
+					ShaderController.getFogMaxDistanceLocation(), 
+					ShaderController.getFogEnabledLocation());
+			GL20.glUseProgram(ShaderController.getCurrentProgram());
+		}
 	}
 	
 	/**
