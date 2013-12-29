@@ -103,7 +103,7 @@ public class Main {
 	 */
 	public static void setupWorld() {
 		// Create fog
-		Fog worldFog = new Fog(new Vector3f(0.2f, 0.2f, 0.2f), 2.0f, 10.0f, true);
+		Fog worldFog = new Fog(true);
 		
 		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
 		gameRenderer = new Renderer(600, 600, gameCam, 60, worldFog);

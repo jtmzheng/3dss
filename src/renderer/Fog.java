@@ -11,6 +11,11 @@ import org.lwjgl.util.vector.Vector3f;
  * @author Max
  */
 public class Fog {
+	// Default parameters for Fog
+	public final static Vector3f DEFAULT_COLOR = new Vector3f(0.2f, 0.2f, 0.2f);
+	public final static float DEFAULT_MIN_DISTANCE = 2.0f;
+	public final static float DEFAULT_MAX_DISTANCE = 10.0f;
+
 	private Vector3f color;
 	private float minDistance;
 	private float maxDistance;
@@ -19,10 +24,50 @@ public class Fog {
 	private FloatBuffer dataBuffer = BufferUtils.createFloatBuffer(3);
 	
 	/**
+	 * Default constructor 
+	 * @param enabled Whetehr the Fog is enabled or not
+	 */
+	public Fog(boolean enabled) {
+		this.color = DEFAULT_COLOR;
+		this.minDistance = DEFAULT_MIN_DISTANCE;
+		this.maxDistance = DEFAULT_MAX_DISTANCE;
+		this.enabled = enabled;
+	}
+	
+	/**
 	 * Constructor for the Fog class 
-	 * @param colour 
-	 * @param minDistance
-	 * @param maxDistance
+	 * @param minDistance The minimum distance before fog is mixed
+	 * @param maxDistance The maximum distance before color is entirely the fog color
+	 * @param enabled Whether the Fog is enabled
+	 */
+	public Fog(float minDistance,
+			float maxDistance,
+			boolean enabled) {
+		this.color = DEFAULT_COLOR;
+		this.minDistance = minDistance;
+		this.maxDistance = maxDistance;
+		this.enabled = enabled;
+	}
+	
+	/**
+	 * Constructor for the Fog class 
+	 * @param color The color of the fog
+	 * @param enabled Whether the Fog is enabled
+	 */
+	public Fog(Vector3f color,
+			boolean enabled) {
+		this.color = color;
+		this.minDistance = DEFAULT_MIN_DISTANCE;
+		this.maxDistance = DEFAULT_MAX_DISTANCE;
+		this.enabled = enabled;
+	}
+	
+	/**
+	 * Constructor for the Fog class 
+	 * @param color The color of the fog
+	 * @param minDistance The minimum distance before fog is mixed
+	 * @param maxDistance The maximum distance before color is entirely the fog color
+	 * @param enabled Whether the Fog is enabled
 	 */
 	public Fog(Vector3f color,
 			float minDistance,
