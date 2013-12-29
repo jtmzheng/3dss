@@ -55,9 +55,11 @@ public class Camera {
 	 */
 	public Camera (Vector3f pos, Vector3f direction){
 		cameraPosition = pos;
+		
+		direction.normalise(direction);
 
-		yaw = (float) Math.atan2((double) -direction.z, (double) direction.x);
-		pitch = (float) Math.atan2((double) direction.y, Math.sqrt(direction.x * direction.x + direction.y * direction.y));
+		yaw = (float) Math.atan2((double) direction.x, (double) direction.z);
+		pitch = (float) Math.asin(direction.y);
 
 		viewMatrix = new Matrix4f();		
 		recalculateCameraVectors();
