@@ -194,15 +194,15 @@ public class Fog {
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * Get the flag for whether fog is enabled
+	 * @return true if enabled
 	 */
 	public boolean getEnabled() {
 		return enabled;
 	}
 	
 	/**
-	 * 
+	 * Set the minimum distance before fogging effect occurs
 	 * @param minDistance
 	 */
 	public void setMinDistance(float minDistance) {
@@ -210,7 +210,7 @@ public class Fog {
 	}
 	
 	/**
-	 * 
+	 * Set the maximum distacne before a fragment is entirely fogged
 	 * @param maxDistance
 	 */
 	public void setMaxDistance(float maxDistance) {
@@ -218,16 +218,16 @@ public class Fog {
 	}
 	
 	/**
-	 * 
-	 * @param color
+	 * Set the fog color
+	 * @param color A Vector3f representing the RGB color
 	 */
 	public void setColor(Vector3f color) {
 		this.color = color;
 	}
 	
 	/**
-	 * 
-	 * @param enabled
+	 * Set whether fogging should be enabled or not
+	 * @param enabled true if fogging is to be enabled
 	 */
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
