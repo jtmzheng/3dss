@@ -4,10 +4,13 @@ import java.util.Arrays;
 
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 /*
  * VertexData is a structure for encapsulating vertex data for VBOs
- * @author Mathias Verboven
+ * @TODO: Setup function
+ * @author Mathias Verboven (LWJGL Wiki)
+ * @author Max 
  */
 public class VertexData {
 	// Vertex data
@@ -62,6 +65,13 @@ public class VertexData {
 			textureByteCount + normalByteCount + specularElementByteCount + 
 			ambientElementByteCount + specularPowerElementByteCount;
 	
+	/**
+	 * Constructor for VertexData
+	 * @param v position (XYZ)
+	 * @param c color (RGB)
+	 * @param vt texture coordinates(ST)
+	 * @param vn normal (XYZ)
+	 */
 	public VertexData(Vector3f v, Vector3f c, Vector2f vt, Vector3f vn){
 		this.xyzw = new float[]{v.x, v.y, v.z, 1f};
 		this.rgba = new float[]{c.x, c.y, c.z, 1f};
@@ -70,6 +80,12 @@ public class VertexData {
 		
 	}
 	
+	/**
+	 * Constructor for VertexData
+	 * @param v position (XYZ)
+	 * @param vt texture coordinates (ST)
+	 * @param vn normal (XYZ)
+	 */
 	public VertexData(Vector3f v, Vector2f vt, Vector3f vn) {
 		this.xyzw = new float[]{v.x, v.y, v.z, 1f};
 		this.st = new float[]{vt.x, vt.y};
@@ -77,16 +93,60 @@ public class VertexData {
 		this.isTextured = true;
 	}
 	
+	/**
+	 * Constructor for VertexData
+	 * @param v position (XYZ)
+	 * @param vt texture coordinates (ST)
+	 */
 	public VertexData(Vector3f v, Vector2f vt) {
 		this.xyzw = new float[]{v.x, v.y, v.z, 1f};
 		this.st = new float[]{vt.x, vt.y};
 		this.isTextured = true;
+	}
+
+	/**
+	 * Copy constructor
+	 * @param orig
+	 */
+	public VertexData(VertexData orig) {
+		System.arraycopy(orig.xyzw, 0, this.xyzw, 0, this.xyzw.length);
+		System.arraycopy(orig.rgba, 0, this.rgba, 0, this.rgba.length);
+		System.arraycopy(orig.st, 0, this.st, 0, this.st.length);
+		System.arraycopy(orig.norm, 0, this.norm, 0, this.norm.length);
+	}
+	
+	/**
+	 * Copy constructor with a different position vector
+	 * @param orig
+	 * @param v
+	 */
+	public VertexData(VertexData orig, Vector3f v) {
+		this.xyzw = new float[]{v.x, v.y, v.z, 1f};
+		System.arraycopy(orig.rgba, 0, this.rgba, 0, this.rgba.length);
+		System.arraycopy(orig.st, 0, this.st, 0, this.st.length);
+		System.arraycopy(orig.norm, 0, this.norm, 0, this.norm.length);
+	}
+	
+	/**
+	 * Copy constructor with a different position vector
+	 * @param orig
+	 * @param v
+	 */
+	public VertexData(VertexData orig, Vector4f v) {
+		this.xyzw = new float[]{v.x, v.y, v.z, v.w};
+		System.arraycopy(orig.rgba, 0, this.rgba, 0, this.rgba.length);
+		System.arraycopy(orig.st, 0, this.st, 0, this.st.length);
+		System.arraycopy(orig.norm, 0, this.norm, 0, this.norm.length);
 	}
 	
 	public VertexData(Vector3f v) {
 		this.xyzw = new float[]{v.x, v.y, v.z, 1f};
 	}
 	
+	public VertexData(Vector4f v) {
+		this.xyzw = new float[]{v.x, v.y, v.z, v.w};
+	}
+
 	// Setters
 	public void setXYZ(float x, float y, float z) {
 		this.setXYZW(x, y, z, 1f);

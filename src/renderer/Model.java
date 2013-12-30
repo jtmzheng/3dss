@@ -18,6 +18,7 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import physics.PhysicsModel;
 import physics.PhysicsModelProperties;
@@ -45,6 +46,9 @@ import com.bulletphysics.util.ObjectArrayList;
  * @author Adi
  */
 public class Model {
+	// Defaults
+	private static final Vector3f DEFAULT_INITIAL_POSITION = new Vector3f(0, 0, 0);
+
 	// Map of VBOs and indices for each material in the model
 	private Map<Material, Integer> mapVBOIndexIds;
 	private Map<Material, Integer> mapIndiceCount;
@@ -71,6 +75,95 @@ public class Model {
 	// Flag for whether this model should be rendered
 	private boolean renderFlag;	
 
+	private PhysicsModelProperties physicsProps;
+	
+	/**
+	 * Merges the meshes of two models and returns the merged model.
+	 * Ignores the physics model properties of the two and uses the defaults. If custom
+	 * physics properties are required, please use the other merge method.
+	 * @param a
+	 * @param b
+	 * @return the merged model
+	 */
+	public static Model merge (Model a, Model b) {
+		return Model.merge(a, b, new PhysicsModelProperties());
+	}
+
+	/**
+	 * Merges the meshes of two models and returns the merged model, with custom
+	 * physics properties.
+	 * @param a The first model.
+	 * @param b The second model.
+	 * @param props Custom physics model properties.
+	 * @return the merged model
+	 */
+	public static Model merge (Model a, Model b, PhysicsModelProperties props) {
+		Matrix4f mMatrixA = a.getPhysicsModel().getTransformMatrix();
+		Matrix4f mMatrixB = b.getPhysicsModel().getTransformMatrix();
+
+		List<Face> mergedList = new ArrayList<Face>();
+		for (Face face : a.getFaceList()) {
+			List<VertexData> transformedVertices = new ArrayList<>();
+			for (VertexData v : face.getVertices()) {
+				float[] pos = v.getXYZW();
+				Vector4f position = new Vector4f(pos[0], pos[1], pos[2], pos[3]);
+				Matrix4f.transform(mMatrixA, position, position);
+				transformedVertices.add(new VertexData(v, position));
+			}
+			mergedList.add(new Face(transformedVertices, face.getMaterial()));
+		}
+		for (Face face : b.getFaceList()) {
+			List<VertexData> transformedVertices = new ArrayList<>();
+			for (VertexData v : face.getVertices()) {
+				float[] pos = v.getXYZW();
+				Vector4f position = new Vector4f(pos[0], pos[1], pos[2], pos[3]);
+				Matrix4f.transform(mMatrixB, position, position);
+				transformedVertices.add(new VertexData(v, position));
+			}
+			mergedList.add(new Face(transformedVertices, face.getMaterial()));
+		}
+		return new Model(mergedList, props);
+	}
+
+	/**
+	 * Merges the meshes of a list of models and returns the merged model.
+	 * Ignores the physics model properties of the models in the list and uses the defaults.
+	 * If custom physics properties are required, please use the other merge method.
+	 * @param modelList the list of models to merge
+	 * @return the merged model
+	 */
+	public static Model merge (List<Model> modelList) {
+		return Model.merge(modelList, new PhysicsModelProperties());
+	}
+
+	/**
+	 * Merges the meshes of a list of models and returns the merged model, with custom
+	 * physics properties.
+	 * @param modelList the list of models to merge
+	 * @return the merged model
+	 */
+	public static Model merge (List<Model> modelList, PhysicsModelProperties props) {
+		if (modelList.size() <= 1) {
+			throw new IllegalArgumentException("Requires a list of size greater than one.");
+		}
+
+		Model mergedModel = modelList.get(0);
+		for (int i = 1; i < modelList.size(); i++) {
+			mergedModel = Model.merge(mergedModel, modelList.get(i), props);
+		}
+		
+		return mergedModel;
+	}
+
+	/**
+	 * Constructs a model (a representation of a 3D object).
+	 * @param f The list of faces that make up the model.
+	 * @param pos The initial position of the model.
+	 * @param ld The diffuse light intensity.
+	 * @param ls The specular light intensity.
+	 * @param la The ambient light intensity.
+	 * @param rigidBodyProp Custom physics properties this model should have.
+	 */
 	public Model(List<Face> f, 
 			Vector3f pos, 
 			Vector3f ld, 
@@ -79,6 +172,7 @@ public class Model {
 			PhysicsModelProperties rigidBodyProp){
 		
 		this.faces = f;
+		this.physicsProps = rigidBodyProp;
 
 		// Get instance of texture manager
 		texManager = TextureManager.getInstance();
@@ -90,12 +184,19 @@ public class Model {
 		mLightHandle = new LightHandle(this, new Light(pos, ls, ld, la, null));
 	}
 
+	/**
+	 * Constructs a model (a representation of a 3D object).
+	 * @param f The list of faces that make up the model.
+	 * @param pos The initial position of the model.
+	 * @param rigidBodyProp Custom physics properties this model should have.
+	 */
 	public Model(List<Face> f,
 			Vector3f pos,
 			PhysicsModelProperties rigidBodyProp){
 		
 		this.faces = f;
-		
+		this.physicsProps = rigidBodyProp;
+
 		// Get instance of texture manager
 		texManager = TextureManager.getInstance();
 
@@ -104,20 +205,63 @@ public class Model {
 	}
 
 	/**
-	 * Creates a model with a list of faces.
-	 * @param f The list of faces.
+	 * Constructs a model (a representation of a 3D object).
+	 * @param f The list of faces that make up the model.
+	 * @param rigidBodyProp Custom physics properties this model should have.
 	 */
 	public Model(List<Face> f,
 			PhysicsModelProperties rigidBodyProp){
 		
 		this.faces = f;
-		
+		this.physicsProps = rigidBodyProp;
+
 		// Get instance of texture manager
 		texManager = TextureManager.getInstance();
 
-		setup(new Vector3f(0, 0, 0), rigidBodyProp);
+		setup(DEFAULT_INITIAL_POSITION, rigidBodyProp);
 	}
+	
+	/**
+	 * Constructs a model (a representation of a 3D object). This constructor
+	 * uses default physicsmodel properties.
+	 * @param f
+	 */
+	public Model(List<Face> f) {
+		this.faces = f;
+		this.physicsProps = new PhysicsModelProperties();
+		
+		// Get instance of texture manager.
+		texManager = TextureManager.getInstance();
+		
+		setup(DEFAULT_INITIAL_POSITION, physicsProps);
+	}
+	/**
+	 * Copy constructor
+	 * @param model Model to copy
+	 * @param position Initial position of copy
+	 */
+	public Model(Model model, 
+			Vector3f position) {
+		
+		// Copy the model faces
+		List<Face> faceList = new ArrayList<>();
+		for (Face face : model.getFaceList()) {
+			List<VertexData> transformedVertices = new ArrayList<>();
+			for (VertexData v : face.getVertices()) {
+				transformedVertices.add(new VertexData(v));
+			}
+			faceList.add(new Face(transformedVertices, face.getMaterial()));
+		}
 
+		// Set member variables
+		this.faces = faceList;
+		this.physicsProps = new PhysicsModelProperties(model.getPhysicsProperties());
+		
+		// Get instance of texture manager
+		texManager = TextureManager.getInstance();
+		
+		setup(position, physicsProps);
+	}
 
 	/**
 	 * Common setup for constructor
@@ -152,8 +296,7 @@ public class Model {
 			if(mapMaterialToFaces.containsKey(currentMaterial)) {
 				List<Face> faceList = mapMaterialToFaces.get(currentMaterial);
 				faceList.add(face);
-			}
-			else {
+			} else {
 				List<Face> faceList = new ArrayList<>();
 				faceList.add(face);
 				mapMaterialToFaces.put(currentMaterial, faceList);
@@ -442,6 +585,23 @@ public class Model {
 	}
 	
 	/**
+	 * Returns the list of faces that make up this model.
+	 * @return the list of faces
+	 */
+	public List<Face> getFaceList () {
+		return faces;
+	}
+	
+	/**
+	 * Returns the physics properties that this model has.
+	 * @return the physics properties of the model
+	 */
+	public PhysicsModelProperties getPhysicsProperties () {
+		return physicsProps;
+	}
+	
+	
+	/**
 	 * Set flag for whether this model should be rendered
 	 * @param renderFlag
 	 */
@@ -552,4 +712,5 @@ public class Model {
         
         return model;
 	}
+	
 }

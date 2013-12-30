@@ -14,7 +14,15 @@ public class PhysicsModelProperties {
 	private Map<String, Object> properties;
 	
 	public PhysicsModelProperties() {
-		properties = new HashMap<String, Object> ();
+		properties = new HashMap<> ();
+	}
+	
+	/**
+	 * Copy constructor
+	 * @param orig
+	 */
+	public PhysicsModelProperties(PhysicsModelProperties orig) {
+		properties = new HashMap<>(orig.properties);
 	}
 	
 	public void setProperty(String name, Object value) {
