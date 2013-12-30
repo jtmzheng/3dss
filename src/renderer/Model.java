@@ -46,6 +46,9 @@ import com.bulletphysics.util.ObjectArrayList;
  * @author Adi
  */
 public class Model {
+	// Defaults
+	private static final Vector3f DEFAULT_INITIAL_POSITION = new Vector3f(0, 0, 0);
+
 	// Map of VBOs and indices for each material in the model
 	private Map<Material, Integer> mapVBOIndexIds;
 	private Map<Material, Integer> mapIndiceCount;
@@ -152,6 +155,15 @@ public class Model {
 		return mergedModel;
 	}
 
+	/**
+	 * Constructs a model (a representation of a 3D object).
+	 * @param f The list of faces that make up the model.
+	 * @param pos The initial position of the model.
+	 * @param ld The diffuse light intensity.
+	 * @param ls The specular light intensity.
+	 * @param la The ambient light intensity.
+	 * @param rigidBodyProp Custom physics properties this model should have.
+	 */
 	public Model(List<Face> f, 
 			Vector3f pos, 
 			Vector3f ld, 
@@ -172,6 +184,12 @@ public class Model {
 		mLightHandle = new LightHandle(this, new Light(pos, ls, ld, la, null));
 	}
 
+	/**
+	 * Constructs a model (a representation of a 3D object).
+	 * @param f The list of faces that make up the model.
+	 * @param pos The initial position of the model.
+	 * @param rigidBodyProp Custom physics properties this model should have.
+	 */
 	public Model(List<Face> f,
 			Vector3f pos,
 			PhysicsModelProperties rigidBodyProp){
@@ -187,8 +205,9 @@ public class Model {
 	}
 
 	/**
-	 * Creates a model with a list of faces.
-	 * @param f The list of faces.
+	 * Constructs a model (a representation of a 3D object).
+	 * @param f The list of faces that make up the model.
+	 * @param rigidBodyProp Custom physics properties this model should have.
 	 */
 	public Model(List<Face> f,
 			PhysicsModelProperties rigidBodyProp){
@@ -199,9 +218,23 @@ public class Model {
 		// Get instance of texture manager
 		texManager = TextureManager.getInstance();
 
-		setup(new Vector3f(0, 0, 0), rigidBodyProp);
+		setup(DEFAULT_INITIAL_POSITION, rigidBodyProp);
 	}
 	
+	/**
+	 * Constructs a model (a representation of a 3D object). This constructor
+	 * uses default physicsmodel properties.
+	 * @param f
+	 */
+	public Model(List<Face> f) {
+		this.faces = f;
+		this.physicsProps = new PhysicsModelProperties();
+		
+		// Get instance of texture manager.
+		texManager = TextureManager.getInstance();
+		
+		setup(DEFAULT_INITIAL_POSITION, physicsProps);
+	}
 	/**
 	 * Copy constructor
 	 * @param model Model to copy
