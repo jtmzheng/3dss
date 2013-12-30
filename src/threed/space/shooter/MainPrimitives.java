@@ -124,7 +124,7 @@ public class MainPrimitives {
 		}
 
 		Model merged = Model.merge(modelsToMerge);
-		Model cloned = new Model(merged, new Vector3f(-5, -5, 0));
+		Model cloned = new Model(merged, new Vector3f(5, 10, -10));
 		gameWorld.addModel(merged);
 		gameWorld.addModel(cloned);
 		gameWorld.addModel(ground);
