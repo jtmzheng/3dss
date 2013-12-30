@@ -105,7 +105,7 @@ public class Model {
 				float[] pos = v.getXYZW();
 				Vector4f position = new Vector4f(pos[0], pos[1], pos[2], pos[3]);
 				Matrix4f.transform(mMatrixA, position, position);
-				transformedVertices.add(new VertexData(position));
+				transformedVertices.add(new VertexData(v, position));
 			}
 			mergedList.add(new Face(transformedVertices, face.getMaterial()));
 		}
@@ -115,7 +115,7 @@ public class Model {
 				float[] pos = v.getXYZW();
 				Vector4f position = new Vector4f(pos[0], pos[1], pos[2], pos[3]);
 				Matrix4f.transform(mMatrixB, position, position);
-				transformedVertices.add(new VertexData(position));
+				transformedVertices.add(new VertexData(v, position));
 			}
 			mergedList.add(new Face(transformedVertices, face.getMaterial()));
 		}
