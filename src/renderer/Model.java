@@ -244,7 +244,17 @@ public class Model {
 			Vector3f position) {
 		
 		// Copy the model faces
-		this.faces = new ArrayList<Face>(model.getFaceList());
+		List<Face> faceList = new ArrayList<>();
+		for (Face face : model.getFaceList()) {
+			List<VertexData> transformedVertices = new ArrayList<>();
+			for (VertexData v : face.getVertices()) {
+				transformedVertices.add(new VertexData(v));
+			}
+			faceList.add(new Face(transformedVertices, face.getMaterial()));
+		}
+
+		// Set member variables
+		this.faces = faceList;
 		this.physicsProps = new PhysicsModelProperties(model.getPhysicsProperties());
 		
 		// Get instance of texture manager
