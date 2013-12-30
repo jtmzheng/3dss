@@ -27,9 +27,9 @@ import system.Settings;
  */
 public class Renderer {
 	// Defaults 
-	private final int DEFAULT_WIDTH = 320;
-	private final int DEFAULT_HEIGHT = 240;
-	private final int DEFAULT_FRAME_RATE = 60;
+	private static final int DEFAULT_WIDTH = 320;
+	private static final int DEFAULT_HEIGHT = 240;
+	private static final int DEFAULT_FRAME_RATE = 60;
 	
 	// List of the models that will be rendered
 	private List<Model> models; 
