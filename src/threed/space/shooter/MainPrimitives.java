@@ -4,10 +4,8 @@ import input.Input;
 import input.KeyInput;
 import input.MouseInput;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.List;
 
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
@@ -16,7 +14,6 @@ import physics.PhysicsModelProperties;
 import renderer.Camera;
 import renderer.Fog;
 import renderer.Model;
-import renderer.ModelFactory;
 import renderer.Renderer;
 import util.Primitives;
 import world.World;
@@ -117,24 +114,17 @@ public class MainPrimitives {
 		Model ground = Primitives.getCube(50, groundProps);
 		ground.translate(new Vector3f(-25, -55, -25));
 
-		Random rand = new Random();
-		// Create and add cubes of varying sizes.
-		for (int i = 0; i < 10; i++) {
-			float edgeLength = rand.nextFloat();
-			Model cube = Primitives.getCube(edgeLength);
-			cube.translate(new Vector3f(i + 1, 1, 10));
-			gameWorld.addModel(cube);
+		List<Model> modelsToMerge = new ArrayList<Model>();
+		for (int x = 0; x < 5; x++) {
+			for (int y = 0; y < 5; y++) {
+				Model current = Primitives.getCube(2);
+				current.translate(new Vector3f(x, y, 0));
+				modelsToMerge.add(current);
+			}
 		}
-		
-		// Create and add rectangular prisms of varying sizes.
-		for (int i = 0; i < 5; i++) {
-			float width = rand.nextFloat()*2 + 1;
-			float length = rand.nextFloat()*2 + 1;
-			float height = rand.nextFloat()*2 + 1;
-			Model rectPrism = Primitives.getRectangularPrism(width, length, height);
-			rectPrism.translate(new Vector3f(-10, 1, 3*i + 1));
-			gameWorld.addModel(rectPrism);
-		}
+
+		Model merged = Model.merge(modelsToMerge);
+		gameWorld.addModel(merged);
 		gameWorld.addModel(ground);
 	}
 }

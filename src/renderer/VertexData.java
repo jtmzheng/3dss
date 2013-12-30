@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 /*
  * VertexData is a structure for encapsulating vertex data for VBOs
@@ -87,6 +88,10 @@ public class VertexData {
 		this.xyzw = new float[]{v.x, v.y, v.z, 1f};
 	}
 	
+	public VertexData(Vector4f v) {
+		this.xyzw = new float[]{v.x, v.y, v.z, v.w};
+	}
+
 	// Setters
 	public void setXYZ(float x, float y, float z) {
 		this.setXYZW(x, y, z, 1f);

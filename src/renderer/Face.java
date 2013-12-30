@@ -83,7 +83,6 @@ public class Face {
 	 * @param index The index of the vertex to get
 	 * @return the VertexData 
 	 */
-	
 	public VertexData getVertex(int index){
 		if( index > faceData.size() ){
 			throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + faceData.size());
@@ -92,6 +91,14 @@ public class Face {
 		return faceData.get(index);
 	}
 	
+	/**
+	 * Get the list of vertices that make up this face.
+	 * @return the list of vertices
+	 */
+	public List<VertexData> getVertices(){
+		return faceData;
+	}
+
 	/**
 	 * Get the material from the face (if applicable)
 	 * @return the material of the face
