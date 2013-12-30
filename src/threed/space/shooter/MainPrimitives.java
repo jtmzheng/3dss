@@ -109,7 +109,7 @@ public class MainPrimitives {
 		groundProps.setProperty("damping", 0.9f);
 		groundProps.setProperty("collisionFlags", CollisionFlags.STATIC_OBJECT);
 		
-		// TODO: Use a plane when we figure out why some objects are falling through the plane.
+		//@TODO: Use a plane when we figure out why some objects are falling through the plane.
 		//Model ground = Primitives.getPlane(50, 50, groundProps);
 		Model ground = Primitives.getCube(50, groundProps);
 		ground.translate(new Vector3f(-25, -55, -25));
