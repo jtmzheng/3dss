@@ -558,10 +558,18 @@ public class Model {
         return model;
 	}
 	
+	/**
+	 * Returns the list of faces that make up this model.
+	 * @return the list of faces
+	 */
 	public List<Face> getFaceList () {
 		return faces;
 	}
 	
+	/**
+	 * Returns the physics properties that this model has.
+	 * @return the physics properties of the model
+	 */
 	public PhysicsModelProperties getPhysicsProperties () {
 		return physicsProps;
 	}
