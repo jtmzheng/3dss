@@ -119,7 +119,7 @@ public class Model {
 			}
 			mergedList.add(new Face(transformedVertices, face.getMaterial()));
 		}
-		return new Model(mergedList, a.getPhysicsProperties());
+		return new Model(mergedList, props);
 	}
 
 	/**
@@ -200,6 +200,33 @@ public class Model {
 		texManager = TextureManager.getInstance();
 
 		setup(new Vector3f(0, 0, 0), rigidBodyProp);
+	}
+	
+	/**
+	 * Copy constructor
+	 * @param model Model to copy
+	 * @param position Initial position of copy
+	 */
+	public Model(Model model, 
+			Vector3f position) {
+		
+		// Copy the model faces
+		List<Face> faceList = new ArrayList<>();
+		for (Face face : model.getFaceList()) {
+			List<VertexData> transformedVertices = new ArrayList<>();
+			for (VertexData v : face.getVertices()) {
+				float[] vPos = v.getXYZW();
+				Vector4f vPosVec = new Vector4f(vPos[0], vPos[1], vPos[2], vPos[3]);
+				transformedVertices.add(new VertexData(vPosVec));
+			}
+			faceList.add(new Face(transformedVertices, face.getMaterial()));
+		}
+		
+		// Set member variables
+		this.faces = faceList;
+		this.physicsProps = new PhysicsModelProperties(model.getPhysicsProperties());
+		
+		setup(position, physicsProps);
 	}
 
 	/**
