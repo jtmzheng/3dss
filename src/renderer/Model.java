@@ -145,8 +145,8 @@ public class Model {
 		}
 
 		Model mergedModel = modelList.get(0);
-		for (Model model : modelList) {
-			mergedModel = Model.merge(mergedModel, model, props);
+		for (int i = 1; i < modelList.size(); i++) {
+			mergedModel = Model.merge(mergedModel, modelList.get(i), props);
 		}
 		
 		return mergedModel;
