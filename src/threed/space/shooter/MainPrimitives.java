@@ -115,11 +115,11 @@ public class MainPrimitives {
 		ground.translate(new Vector3f(-25, -55, -25));
 
 		List<Model> modelsToMerge = new ArrayList<Model>();
+		Model current = Primitives.getCube(2);
 		for (int x = 0; x < 5; x++) {
 			for (int y = 0; y < 5; y++) {
-				Model current = Primitives.getCube(2);
-				current.translate(new Vector3f(x, y, 0));
-				modelsToMerge.add(current);
+				Model copy = new Model(current, new Vector3f(x, y, 0));
+				modelsToMerge.add(copy);
 			}
 		}
 

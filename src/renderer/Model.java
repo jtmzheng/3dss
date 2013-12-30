@@ -215,9 +215,7 @@ public class Model {
 		for (Face face : model.getFaceList()) {
 			List<VertexData> transformedVertices = new ArrayList<>();
 			for (VertexData v : face.getVertices()) {
-				float[] vPos = v.getXYZW();
-				Vector4f vPosVec = new Vector4f(vPos[0], vPos[1], vPos[2], vPos[3]);
-				transformedVertices.add(new VertexData(vPosVec));
+				transformedVertices.add(new VertexData(v));
 			}
 			faceList.add(new Face(transformedVertices, face.getMaterial()));
 		}
@@ -225,6 +223,9 @@ public class Model {
 		// Set member variables
 		this.faces = faceList;
 		this.physicsProps = new PhysicsModelProperties(model.getPhysicsProperties());
+		
+		// Get instance of texture manager
+		texManager = TextureManager.getInstance();
 		
 		setup(position, physicsProps);
 	}

@@ -83,6 +83,17 @@ public class VertexData {
 		this.st = new float[]{vt.x, vt.y};
 		this.isTextured = true;
 	}
+
+	/**
+	 * Copy constructor
+	 * @param orig
+	 */
+	public VertexData(VertexData orig) {
+		System.arraycopy(orig.xyzw, 0, this.xyzw, 0, this.xyzw.length);
+		System.arraycopy(orig.rgba, 0, this.rgba, 0, this.rgba.length);
+		System.arraycopy(orig.st, 0, this.st, 0, this.st.length);
+		System.arraycopy(orig.norm, 0, this.norm, 0, this.norm.length);
+	}
 	
 	public VertexData(Vector3f v) {
 		this.xyzw = new float[]{v.x, v.y, v.z, 1f};
