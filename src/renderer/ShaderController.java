@@ -11,7 +11,7 @@ import org.lwjgl.opengl.GL20;
 import system.Settings;
 
 /**
- * ShaderController will manage our shaders.
+ * ShaderController will manage the current shader program
  * @TODO: Refactor
  * @TODO: Shader class
  * @author Max 
@@ -54,28 +54,15 @@ public class ShaderController {
 	 * 
 	 * @return <code>true</code> if the program was successfully set, and false otherwise.
 	 */
-	public boolean setProgram(Map<String, Integer> shaders){
+	public boolean setProgram(ShaderProgram program){
 
 		//Sets the new current program
-		currentProgram = GL20.glCreateProgram();
+		currentProgram = program.getProgram();
 		
-		for(String file : shaders.keySet()){
-			int shaderID = this.loadShader(file, shaders.get(file));
-			GL20.glAttachShader(currentProgram, shaderID);
-			shaderNameToID.put(file, shaderID);
-			shaderIDToType.put(shaderID, shaders.get(file));
+		// Bind attributes
+		for(String attribute : program.getAttributes()) {
+			GL20.glBindAttribLocation(currentProgram, program.getAttributeValue(attribute), attribute);
 		}
-		
-		
-		// Binding attribute mappings defined in our Settings class.
-		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("in_Position"), "in_Position");
-		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("in_Color"), "in_Color");
-		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("in_TextureCoord"), "in_TextureCoord");
-		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("in_Normal"), "in_Normal");
-		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("Ks"), "Ks");
-		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("Ka"), "Ka");
-		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("specExp"), "specExp");
-		GL20.glBindAttribLocation(currentProgram, Settings.getInteger("texture"), "texture");
 
 		GL20.glLinkProgram(currentProgram);
 		GL20.glValidateProgram(currentProgram);
@@ -187,33 +174,5 @@ public class ShaderController {
 	
 	public static int getFogMaxDistanceLocation(){
 		return fogMaxDistanceLocation;
-	}
-	
-	/**
-	 * Loads a shader from a file.
-	 * @param filename Name of shader file.
-	 * @param type The shader type.
-	 * @return the shader UID
-	 */
-	private int loadShader(String filename, int type) {
-		StringBuilder shaderSource = new StringBuilder();
-		int shaderID = 0;
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(filename));
-			String line;
-			while ((line = reader.readLine()) != null) {
-				shaderSource.append(line).append("\n");
-			}
-			reader.close();
-		} catch (IOException e) {
-			System.err.println("Could not read file.");
-			e.printStackTrace();
-			System.exit(-1);
-		}
-
-		shaderID = GL20.glCreateShader(type);
-		GL20.glShaderSource(shaderID, shaderSource);
-		GL20.glCompileShader(shaderID);
-		return shaderID;
 	}
 }

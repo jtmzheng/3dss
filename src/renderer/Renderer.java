@@ -49,6 +49,9 @@ public class Renderer {
 	
 	// Fog instance
 	private Fog fog = null;
+	
+	private final ShaderProgram DEFAULT_SHADER_PROGRAM;
+	// private final ShaderProgram POST_PROCESS_SHADER_PROGRAM; 
 
 	/**
 	 * Default constructor
@@ -59,7 +62,18 @@ public class Renderer {
 		this.width = DEFAULT_WIDTH;
 		this.height = DEFAULT_HEIGHT;
 		this.frameRate = DEFAULT_FRAME_RATE;
-		this.fog = new Fog(false);
+		this.fog = new Fog(false);		
+		this.shader = new ShaderController();
+
+		// Initialize the OpenGL context
+		initOpenGL(width <= 0 && height <= 0);
+		
+		// Initialize shader programs
+		Map<String, Integer> sh = new HashMap<String, Integer>();
+		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		
+		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
 		
 		init();
 	}
@@ -76,6 +90,17 @@ public class Renderer {
 		this.height = height;
 		this.frameRate = DEFAULT_FRAME_RATE;
 		this.fog = new Fog(false);
+		this.shader = new ShaderController();
+		
+		// Initialize the OpenGL context
+		initOpenGL(width <= 0 && height <= 0);
+		
+		// Initialize shader programs
+		Map<String, Integer> sh = new HashMap<String, Integer>();
+		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		
+		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
 		
 		init();
 	}
@@ -93,6 +118,17 @@ public class Renderer {
 		this.height = height;
 		this.frameRate = frameRate;
 		this.fog = new Fog(false);
+		this.shader = new ShaderController();
+		
+		// Initialize the OpenGL context
+		initOpenGL(width <= 0 && height <= 0);
+		
+		// Initialize shader programs
+		Map<String, Integer> sh = new HashMap<String, Integer>();
+		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		
+		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
 		
 		init();
 	}
@@ -116,6 +152,17 @@ public class Renderer {
 		this.height = height;
 		this.frameRate = frameRate;
 		this.fog = fog;
+		this.shader = new ShaderController();
+		
+		// Initialize the OpenGL context
+		initOpenGL(width <= 0 && height <= 0);
+		
+		// Initialize shader programs
+		Map<String, Integer> sh = new HashMap<String, Integer>();
+		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		
+		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
 		
 		init();
 	}	
@@ -222,18 +269,11 @@ public class Renderer {
 	 * Initializes the renderer
 	 */
 	private void init() {
-		// Initialize the OpenGL context
-		initOpenGL(width <= 0 && height <= 0); 
-
+		// Set to default shader program
+		shader.setProgram(DEFAULT_SHADER_PROGRAM);
+		
 		models = new ArrayList<Model>();
-		shader = new ShaderController();
-
-		// Initialize shaders
-		Map<String, Integer> sh = new HashMap<String, Integer>();
-		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);		
-		shader.setProgram(sh); //@TODO: Error checking
-
+		
 		// Set up view and projection matrices
 		projectionMatrix = new Matrix4f();
 		float fieldOfView = 45f;
