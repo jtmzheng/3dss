@@ -38,6 +38,8 @@ public class ShaderController {
 	private static int fogMinDistanceLocation = 0;
 	private static int fogMaxDistanceLocation = 0;
 	
+	private static int fbTextureSamplerLocation = 0;
+	
 	private static int currentProgram = 0;
 
 	/**
@@ -58,14 +60,6 @@ public class ShaderController {
 
 		//Sets the new current program
 		currentProgram = program.getProgram();
-		
-		// Bind attributes
-		for(String attribute : program.getAttributes()) {
-			GL20.glBindAttribLocation(currentProgram, program.getAttributeValue(attribute), attribute);
-		}
-
-		GL20.glLinkProgram(currentProgram);
-		GL20.glValidateProgram(currentProgram);
 
 		// Get matrices uniform locations
 		projectionMatrixLocation = GL20.glGetUniformLocation(currentProgram, "projectionMatrix");
@@ -88,6 +82,8 @@ public class ShaderController {
 		fogMinDistanceLocation = GL20.glGetUniformLocation(currentProgram, "fogMinDistance");
 		fogMaxDistanceLocation = GL20.glGetUniformLocation(currentProgram, "fogMaxDistance");
 		
+		// Sampler for the FB texture
+		fbTextureSamplerLocation = GL20.glGetUniformLocation(currentProgram, "fbTex");
 		return true;
 	}
 	
@@ -174,5 +170,9 @@ public class ShaderController {
 	
 	public static int getFogMaxDistanceLocation(){
 		return fogMaxDistanceLocation;
+	}
+	
+	public static int getFBTexLocation(){
+		return fbTextureSamplerLocation;
 	}
 }

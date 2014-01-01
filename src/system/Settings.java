@@ -29,6 +29,8 @@ public class Settings {
 		settings.put("texture", 7);
 		settings.put("vertex_path", "src/shaders/vertex.vert");
 		settings.put("fragment_path",  "src/shaders/fragment.frag");
+		settings.put("post_vertex_path", "src/shaders/postVertex.vert");
+		settings.put("post_fragment_path", "src/shaders/postFragment.frag");
 		settings.put("log_folder", "logs/");
 		settings.put("pwd", System.getProperty("user.dir"));
 		settings.put("playerAcceleration", false);

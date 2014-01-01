@@ -1,5 +1,6 @@
 package renderer;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import system.Settings;
@@ -8,10 +9,10 @@ public class DefaultShaderProgram extends ShaderProgram{
 
 	public DefaultShaderProgram(Map<String, Integer> shaders) {
 		super(shaders);
-		setup();
 	}
 	
-	private void setup() {
+	protected void setupAttributes() {
+		shaderAttributes = new HashMap<>();
 		shaderAttributes.put("in_Position", Settings.getInteger("in_Position"));
 		shaderAttributes.put("in_Color", Settings.getInteger("in_Color"));
 		shaderAttributes.put("in_TextureCoord", Settings.getInteger("in_TextureCoord"));

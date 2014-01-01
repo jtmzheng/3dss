@@ -12,6 +12,7 @@ import org.lwjgl.opengl.ContextAttribs;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
@@ -19,6 +20,7 @@ import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.vector.Matrix4f;
 
 import system.Settings;
+import texture.TextureManager;
 
 /**
  * The renderer class should set up OpenGL.
@@ -50,8 +52,17 @@ public class Renderer {
 	// Fog instance
 	private Fog fog = null;
 	
+	private ScreenQuad screen;
+	
+	// The shader programs currently supported
 	private final ShaderProgram DEFAULT_SHADER_PROGRAM;
-	// private final ShaderProgram POST_PROCESS_SHADER_PROGRAM; 
+	private final ShaderProgram POST_PROCESS_SHADER_PROGRAM; 
+	
+	private FrameBuffer fb;
+	private final Integer DEFAULT_FRAME_BUFFER = 0;
+	private int fbTexUnitId;
+	
+	private TextureManager texManager;
 
 	/**
 	 * Default constructor
@@ -72,8 +83,19 @@ public class Renderer {
 		Map<String, Integer> sh = new HashMap<String, Integer>();
 		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		
 		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
+		sh = new HashMap<String, Integer>();
+		sh.put(Settings.getString("post_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
+		
+		// Initialize the ScreenQuad
+		screen = new ScreenQuad();
+		fb = new FrameBuffer(width, height);
+		
+		// Initialize the texture manager
+		texManager = TextureManager.getInstance();
+		fbTexUnitId = texManager.getTextureSlot();
 		
 		init();
 	}
@@ -99,8 +121,19 @@ public class Renderer {
 		Map<String, Integer> sh = new HashMap<String, Integer>();
 		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		
 		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
+		sh = new HashMap<String, Integer>();
+		sh.put(Settings.getString("post_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
+		
+		// Initialize the ScreenQuad
+		screen = new ScreenQuad();
+		fb = new FrameBuffer(width, height);
+		
+		// Initialize the texture manager
+		texManager = TextureManager.getInstance();
+		fbTexUnitId = texManager.getTextureSlot();
 		
 		init();
 	}
@@ -127,8 +160,19 @@ public class Renderer {
 		Map<String, Integer> sh = new HashMap<String, Integer>();
 		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		
 		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
+		sh = new HashMap<String, Integer>();
+		sh.put(Settings.getString("post_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
+		
+		// Initialize the ScreenQuad
+		screen = new ScreenQuad();
+		fb = new FrameBuffer(width, height);
+		
+		// Initialize the texture manager
+		texManager = TextureManager.getInstance();
+		fbTexUnitId = texManager.getTextureSlot();
 		
 		init();
 	}
@@ -160,9 +204,20 @@ public class Renderer {
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
 		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		
+		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);		
 		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
+		sh = new HashMap<String, Integer>();
+		sh.put(Settings.getString("post_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
+		
+		// Initialize the ScreenQuad
+		screen = new ScreenQuad();
+		fb = new FrameBuffer(width, height);
+		
+		// Initialize the texture manager
+		texManager = TextureManager.getInstance();
+		fbTexUnitId = texManager.getTextureSlot();
 		
 		init();
 	}	
@@ -180,14 +235,17 @@ public class Renderer {
 	/**
 	 * Renders the new scene.
 	 */
-	public void renderScene (){		
+	public void renderScene (){
+		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, fb.getFrameBuffer());
+	
+		// Select shader program.
+		shader.setProgram(DEFAULT_SHADER_PROGRAM);
+		GL20.glUseProgram(ShaderController.getCurrentProgram());
+		
 		// Clear the color and depth buffers
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 		
-		// Select shader program.
-		GL20.glUseProgram(ShaderController.getCurrentProgram());
-			
 		// Set the uniform values of the projection and view matrices 
 		viewMatrix = camera.getViewMatrix();
 		viewMatrix.store(matrix44Buffer); 
@@ -210,6 +268,38 @@ public class Renderer {
 		GL20.glDisableVertexAttribArray(5);
 		GL20.glDisableVertexAttribArray(6);
 		GL30.glBindVertexArray(0);
+		
+		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
+
+		// If not the default frame buffer, render to the 
+		if(fb.getFrameBuffer() != DEFAULT_FRAME_BUFFER) {
+			int testVal = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
+			if(testVal == GL30.GL_FRAMEBUFFER_COMPLETE) {
+				shader.setProgram(POST_PROCESS_SHADER_PROGRAM);
+				GL20.glUseProgram(ShaderController.getCurrentProgram());
+
+				GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+				GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+
+				GL20.glUniform1i(ShaderController.getFBTexLocation(), fbTexUnitId - GL13.GL_TEXTURE0);
+				GL13.glActiveTexture(fbTexUnitId);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, fb.getFrameBufferTexture());
+				
+				GL30.glBindVertexArray(screen.getVAOId());
+				GL20.glEnableVertexAttribArray(0);
+				GL20.glEnableVertexAttribArray(1);
+
+				// Draw the quad
+				GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 6);
+
+				GL20.glDisableVertexAttribArray(0);
+				GL20.glDisableVertexAttribArray(1);
+				GL30.glBindVertexArray(0);
+			} else {
+				System.out.println("Error: " + testVal);
+			}
+		}
+	
 		GL20.glUseProgram(0);
 
 		// Force a maximum FPS of about 60

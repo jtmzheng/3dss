@@ -74,6 +74,9 @@ public class Model {
 	
 	// Flag for whether this model should be rendered
 	private boolean renderFlag;	
+	
+	// Default frame buffer
+	private final Integer DEFAULT_FRAME_BUFFER = 0;
 
 	private PhysicsModelProperties physicsProps;
 	
@@ -451,7 +454,7 @@ public class Model {
 	 * @TODO: Make a class for the HashMaps (a struct) - will keep it cleaner
 	 */
 	public void render() {
-		if(renderFlag) {
+		if(renderFlag) {		
 			FloatBuffer modelMatrixBuffer = BufferUtils.createFloatBuffer(16);
 			modelMatrix = physicsModel.getTransformMatrix();
 

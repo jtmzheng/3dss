@@ -19,7 +19,6 @@ public class ShaderProgram {
 	/**
 	 * Constructor for the shader program
 	 * @param shaders
-	 * @param attributes
 	 */
 	public ShaderProgram(Map<String, Integer> shaders) {		
 		programId = GL20.glCreateProgram();
@@ -33,7 +32,17 @@ public class ShaderProgram {
 			shaderIdToType.put(shaderId, shaders.get(file));
 		}
 		
-		this.shaderAttributes = new HashMap<>();
+		// Set up the attributes for this program
+		setupAttributes();
+		
+		// Bind attributes
+		for(String attribute : getAttributes()) {
+			GL20.glBindAttribLocation(programId, getAttributeValue(attribute), attribute);
+		}
+
+		// Link and validate the program
+		GL20.glLinkProgram(programId);
+		GL20.glValidateProgram(programId);
 	}
 	
 	/**
@@ -54,6 +63,10 @@ public class ShaderProgram {
 	
 	public Integer getAttributeValue(String name) {
 		return shaderAttributes.get(name);
+	}
+	
+	protected void setupAttributes() {
+		this.shaderAttributes = new HashMap<>();
 	}
 	
 	/**
@@ -82,6 +95,5 @@ public class ShaderProgram {
 		GL20.glShaderSource(shaderID, shaderSource);
 		GL20.glCompileShader(shaderID);
 		return shaderID;
-	}
-	
+	}	
 }
