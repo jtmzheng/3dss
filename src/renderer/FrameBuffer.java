@@ -10,8 +10,14 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
+/**
+ * Frame buffer class 
+ * @author Max
+ *
+ */
 public class FrameBuffer {
-
+	private static final int DEFAULT_FRAME_BUFFER = 0;
+	
 	private final int bufferId;
 	private final int bufferTextureId;
 	private final int renderBufferId;
@@ -25,6 +31,7 @@ public class FrameBuffer {
 		bufferId = GL30.glGenFramebuffers();
 		bufferTextureId = GL11.glGenTextures();
 
+		// Generate and allocate the frame buffer texture 
 		GL11.glBindTexture (GL11.GL_TEXTURE_2D, bufferTextureId);
 		GL11.glTexImage2D (
 				GL11.GL_TEXTURE_2D,
@@ -39,6 +46,7 @@ public class FrameBuffer {
 				);
 		GL11.glBindTexture (GL11.GL_TEXTURE_2D, 0);
 		
+		// Bind the new frame buffer and attach the texture
 		GL30.glBindFramebuffer (GL30.GL_FRAMEBUFFER, bufferId);
 		GL30.glFramebufferTexture2D (
 				GL30.GL_FRAMEBUFFER, 
@@ -47,12 +55,6 @@ public class FrameBuffer {
 				bufferTextureId, 
 				0
 				);
-		
-		// Set texture parameters
-		GL11.glTexParameteri (GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-		GL11.glTexParameteri (GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
-		GL11.glTexParameteri (GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-		GL11.glTexParameteri (GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 		
 		// Generate and set up the render buffer
 		renderBufferId = GL30.glGenRenderbuffers();
@@ -72,13 +74,21 @@ public class FrameBuffer {
 				);
 		
 		GL20.glDrawBuffers(GL30.GL_COLOR_ATTACHMENT0);		
-		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public int getFrameBuffer() {
 		return bufferId;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public int getFrameBufferTexture() {
 		return bufferTextureId;
 	}

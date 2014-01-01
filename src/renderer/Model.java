@@ -378,6 +378,15 @@ public class Model {
 			int vaoID = GL30.glGenVertexArrays();
 			mapVAOIds.put(material, vaoID);
 			GL30.glBindVertexArray(vaoID);
+			
+			// Enable the attributes
+			GL20.glEnableVertexAttribArray(0); //position
+			GL20.glEnableVertexAttribArray(1); //color
+			GL20.glEnableVertexAttribArray(2); //texture
+			GL20.glEnableVertexAttribArray(3); //normal
+			GL20.glEnableVertexAttribArray(4);
+			GL20.glEnableVertexAttribArray(5);
+			GL20.glEnableVertexAttribArray(6);
 
 			// Create a new Vertex Buffer Object in memory and select it (bind)
 			int vboId = GL15.glGenBuffers();
@@ -411,7 +420,7 @@ public class Model {
 			// Put the normal coordinates in attribute list 6
 			GL20.glVertexAttribPointer(6, VertexData.specularPowerElementCount, GL11.GL_FLOAT,
 					false, VertexData.stride, VertexData.specularPowerElementByteOffset);
-
+					
 			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);			
 
 			// Create a new VBO for the indices and select it (bind) - INDICES
@@ -479,13 +488,6 @@ public class Model {
 				}
 
 				GL30.glBindVertexArray(mapVAOIds.get(material));
-				GL20.glEnableVertexAttribArray(0); //position
-				GL20.glEnableVertexAttribArray(1); //color
-				GL20.glEnableVertexAttribArray(2); //texture
-				GL20.glEnableVertexAttribArray(3); //normal
-				GL20.glEnableVertexAttribArray(4);
-				GL20.glEnableVertexAttribArray(5);
-				GL20.glEnableVertexAttribArray(6);
 
 				// Bind to the index VBO that has all the information about the order of the vertices
 				GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mapVBOIndexIds.get(material));

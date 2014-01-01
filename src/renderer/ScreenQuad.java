@@ -42,6 +42,10 @@ public class ScreenQuad {
 		vaoId = GL30.glGenVertexArrays();		
 		GL30.glBindVertexArray(vaoId);
 
+		// Enable the VAO attributes
+		GL20.glEnableVertexAttribArray(0); // position
+		GL20.glEnableVertexAttribArray(1); // texture coordinates
+		
 		// Create VBO for coordinates
 		int posVboId = GL15.glGenBuffers();
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, posVboId);
