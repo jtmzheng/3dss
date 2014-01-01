@@ -38,7 +38,6 @@ public class Renderer {
 	private int width;
 	private int height;
 	private int frameRate;
-	private ShaderController shader;
 	
 	// Matrix variables (should be moved to camera class in the future)
 	private Matrix4f projectionMatrix = null;
@@ -74,7 +73,6 @@ public class Renderer {
 		this.height = DEFAULT_HEIGHT;
 		this.frameRate = DEFAULT_FRAME_RATE;
 		this.fog = new Fog(false);		
-		this.shader = new ShaderController();
 
 		// Initialize the OpenGL context
 		initOpenGL(width <= 0 && height <= 0);
@@ -112,7 +110,6 @@ public class Renderer {
 		this.height = height;
 		this.frameRate = DEFAULT_FRAME_RATE;
 		this.fog = new Fog(false);
-		this.shader = new ShaderController();
 		
 		// Initialize the OpenGL context
 		initOpenGL(width <= 0 && height <= 0);
@@ -151,7 +148,6 @@ public class Renderer {
 		this.height = height;
 		this.frameRate = frameRate;
 		this.fog = new Fog(false);
-		this.shader = new ShaderController();
 		
 		// Initialize the OpenGL context
 		initOpenGL(width <= 0 && height <= 0);
@@ -196,7 +192,6 @@ public class Renderer {
 		this.height = height;
 		this.frameRate = frameRate;
 		this.fog = fog;
-		this.shader = new ShaderController();
 		
 		// Initialize the OpenGL context
 		initOpenGL(width <= 0 && height <= 0);
@@ -239,7 +234,7 @@ public class Renderer {
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
 
 		// Select shader program.
-		shader.setProgram(DEFAULT_SHADER_PROGRAM);
+		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
 		
 		// Clear the color and depth buffers
@@ -362,7 +357,7 @@ public class Renderer {
 	 */
 	private void init() {
 		// Set to default shader program
-		shader.setProgram(DEFAULT_SHADER_PROGRAM);
+		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		
 		models = new ArrayList<Model>();
 		

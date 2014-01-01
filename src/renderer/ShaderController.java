@@ -7,15 +7,10 @@ import org.lwjgl.opengl.GL20;
 
 /**
  * ShaderController will manage the current shader program
- * @TODO: Refactor
- * @TODO: Shader class
+ * @TODO: Refactor (For real this time)
  * @author Max 
  */
-public class ShaderController {
-
-	private Map<String, Integer> shaderNameToID;
-	private Map<Integer, Integer> shaderIDToType;
-	
+public class ShaderController {	
 	private static int projectionMatrixLocation = -1;
 	private static int viewMatrixLocation = -1;
 	private static int modelMatrixLocation = -1;
@@ -37,12 +32,9 @@ public class ShaderController {
 	private static int currentProgram = 0;
 
 	/**
-	 * Creates our ShaderController.
+	 * Do not allow instantiation of this class
 	 */
-	public ShaderController() {
-		shaderNameToID = new HashMap<>();
-		shaderIDToType = new HashMap<>();
-	}
+	private ShaderController() {}
 	
 	/**
 	 * Currently setProgram is written like this so different shaders can be 
@@ -50,7 +42,7 @@ public class ShaderController {
 	 * 
 	 * @return <code>true</code> if the program was successfully set, and false otherwise.
 	 */
-	public boolean setProgram(ShaderProgram program){
+	public static boolean setProgram(ShaderProgram program){
 
 		//Sets the new current program
 		currentProgram = program.getProgram();
