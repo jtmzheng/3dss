@@ -1,14 +1,9 @@
 package renderer;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.lwjgl.opengl.GL20;
-
-import system.Settings;
 
 /**
  * ShaderController will manage the current shader program

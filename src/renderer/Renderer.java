@@ -271,15 +271,15 @@ public class Renderer {
 		
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
 
-		// If not the default frame buffer, render to the 
+		// If not the default frame buffer, render to the screen
 		if(fb.getFrameBuffer() != DEFAULT_FRAME_BUFFER) {
 			int testVal = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
 			if(testVal == GL30.GL_FRAMEBUFFER_COMPLETE) {
-				shader.setProgram(POST_PROCESS_SHADER_PROGRAM);
-				GL20.glUseProgram(ShaderController.getCurrentProgram());
-
 				GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 				GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+				
+				shader.setProgram(POST_PROCESS_SHADER_PROGRAM);
+				GL20.glUseProgram(ShaderController.getCurrentProgram());
 
 				GL20.glUniform1i(ShaderController.getFBTexLocation(), fbTexUnitId - GL13.GL_TEXTURE0);
 				GL13.glActiveTexture(fbTexUnitId);

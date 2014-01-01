@@ -37,11 +37,12 @@ public class FrameBuffer {
 		
 		GL30.glBindFramebuffer (GL30.GL_FRAMEBUFFER, bufferId);
 		GL30.glFramebufferTexture2D (
-		  GL30.GL_FRAMEBUFFER, 
-		  GL30.GL_COLOR_ATTACHMENT0, 
-		  GL11.GL_TEXTURE_2D, bufferId, 
-		  0
-		);
+				GL30.GL_FRAMEBUFFER, 
+				GL30.GL_COLOR_ATTACHMENT0, 
+				GL11.GL_TEXTURE_2D, 
+				bufferTextureId, 
+				0
+				);
 		
 		// Generate and set up the render buffer
 		renderBufferId = GL30.glGenRenderbuffers();
@@ -60,7 +61,7 @@ public class FrameBuffer {
 				);
 		
 		GL20.glDrawBuffers(GL30.GL_COLOR_ATTACHMENT0);
-		GL30.glBindFramebuffer (GL30.GL_FRAMEBUFFER, 0);
+		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
 	}
 	
 	public int getFrameBuffer() {

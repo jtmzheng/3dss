@@ -52,10 +52,11 @@ public class ScreenQuad {
 
 		// Create VBO for texture coordinates
 		int texVboId = GL15.glGenBuffers();
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, texVboId);
 		dataBuffer = BufferUtils.createFloatBuffer(12);
 		dataBuffer.put(SCREEN_QUAD_TEX_COORDINATES);
 		dataBuffer.flip();
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, texVboId);
+		GL15.glBufferData (GL15.GL_ARRAY_BUFFER, dataBuffer, GL15.GL_STATIC_DRAW);
 
 		// Put the position coordinates in attribute list 0
 		GL20.glVertexAttribPointer(0, 2, GL11.GL_FLOAT,

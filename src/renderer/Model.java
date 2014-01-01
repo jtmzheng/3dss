@@ -75,9 +75,6 @@ public class Model {
 	// Flag for whether this model should be rendered
 	private boolean renderFlag;	
 	
-	// Default frame buffer
-	private final Integer DEFAULT_FRAME_BUFFER = 0;
-
 	private PhysicsModelProperties physicsProps;
 	
 	/**
