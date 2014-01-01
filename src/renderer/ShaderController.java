@@ -13,27 +13,26 @@ import org.lwjgl.opengl.GL20;
  */
 public class ShaderController {
 
-	private Map<String, Integer> shaderNameToID = null;
-	private Map<Integer, Integer> shaderIDToType = null;
+	private Map<String, Integer> shaderNameToID;
+	private Map<Integer, Integer> shaderIDToType;
 	
-	private static int projectionMatrixLocation = 0;
-	private static int viewMatrixLocation = 0;
-	private static int modelMatrixLocation = 0;
-	private static int lightPositionLocation = 0;
-	private static int specularLocation = 0;
-	private static int diffuseLocation = 0;
-	private static int ambientLocation = 0;
-	private static int viewMatrixFragLocation = 0;
-	private static int textureSamplerLocation = 0;
-	private static int textureKdSamplerLocation = 0;
-	private static int textureKsSamplerLocation = 0;
-	private static int textureKaSamplerLocation = 0;
-	private static int fogEnabledLocation = 0;
-	private static int fogColorLocation = 0;
-	private static int fogMinDistanceLocation = 0;
-	private static int fogMaxDistanceLocation = 0;
-	
-	private static int fbTextureSamplerLocation = 0;
+	private static int projectionMatrixLocation = -1;
+	private static int viewMatrixLocation = -1;
+	private static int modelMatrixLocation = -1;
+	private static int lightPositionLocation = -1;
+	private static int specularLocation = -1;
+	private static int diffuseLocation = -1;
+	private static int ambientLocation = -1;
+	private static int viewMatrixFragLocation = -1;
+	private static int textureSamplerLocation = -1;
+	private static int textureKdSamplerLocation = -1;
+	private static int textureKsSamplerLocation = -1;
+	private static int textureKaSamplerLocation = -1;
+	private static int fogEnabledLocation = -1;
+	private static int fogColorLocation = -1;
+	private static int fogMinDistanceLocation = -1;
+	private static int fogMaxDistanceLocation = -1;
+	private static int fbTextureSamplerLocation = -1;
 	
 	private static int currentProgram = 0;
 
@@ -41,8 +40,8 @@ public class ShaderController {
 	 * Creates our ShaderController.
 	 */
 	public ShaderController() {
-		shaderNameToID = new HashMap<String, Integer>();
-		shaderIDToType = new HashMap<Integer, Integer>();
+		shaderNameToID = new HashMap<>();
+		shaderIDToType = new HashMap<>();
 	}
 	
 	/**
@@ -55,30 +54,31 @@ public class ShaderController {
 
 		//Sets the new current program
 		currentProgram = program.getProgram();
+		Map<String, Integer> uniformLocations = program.getUniforms();
 
 		// Get matrices uniform locations
-		projectionMatrixLocation = GL20.glGetUniformLocation(currentProgram, "projectionMatrix");
-		viewMatrixLocation = GL20.glGetUniformLocation(currentProgram,  "viewMatrix");
-		modelMatrixLocation = GL20.glGetUniformLocation(currentProgram,  "modelMatrix");
-		viewMatrixFragLocation = GL20.glGetUniformLocation(currentProgram, "viewMatrixFrag");
+		projectionMatrixLocation = uniformLocations.containsKey("projectionMatrix") ? uniformLocations.get("projectionMatrix") : -1; 
+		viewMatrixLocation = uniformLocations.containsKey("viewMatrix") ? uniformLocations.get("viewMatrix") : -1; 
+		modelMatrixLocation = uniformLocations.containsKey("modelMatrix") ? uniformLocations.get("modelMatrix") : -1; 
+		viewMatrixFragLocation = uniformLocations.containsKey("viewMatrixFrag") ? uniformLocations.get("viewMatrixFrag") : -1;
 		
 		// Light uniform location
-		ambientLocation = GL20.glGetUniformLocation(currentProgram,  "La");
+		ambientLocation = uniformLocations.containsKey("La") ? uniformLocations.get("La") : -1;
 		
 		// Texture uniform locations
-		textureSamplerLocation = GL20.glGetUniformLocation(currentProgram, "textureSampler");
-		textureKdSamplerLocation = GL20.glGetUniformLocation(currentProgram, "textureSamplers[0]"); 
-		textureKsSamplerLocation = GL20.glGetUniformLocation(currentProgram, "textureSamplers[1]");		
-		textureKaSamplerLocation = GL20.glGetUniformLocation(currentProgram, "textureSamplers[2]");
+		textureSamplerLocation = uniformLocations.containsKey("textureSampler") ? uniformLocations.get("textureSampler") : -1;
+		textureKdSamplerLocation = uniformLocations.containsKey("textureSamplers[0]") ? uniformLocations.get("textureSamplers[0]") : -1;
+		textureKsSamplerLocation = uniformLocations.containsKey("textureSamplers[1]") ? uniformLocations.get("textureSamplers[1]") : -1;		
+		textureKaSamplerLocation = uniformLocations.containsKey("textureSamplers[2]") ? uniformLocations.get("textureSamplers[2]") : -1;  
 		
 		// Fog uniform locations
-		fogEnabledLocation = GL20.glGetUniformLocation(currentProgram, "fogOn");
-		fogColorLocation = GL20.glGetUniformLocation(currentProgram, "fogColor");
-		fogMinDistanceLocation = GL20.glGetUniformLocation(currentProgram, "fogMinDistance");
-		fogMaxDistanceLocation = GL20.glGetUniformLocation(currentProgram, "fogMaxDistance");
+		fogEnabledLocation = uniformLocations.containsKey("fogOn") ? uniformLocations.get("fogOn") : -1;  
+		fogColorLocation = uniformLocations.containsKey("fogColor") ? uniformLocations.get("fogColor") : -1;  
+		fogMinDistanceLocation = uniformLocations.containsKey("fogMinDistance") ? uniformLocations.get("fogMinDistance") : -1;  
+		fogMaxDistanceLocation = uniformLocations.containsKey("fogMaxDistance") ? uniformLocations.get("fogMaxDistance") : -1;  
 		
 		// Sampler for the FB texture
-		fbTextureSamplerLocation = GL20.glGetUniformLocation(currentProgram, "fbTex");
+		fbTextureSamplerLocation = uniformLocations.containsKey("fbTex") ? uniformLocations.get("fbTex") : -1; 
 		return true;
 	}
 	

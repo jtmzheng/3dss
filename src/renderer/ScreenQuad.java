@@ -62,7 +62,7 @@ public class ScreenQuad {
 		GL20.glVertexAttribPointer(0, 2, GL11.GL_FLOAT,
 				false, 0, 0);
 
-		// Put the texture coordinates in attribute list 2
+		// Put the texture coordinates in attribute list 1
 		GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT,
 				false, 0, 0);
 		

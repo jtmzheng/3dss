@@ -236,8 +236,8 @@ public class Renderer {
 	 * Renders the new scene.
 	 */
 	public void renderScene (){
-		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, fb.getFrameBuffer());
-	
+		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
+
 		// Select shader program.
 		shader.setProgram(DEFAULT_SHADER_PROGRAM);
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
@@ -269,8 +269,9 @@ public class Renderer {
 		GL20.glDisableVertexAttribArray(6);
 		GL30.glBindVertexArray(0);
 		
+		/*
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
-
+		
 		// If not the default frame buffer, render to the screen
 		if(fb.getFrameBuffer() != DEFAULT_FRAME_BUFFER) {
 			int testVal = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
@@ -280,7 +281,7 @@ public class Renderer {
 				
 				shader.setProgram(POST_PROCESS_SHADER_PROGRAM);
 				GL20.glUseProgram(ShaderController.getCurrentProgram());
-
+				
 				GL20.glUniform1i(ShaderController.getFBTexLocation(), fbTexUnitId - GL13.GL_TEXTURE0);
 				GL13.glActiveTexture(fbTexUnitId);
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, fb.getFrameBufferTexture());
@@ -299,6 +300,7 @@ public class Renderer {
 				System.out.println("Error: " + testVal);
 			}
 		}
+		*/
 	
 		GL20.glUseProgram(0);
 
@@ -441,8 +443,8 @@ public class Renderer {
 	
 	/**
 	 * Sets our view port at (x,y) given a width and height.
-	 * @param x
-	 * @param y
+	 * @param x - not used
+	 * @param y - not used
 	 * @param width
 	 * @param height
 	 */

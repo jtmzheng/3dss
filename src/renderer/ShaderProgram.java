@@ -11,10 +11,11 @@ import org.lwjgl.opengl.GL20;
 
 public class ShaderProgram {
 	protected Map<String, Integer> shaderAttributes;
+	protected Map<String, Integer> shaderUniformLocations;
 	
 	private Map<String, Integer> shaderNameToId;
 	private Map<Integer, Integer> shaderIdToType;	
-	private int programId;
+	protected int programId;
 	
 	/**
 	 * Constructor for the shader program
@@ -43,6 +44,12 @@ public class ShaderProgram {
 		// Link and validate the program
 		GL20.glLinkProgram(programId);
 		GL20.glValidateProgram(programId);
+				
+		// Set up the unifrom locations for this program
+		GL20.glUseProgram(programId);
+		setupUniformLocations();
+		System.out.println(shaderUniformLocations.values());
+		GL20.glUseProgram(0);
 	}
 	
 	/**
@@ -61,12 +68,20 @@ public class ShaderProgram {
 		return shaderAttributes.keySet();
 	}
 	
+	public Map<String, Integer> getUniforms() {
+		return shaderUniformLocations;
+	}
+	
 	public Integer getAttributeValue(String name) {
 		return shaderAttributes.get(name);
 	}
 	
 	protected void setupAttributes() {
 		this.shaderAttributes = new HashMap<>();
+	}
+	
+	protected void setupUniformLocations() {
+		this.shaderUniformLocations = new HashMap<>();
 	}
 	
 	/**
