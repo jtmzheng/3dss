@@ -106,7 +106,7 @@ public class Main {
 		Fog worldFog = new Fog(true);
 		
 		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
-		gameRenderer = new Renderer(600, 600, gameCam, 60, worldFog);
+		gameRenderer = new Renderer(512, 512, gameCam, 60, worldFog);
 		gameWorld = new World(gameRenderer);
 		
 		try{

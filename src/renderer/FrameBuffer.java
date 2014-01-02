@@ -44,8 +44,14 @@ public class FrameBuffer {
 				GL11.GL_UNSIGNED_BYTE,
 				(ByteBuffer)null
 				);
-		GL11.glBindTexture (GL11.GL_TEXTURE_2D, 0);
 		
+		// Set texture parameters
+		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);			
+		GL11.glBindTexture (GL11.GL_TEXTURE_2D, 0);
+
 		// Bind the new frame buffer and attach the texture
 		GL30.glBindFramebuffer (GL30.GL_FRAMEBUFFER, bufferId);
 		GL30.glFramebufferTexture2D (

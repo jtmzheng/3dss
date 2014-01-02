@@ -27,6 +27,7 @@ public class PixelShaderProgram extends ShaderProgram{
 		
 		// Sampler for the FB texture
 		shaderUniformLocations.put("fbTex", GL20.glGetUniformLocation(getProgram(), "fbTex"));
+		shaderUniformLocations.put("projectionMatrix", GL20.glGetUniformLocation(getProgram(), "projectionMatrix"));
  	}
 
 }

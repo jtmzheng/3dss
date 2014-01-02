@@ -234,6 +234,7 @@ public class Renderer {
 	 */
 	public void renderScene (){
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, fb.getFrameBuffer());
+		GL11.glViewport(0, 0, width, height);
 
 		// Select shader program.
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
@@ -242,7 +243,7 @@ public class Renderer {
 		// Clear the color and depth buffers
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		
-		// Set the uniform values of the projection and view matrices 
+		// Set the uniform values of the view matrix 
 		viewMatrix = camera.getViewMatrix();
 		viewMatrix.store(matrix44Buffer); 
 		matrix44Buffer.flip();
@@ -257,22 +258,27 @@ public class Renderer {
 		// Deselect
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		GL30.glBindVertexArray(0);
-		
+
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
+		GL11.glViewport(0, 0, width, height);
 		
 		// If not the default frame buffer, render to the screen
 		if(fb.getFrameBuffer() != DEFAULT_FRAME_BUFFER) {
 			int testVal = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
 			if(testVal == GL30.GL_FRAMEBUFFER_COMPLETE) {
 				GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-				
+
 				ShaderController.setProgram(POST_PROCESS_SHADER_PROGRAM);
 				GL20.glUseProgram(ShaderController.getCurrentProgram());
 				
 				GL13.glActiveTexture(fbTexUnitId);
 			    GL20.glUniform1i(ShaderController.getFBTexLocation(), fbTexUnitId - GL13.GL_TEXTURE0);
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, fb.getFrameBufferTexture());
+							
+				// Regenerate the mip map
+				GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
 				
+				// Bind the VAO for the Screen Quad
 				GL30.glBindVertexArray(screen.getVAOId());
 
 				// Draw the quad
@@ -281,13 +287,13 @@ public class Renderer {
 				// Unbind 
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 				GL30.glBindVertexArray(0);
+				ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 			} else {
 				System.out.println("Error: " + testVal);
 			}
 		}
 
 		GL20.glUseProgram(0);
-
 		// Force a maximum FPS of about 60
 		Display.sync(frameRate);
 		// Let the CPU synchronize with the GPU if GPU is tagging behind (I think update refreshs the display)
