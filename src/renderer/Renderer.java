@@ -260,7 +260,7 @@ public class Renderer {
 		GL30.glBindVertexArray(0);
 
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
-		GL11.glViewport(0, 0, width, height);
+		GL11.glViewport(-width, -height, width * 2, height * 2); // @TODO: Hack
 		
 		// If not the default frame buffer, render to the screen
 		if(fb.getFrameBuffer() != DEFAULT_FRAME_BUFFER) {
