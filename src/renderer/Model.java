@@ -75,6 +75,10 @@ public class Model {
 	// Flag for whether this model should be rendered
 	private boolean renderFlag;	
 	
+	// Unique ID for the model (used for picking)
+	private final int uniqueId;
+	private final Vector3f uniqueIdColour;
+	
 	private PhysicsModelProperties physicsProps;
 	
 	/**
@@ -182,6 +186,10 @@ public class Model {
 
 		// Setup the light associated with this model
 		mLightHandle = new LightHandle(this, new Light(pos, ls, ld, la, null));
+
+		// Set the UID to the hash code
+		uniqueId = hashCode();
+		uniqueIdColour = encodeColour(uniqueId);
 	}
 
 	/**
@@ -202,6 +210,10 @@ public class Model {
 
 		// Setup the model 
 		setup(pos, rigidBodyProp);
+		
+		// Set the UID to the hash code
+		uniqueId = hashCode();
+		uniqueIdColour = encodeColour(uniqueId);
 	}
 
 	/**
@@ -219,6 +231,11 @@ public class Model {
 		texManager = TextureManager.getInstance();
 
 		setup(DEFAULT_INITIAL_POSITION, rigidBodyProp);
+		
+		// Set the UID to the hash code
+		uniqueId = hashCode();
+		uniqueIdColour = encodeColour(uniqueId);
+
 	}
 	
 	/**
@@ -234,6 +251,10 @@ public class Model {
 		texManager = TextureManager.getInstance();
 		
 		setup(DEFAULT_INITIAL_POSITION, physicsProps);
+		
+		// Set the UID to the hash code
+		uniqueId = hashCode();
+		uniqueIdColour = encodeColour(uniqueId);
 	}
 	/**
 	 * Copy constructor
@@ -261,6 +282,10 @@ public class Model {
 		texManager = TextureManager.getInstance();
 		
 		setup(position, physicsProps);
+		
+		// Set the UID to the hash code
+		uniqueId = hashCode();
+		uniqueIdColour = encodeColour(uniqueId);
 	}
 
 	/**
@@ -713,6 +738,23 @@ public class Model {
         		modelRigidBody);
         
         return model;
+	}
+	
+	/**
+	 * Encode a number into a colour
+	 * @param num Number to encode (int)
+	 * @return 
+	 */
+	private Vector3f encodeColour(int num) {
+		int r = num / 65536;
+		r = Math.max (r, 0);
+		int g = (num - r * 65536) / 256;
+		g = Math.max (g, 0);
+		int b = (num - r * 65536 - g * 256);
+		b = Math.max (b, 0);
+		
+		// System.out.println("R = " + r + ", G = " + g + ", B = " + b);
+		return new Vector3f((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f);
 	}
 	
 }
