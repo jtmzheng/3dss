@@ -56,8 +56,10 @@ public class Renderer {
 	// The shader programs currently supported
 	private final ShaderProgram DEFAULT_SHADER_PROGRAM;
 	private final ShaderProgram POST_PROCESS_SHADER_PROGRAM; 
+	private final ShaderProgram COLOR_PICKING_SHADER_PROGRAM;
 	
-	private FrameBuffer fb;
+	private FrameBuffer postProcessFb;
+	private FrameBuffer colorPickingFb;
 	private final Integer DEFAULT_FRAME_BUFFER = 0;
 	
 	// The frame buffer has its own unit id (for safety)
@@ -84,10 +86,14 @@ public class Renderer {
 		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
-		sh = new HashMap<String, Integer>();
+		sh = new HashMap<>();
 		sh.put(Settings.getString("post_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
+		sh = new HashMap<>();
+		sh.put(Settings.getString("picking_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
+		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
 		
 		// Initialize the texture manager
 		texManager = TextureManager.getInstance();
@@ -95,7 +101,8 @@ public class Renderer {
 		
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
-		fb = new FrameBuffer(width, height);
+		postProcessFb = new FrameBuffer(width, height);
+		colorPickingFb = new FrameBuffer(width, height);
 		
 		init();
 	}
@@ -125,10 +132,15 @@ public class Renderer {
 		sh.put(Settings.getString("post_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
+		sh = new HashMap<>();
+		sh.put(Settings.getString("picking_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
+		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
 		
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
-		fb = new FrameBuffer(width, height);
+		postProcessFb = new FrameBuffer(width, height);
+		colorPickingFb = new FrameBuffer(width, height);
 		
 		// Initialize the texture manager
 		texManager = TextureManager.getInstance();
@@ -163,10 +175,15 @@ public class Renderer {
 		sh.put(Settings.getString("post_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
+		sh = new HashMap<>();
+		sh.put(Settings.getString("picking_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
+		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
 		
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
-		fb = new FrameBuffer(width, height);
+		postProcessFb = new FrameBuffer(width, height);
+		colorPickingFb = new FrameBuffer(width, height);
 		
 		// Initialize the texture manager
 		texManager = TextureManager.getInstance();
@@ -207,10 +224,15 @@ public class Renderer {
 		sh.put(Settings.getString("post_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
+		sh = new HashMap<>();
+		sh.put(Settings.getString("picking_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("picking_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
 		
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
-		fb = new FrameBuffer(width, height);
+		postProcessFb = new FrameBuffer(width, height);
+		colorPickingFb = new FrameBuffer(width, height);
 		
 		// Initialize the texture manager
 		texManager = TextureManager.getInstance();
@@ -233,7 +255,7 @@ public class Renderer {
 	 * Renders the new scene.
 	 */
 	public void renderScene (){
-		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, fb.getFrameBuffer());
+		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, postProcessFb.getFrameBuffer());
 		GL11.glViewport(0, 0, width, height);
 
 		// Select shader program.
@@ -263,7 +285,7 @@ public class Renderer {
 		GL11.glViewport(-width, -height, width * 2, height * 2); // @TODO: Hack
 		
 		// If not the default frame buffer, render to the screen
-		if(fb.getFrameBuffer() != DEFAULT_FRAME_BUFFER) {
+		if(postProcessFb.getFrameBuffer() != DEFAULT_FRAME_BUFFER) {
 			int testVal = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
 			if(testVal == GL30.GL_FRAMEBUFFER_COMPLETE) {
 				GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
@@ -273,7 +295,7 @@ public class Renderer {
 				
 				GL13.glActiveTexture(fbTexUnitId);
 			    GL20.glUniform1i(ShaderController.getFBTexLocation(), fbTexUnitId - GL13.GL_TEXTURE0);
-				GL11.glBindTexture(GL11.GL_TEXTURE_2D, fb.getFrameBufferTexture());
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, postProcessFb.getFrameBufferTexture());
 							
 				// Regenerate the mip map
 				GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);

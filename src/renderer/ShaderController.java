@@ -1,9 +1,6 @@
 package renderer;
 
-import java.util.HashMap;
 import java.util.Map;
-
-import org.lwjgl.opengl.GL20;
 
 /**
  * ShaderController will manage the current shader program
