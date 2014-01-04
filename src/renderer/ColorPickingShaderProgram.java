@@ -18,7 +18,7 @@ public class ColorPickingShaderProgram extends ShaderProgram {
 	
 	protected void setupAttributes() {
 		shaderAttributes = new HashMap<>();
-		shaderAttributes.put("vp", 0);
+		shaderAttributes.put("in_Position", 0);
 	}
 	
 	protected void setupUniformLocations() {

@@ -45,6 +45,7 @@ public class World {
 	
 	public void simulate() {
 		dynamicsWorld.stepSimulation(1.0f / renderer.getFrameRate());
+		renderer.renderColourPicking();
 		renderer.renderScene();
 	}
 	

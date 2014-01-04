@@ -35,6 +35,7 @@ public class Renderer {
 	
 	// List of the models that will be rendered
 	private List<Model> models; 
+	private Map<Integer, Model> mapIdToModel;
 	private int width;
 	private int height;
 	private int frameRate;
@@ -246,15 +247,45 @@ public class Renderer {
 	 * @return <code>true</code> if the binding was successful and false otherwise.
 	 * @see Model
 	 */
-	public boolean bindNewModel(Model model){
+	public boolean bindNewModel(Model model) {
 		models.add(model);
 		return true;
 	}
 	
+	public void renderColourPicking() {
+		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, colorPickingFb.getFrameBuffer());	
+		GL11.glViewport(0, 0, width, height);
+
+		// Select shader program.
+		ShaderController.setProgram(COLOR_PICKING_SHADER_PROGRAM);
+		GL20.glUseProgram(ShaderController.getCurrentProgram());
+		
+		// Clear the color and depth buffers
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+		
+		// Set the uniform values of the view matrix 
+		viewMatrix = camera.getViewMatrix();
+		viewMatrix.store(matrix44Buffer); 
+		matrix44Buffer.flip();
+		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
+		
+		// Render each model
+		for(Model m: models){
+			m.renderPicking();
+		}
+		
+		// Deselect
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+		GL30.glBindVertexArray(0);
+
+		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
+		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
+		GL20.glUseProgram(0);
+	}
 	/**
 	 * Renders the new scene.
 	 */
-	public void renderScene (){
+	public void renderScene () {
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, postProcessFb.getFrameBuffer());
 		GL11.glViewport(0, 0, width, height);
 
@@ -376,7 +407,8 @@ public class Renderer {
 		// Set to default shader program
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		
-		models = new ArrayList<Model>();
+		models = new ArrayList<>();
+		mapIdToModel = new HashMap<>();
 		
 		// Set up view and projection matrices
 		projectionMatrix = new Matrix4f();
@@ -403,18 +435,28 @@ public class Renderer {
 
 		// Initialize the uniform variables
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
-
 		viewMatrix.store(matrix44Buffer);
 		matrix44Buffer.flip();
-		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
-		projectionMatrix.store(matrix44Buffer); 
-		matrix44Buffer.flip();
-		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
+		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
+		ShaderController.setProgram(COLOR_PICKING_SHADER_PROGRAM);
+		GL20.glUseProgram(ShaderController.getCurrentProgram());
+		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
+		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
+		GL20.glUseProgram(ShaderController.getCurrentProgram());
+
 		fog.updateFogUniforms(ShaderController.getFogColorLocation(),
 				ShaderController.getFogMinDistanceLocation(), 
 				ShaderController.getFogMaxDistanceLocation(), 
 				ShaderController.getFogEnabledLocation());
-
+		
+		// Set projection matrix
+		projectionMatrix.store(matrix44Buffer); 
+		matrix44Buffer.flip();
+		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
+		ShaderController.setProgram(COLOR_PICKING_SHADER_PROGRAM);
+		GL20.glUseProgram(ShaderController.getCurrentProgram());
+		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
+		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		GL20.glUseProgram(0);
 	}
 	

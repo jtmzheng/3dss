@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 
 // vertex positions input attribute
 in vec2 vp;
@@ -11,7 +11,7 @@ out vec2 st;
 
 uniform mat4 projectionMatrix;
 
-void main () {
+void main (void) {
 	// interpolate texture coordinates
 	mat4 test = projectionMatrix;
 	st = vt;

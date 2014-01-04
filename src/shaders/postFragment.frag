@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 
 // texture coordinates from vertex shaders
 in vec2 st;
@@ -9,7 +9,7 @@ uniform sampler2D fbTex;
 // output fragment colour RGBA
 out vec4 frag_colour;
 
-void main () {
+void main (void) {
 	// invert colour of right-hand side
 	vec3 colour;
 	//if (st.s >= 0.5) {

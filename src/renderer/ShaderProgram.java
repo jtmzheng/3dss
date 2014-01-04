@@ -48,7 +48,6 @@ public class ShaderProgram {
 		// Set up the unifrom locations for this program
 		GL20.glUseProgram(programId);
 		setupUniformLocations();
-		System.out.println(shaderUniformLocations.values());
 		GL20.glUseProgram(0);
 	}
 	

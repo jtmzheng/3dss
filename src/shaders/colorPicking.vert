@@ -1,11 +1,11 @@
-#version 320
-
-in vec3 vp;
+#version 330 core
 
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
 
-void main () {
-	gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4 (vp, 1.0);
+in vec4 in_Position;
+
+void main (void) {
+	gl_Position = projectionMatrix * viewMatrix * modelMatrix * in_Position;
 }
