@@ -161,7 +161,7 @@ public class Player implements InputListener {
 	 */
 	@Override
 	public void onMouseClickedEvent(MouseClickEvent evt) {
-		if(enablePicking) {
+		if(enablePicking && evt.isPress()) {
 			renderer.selectPickedModel(evt.getX(), evt.getY());	
 		}
 	}

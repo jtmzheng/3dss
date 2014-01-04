@@ -7,7 +7,7 @@ import org.lwjgl.opengl.GL20;
 
 
 /**
- * PixelShaderProgram 
+ * This is the shader program used to render a texture to screen 
  * @author Max
  *
  */

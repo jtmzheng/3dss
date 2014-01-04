@@ -9,7 +9,7 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
 /**
- * ScreenQuad class
+ * ScreenQuad class defines a quad that spans the screen
  * @author Max
  *
  */

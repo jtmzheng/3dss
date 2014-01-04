@@ -7,7 +7,7 @@ import org.lwjgl.opengl.GL20;
 
 
 /**
- * 
+ * This shader program is used for color picking
  * @author Max
  *
  */

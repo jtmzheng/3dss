@@ -7,6 +7,11 @@ import org.lwjgl.opengl.GL20;
 
 import system.Settings;
 
+/**
+ * This is the default shader program used for rendering
+ * @author Max
+ *
+ */
 public class DefaultShaderProgram extends ShaderProgram{
 
 	public DefaultShaderProgram(Map<String, Integer> shaders) {

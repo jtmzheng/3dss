@@ -9,6 +9,11 @@ import java.util.Map;
 
 import org.lwjgl.opengl.GL20;
 
+/**
+ * The class is a wrapper for the OpenGL commands necessary to load/set shader programs
+ * @author Max
+ *
+ */
 public class ShaderProgram {
 	protected Map<String, Integer> shaderAttributes;
 	protected Map<String, Integer> shaderUniformLocations;
