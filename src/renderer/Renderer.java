@@ -36,6 +36,7 @@ public class Renderer {
 	// List of the models that will be rendered
 	private List<Model> models; 
 	private Map<Integer, Model> mapIdToModel;
+	
 	private int width;
 	private int height;
 	private int frameRate;
@@ -60,7 +61,7 @@ public class Renderer {
 	private final ShaderProgram COLOR_PICKING_SHADER_PROGRAM;
 	
 	private FrameBuffer postProcessFb;
-	private FrameBuffer colorPickingFb;
+	private FrameBuffer colourPickingFb;
 	private final Integer DEFAULT_FRAME_BUFFER = 0;
 	
 	// The frame buffer has its own unit id (for safety)
@@ -103,7 +104,7 @@ public class Renderer {
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
 		postProcessFb = new FrameBuffer(width, height);
-		colorPickingFb = new FrameBuffer(width, height);
+		colourPickingFb = new FrameBuffer(width, height);
 		
 		init();
 	}
@@ -141,7 +142,7 @@ public class Renderer {
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
 		postProcessFb = new FrameBuffer(width, height);
-		colorPickingFb = new FrameBuffer(width, height);
+		colourPickingFb = new FrameBuffer(width, height);
 		
 		// Initialize the texture manager
 		texManager = TextureManager.getInstance();
@@ -184,7 +185,7 @@ public class Renderer {
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
 		postProcessFb = new FrameBuffer(width, height);
-		colorPickingFb = new FrameBuffer(width, height);
+		colourPickingFb = new FrameBuffer(width, height);
 		
 		// Initialize the texture manager
 		texManager = TextureManager.getInstance();
@@ -233,7 +234,7 @@ public class Renderer {
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
 		postProcessFb = new FrameBuffer(width, height);
-		colorPickingFb = new FrameBuffer(width, height);
+		colourPickingFb = new FrameBuffer(width, height);
 		
 		// Initialize the texture manager
 		texManager = TextureManager.getInstance();
@@ -249,11 +250,12 @@ public class Renderer {
 	 */
 	public boolean bindNewModel(Model model) {
 		models.add(model);
+		mapIdToModel.put(model.getUID(), model);
 		return true;
 	}
 	
 	public void renderColourPicking() {
-		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, colorPickingFb.getFrameBuffer());	
+		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, colourPickingFb.getFrameBuffer());	
 		GL11.glViewport(0, 0, width, height);
 
 		// Select shader program.
@@ -374,12 +376,28 @@ public class Renderer {
 		return frameRate;
 	}
 	
+	public int getWidth() {
+		return width;
+	}
+	
+	public int getHeight() {
+		return height;
+	}
+	
 	/**
 	 * Get the fog 
 	 * @return fog 
 	 */
 	public Fog getFog() {
 		return fog;
+	}
+	
+	/**
+	 * Get model based off of UID
+	 * @return model
+	 */
+	public Model getModel(int id) {
+		return mapIdToModel.get(id);
 	}
 	
 	/**
@@ -398,6 +416,20 @@ public class Renderer {
 					ShaderController.getFogEnabledLocation());
 			GL20.glUseProgram(ShaderController.getCurrentProgram());
 		}
+	}
+	
+	/**
+	 * 
+	 * @param x
+	 * @param y
+	 */
+	public void selectPickedModel(int x, int y) {
+		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, colourPickingFb.getFrameBuffer());	
+		FloatBuffer pixel = BufferUtils.createFloatBuffer(4);
+		GL11.glReadPixels(x, y, 1, 1, GL11.GL_RGBA, GL11.GL_FLOAT, pixel);
+		int modelId = getModelId(pixel.get(0), pixel.get(1), pixel.get(2));
+		System.out.println("Id = " + modelId + " Exists? = " + this.mapIdToModel.containsKey(modelId) + " Keys: " + this.mapIdToModel.keySet());
+		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
 	}
 	
 	/**
@@ -505,4 +537,21 @@ public class Renderer {
 	private void setViewPort (int x, int y, int width, int height){
 		GL11.glViewport(0, 0, width, height);
 	}	
+	
+	/**
+	 * Get model ID from colour (for colour picking) 
+	 * @param r
+	 * @param g
+	 * @param b
+	 * @return
+	 */
+	private int getModelId(float r, float g, float b) {
+		int red = (int)Math.ceil(r * 255);
+		int green = (int)Math.ceil(g * 255);
+		int blue = (int)Math.ceil(b * 255);
+		
+		int rgb = ((red & 0x0ff) << 16) | ((green & 0x0ff) << 8) | (blue & 0x0ff);
+		System.out.println("Decode: Num = " + rgb + ", R = " + red + ", G = " + green + ", B = " + blue);
+		return rgb;
+	}
 }

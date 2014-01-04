@@ -82,7 +82,7 @@ public class Main {
 			playerProperties.setProperty("restitution", 0.75f);
 			
 			Model a = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), playerProperties);
-			player = new Player(gameCam, a);
+			player = new Player(gameCam, a, gameRenderer);
 			gameWorld.addModel(a);
 		} catch (InterruptedException | IOException e) {
 			e.printStackTrace();
