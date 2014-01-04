@@ -14,11 +14,11 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Vector3f;
 
 import renderer.Camera;
-import renderer.Light;
-import renderer.LightHandle;
-import renderer.LightManager;
-import renderer.Model;
 import renderer.Renderer;
+import renderer.light.Light;
+import renderer.light.LightHandle;
+import renderer.light.LightManager;
+import renderer.model.Model;
 import system.Settings;
 import event.PubSubListener;
 import event.PublishEventType;

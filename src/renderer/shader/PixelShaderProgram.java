@@ -1,9 +1,10 @@
-package renderer;
+package renderer.shader;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.lwjgl.opengl.GL20;
+
 
 /**
  * PixelShaderProgram 

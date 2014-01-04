@@ -1,4 +1,4 @@
-package renderer;
+package renderer.model;
 
 import java.util.ArrayList;
 import java.util.List;

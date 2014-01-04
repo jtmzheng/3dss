@@ -19,6 +19,14 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.vector.Matrix4f;
 
+import renderer.framebuffer.FrameBuffer;
+import renderer.framebuffer.ScreenQuad;
+import renderer.model.Model;
+import renderer.shader.ColorPickingShaderProgram;
+import renderer.shader.DefaultShaderProgram;
+import renderer.shader.PixelShaderProgram;
+import renderer.shader.ShaderController;
+import renderer.shader.ShaderProgram;
 import system.Settings;
 import texture.TextureManager;
 

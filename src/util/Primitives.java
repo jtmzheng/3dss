@@ -7,9 +7,9 @@ import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
 import physics.PhysicsModelProperties;
-import renderer.Model;
-import renderer.Face;
-import renderer.VertexData;
+import renderer.model.Face;
+import renderer.model.Model;
+import renderer.model.VertexData;
 import texture.Material;
 
 /**

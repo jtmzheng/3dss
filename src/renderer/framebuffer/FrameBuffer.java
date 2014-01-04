@@ -1,4 +1,4 @@
-package renderer;
+package renderer.framebuffer;
 
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 

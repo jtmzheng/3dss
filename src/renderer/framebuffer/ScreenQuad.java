@@ -1,4 +1,4 @@
-package renderer;
+package renderer.framebuffer;
 
 import java.nio.FloatBuffer;
 

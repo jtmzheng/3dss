@@ -11,7 +11,7 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
-import renderer.ShaderController;
+import renderer.shader.ShaderController;
 
 /**
  * Basic texture class used by the Renderer.

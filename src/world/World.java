@@ -3,8 +3,8 @@ package world;
 import javax.vecmath.Vector3f;
 
 import physics.PhysicsModel;
-import renderer.Model;
 import renderer.Renderer;
+import renderer.model.Model;
 
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;

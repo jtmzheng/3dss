@@ -1,6 +1,7 @@
-package renderer;
+package renderer.shader;
 
 import java.util.Map;
+
 
 /**
  * ShaderController will manage the current shader program

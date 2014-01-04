@@ -14,9 +14,9 @@ import org.lwjgl.util.vector.Vector3f;
 import physics.PhysicsModelProperties;
 import renderer.Camera;
 import renderer.Fog;
-import renderer.Model;
-import renderer.ModelFactory;
 import renderer.Renderer;
+import renderer.model.Model;
+import renderer.model.ModelFactory;
 import world.World;
 import characters.Player;
 

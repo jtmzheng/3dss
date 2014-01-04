@@ -1,4 +1,4 @@
-package renderer;
+package renderer.model;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -22,6 +22,9 @@ import org.lwjgl.util.vector.Vector4f;
 
 import physics.PhysicsModel;
 import physics.PhysicsModelProperties;
+import renderer.light.Light;
+import renderer.light.LightHandle;
+import renderer.shader.ShaderController;
 import system.Settings;
 import texture.Material;
 import texture.Texture;

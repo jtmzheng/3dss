@@ -1,6 +1,8 @@
-package renderer;
+package renderer.light;
 
 import org.lwjgl.opengl.GL20;
+
+import renderer.shader.ShaderController;
 
 /**
  * This class holds all the uniform locations for a given light.
