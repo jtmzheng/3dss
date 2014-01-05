@@ -477,10 +477,7 @@ public class Renderer {
 	/**
 	 * Initializes the renderer
 	 */
-	private void init() {
-		// Set to default shader program
-		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
-		
+	private void init() {		
 		models = new ArrayList<>();
 		mapIdToModel = new HashMap<>();
 		postProcessConversions = new HashSet<>();
@@ -507,30 +504,33 @@ public class Renderer {
 
 		// Create a FloatBuffer with the proper size to store our matrices later
 		matrix44Buffer = BufferUtils.createFloatBuffer(16);
-
-		// Initialize the uniform variables
-		GL20.glUseProgram(ShaderController.getCurrentProgram());
 		viewMatrix.store(matrix44Buffer);
 		matrix44Buffer.flip();
-		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
-		ShaderController.setProgram(COLOR_PICKING_SHADER_PROGRAM);
-		GL20.glUseProgram(ShaderController.getCurrentProgram());
-		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
+		
+		// Initialize the uniform variables
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
-
+		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
 		fog.updateFogUniforms(ShaderController.getFogColorLocation(),
 				ShaderController.getFogMinDistanceLocation(), 
 				ShaderController.getFogMaxDistanceLocation(), 
 				ShaderController.getFogEnabledLocation());
 		
+		ShaderController.setProgram(COLOR_PICKING_SHADER_PROGRAM);
+		GL20.glUseProgram(ShaderController.getCurrentProgram());
+		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
+		
 		// Set projection matrix
 		projectionMatrix.store(matrix44Buffer); 
 		matrix44Buffer.flip();
+		
+		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
+		GL20.glUseProgram(ShaderController.getCurrentProgram());
 		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
 		ShaderController.setProgram(COLOR_PICKING_SHADER_PROGRAM);
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
 		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
+		
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		GL20.glUseProgram(0);
 	}
