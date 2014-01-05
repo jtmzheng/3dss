@@ -14,6 +14,7 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Vector3f;
 
 import renderer.Camera;
+import renderer.Conversion;
 import renderer.Renderer;
 import renderer.light.Light;
 import renderer.light.LightHandle;
@@ -55,6 +56,7 @@ public class Player implements InputListener {
 
 	private boolean enableAcceleration;
 	private boolean enablePicking;
+	private boolean enableInvertColours;
 	
 	private float acceleration = 100f;
 	private float MAX_SPEED = 1700f;
@@ -221,11 +223,20 @@ public class Player implements InputListener {
 			break;
 		}
 		case Keyboard.KEY_1: {
-			enablePicking = false;
+			if(pressed) {
+				enablePicking = !enablePicking;
+			}
 			break;
 		}
 		case Keyboard.KEY_2: {
-			enablePicking = true;
+			if(pressed) {
+				enableInvertColours = !enableInvertColours;
+				if(enableInvertColours) {
+					renderer.addImageConversion(Conversion.INVERT_COLOURS);
+				} else {
+					renderer.removeImageConversion(Conversion.INVERT_COLOURS);
+				}
+			}
 			break;
 		}
 		}

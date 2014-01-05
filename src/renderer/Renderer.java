@@ -3,8 +3,10 @@ package renderer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -68,9 +70,11 @@ public class Renderer {
 	private final ShaderProgram POST_PROCESS_SHADER_PROGRAM; 
 	private final ShaderProgram COLOR_PICKING_SHADER_PROGRAM;
 	
+	// Frame buffers
 	private FrameBuffer postProcessFb;
 	private FrameBuffer colourPickingFb;
 	private final Integer DEFAULT_FRAME_BUFFER = 0;
+	private Set<Conversion> postProcessConversions;
 	
 	// The frame buffer has its own unit id (for safety)
 	private int fbTexUnitId;
@@ -296,7 +300,11 @@ public class Renderer {
 	 * Renders the new scene.
 	 */
 	public void renderScene () {
-		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, postProcessFb.getFrameBuffer());
+		// Render to texture if post process set is not empty
+		if(!postProcessConversions.isEmpty()) {
+			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, postProcessFb.getFrameBuffer());
+		}
+		
 		GL11.glViewport(0, 0, width, height);
 
 		// Select shader program.
@@ -322,25 +330,25 @@ public class Renderer {
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		GL30.glBindVertexArray(0);
 
-		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
-		GL11.glViewport(-width, -height, width * 2, height * 2); // @TODO: Hack
-		
-		// If not the default frame buffer, render to the screen
-		if(postProcessFb.getFrameBuffer() != DEFAULT_FRAME_BUFFER) {
+		// Render frame buffer to screen if needed
+		if(!postProcessConversions.isEmpty()) {
+			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
+			GL11.glViewport(-width, -height, width * 2, height * 2); // @TODO: Hack
+
 			int testVal = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
 			if(testVal == GL30.GL_FRAMEBUFFER_COMPLETE) {
 				GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
 				ShaderController.setProgram(POST_PROCESS_SHADER_PROGRAM);
 				GL20.glUseProgram(ShaderController.getCurrentProgram());
-				
+
 				GL13.glActiveTexture(fbTexUnitId);
-			    GL20.glUniform1i(ShaderController.getFBTexLocation(), fbTexUnitId - GL13.GL_TEXTURE0);
+				GL20.glUniform1i(ShaderController.getFBTexLocation(), fbTexUnitId - GL13.GL_TEXTURE0);
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, postProcessFb.getFrameBufferTexture());
-							
+
 				// Regenerate the mip map
 				GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
-				
+
 				// Bind the VAO for the Screen Quad
 				GL30.glBindVertexArray(screen.getVAOId());
 
@@ -440,6 +448,18 @@ public class Renderer {
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
 	}
 	
+	public boolean addImageConversion(Conversion conversion) {
+		return postProcessConversions.add(conversion);
+	}
+	
+	public boolean removeImageConversion(Conversion conversion) {
+		return postProcessConversions.remove(conversion);
+	}
+	
+	public void resetImageConversions() {
+		postProcessConversions = new HashSet<>();
+	}
+	
 	/**
 	 * Initializes the renderer
 	 */
@@ -449,6 +469,7 @@ public class Renderer {
 		
 		models = new ArrayList<>();
 		mapIdToModel = new HashMap<>();
+		postProcessConversions = new HashSet<>();
 		
 		// Set up view and projection matrices
 		projectionMatrix = new Matrix4f();
