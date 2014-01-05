@@ -269,11 +269,7 @@ public class Model {
 		// Copy the model faces
 		List<Face> faceList = new ArrayList<>();
 		for (Face face : model.getFaceList()) {
-			List<VertexData> transformedVertices = new ArrayList<>();
-			for (VertexData v : face.getVertices()) {
-				transformedVertices.add(new VertexData(v));
-			}
-			faceList.add(new Face(transformedVertices, face.getMaterial()));
+			faceList.add(new Face(face));
 		}
 
 		// Set member variables

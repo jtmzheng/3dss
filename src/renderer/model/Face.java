@@ -47,7 +47,7 @@ public class Face {
 	 * @param c VertexData of third vertex
 	 */
 	public Face(VertexData a, VertexData b, VertexData c, Material m) {
-		faceData = new ArrayList<VertexData>();
+		faceData = new ArrayList<>();
 		
 		a.setAmbient(m.Ka[0], m.Ka[1], m.Ka[2]);
 		a.setDiffuse(m.Kd[0], m.Kd[1], m.Kd[2], m.Kd[3]);
@@ -68,6 +68,19 @@ public class Face {
 		faceData.add(c);
 		
 		this.material = m;
+	}
+	
+	/**
+	 * Copy constructor
+	 * @param face
+	 */
+	public Face(Face face) {
+		faceData = new ArrayList<>();
+		for(VertexData vd : face.getVertices()) {
+			faceData.add(new VertexData(vd));
+		}
+		
+		this.material = face.material;
 	}
 	
 	/**
