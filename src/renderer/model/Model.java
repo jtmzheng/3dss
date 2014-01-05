@@ -255,8 +255,8 @@ public class Model {
 		setup(DEFAULT_INITIAL_POSITION, physicsProps);
 
 		// Set the UID to the hash code
-		uniqueId = hashCode();
-		uniqueIdColour = encodeColour(uniqueId);
+		uniqueIdColour = encodeColour(hashCode());
+		uniqueId = decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
 	}
 	/**
 	 * Copy constructor
@@ -286,8 +286,8 @@ public class Model {
 		setup(position, physicsProps);
 
 		// Set the UID to the hash code
-		uniqueId = hashCode();
-		uniqueIdColour = encodeColour(uniqueId);
+		uniqueIdColour = encodeColour(hashCode());
+		uniqueId = decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
 	}
 
 	/**
