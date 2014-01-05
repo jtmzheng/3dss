@@ -52,5 +52,8 @@ public class DefaultShaderProgram extends ShaderProgram{
 		shaderUniformLocations.put("fogColor", GL20.glGetUniformLocation(getProgram(), "fogColor"));
 		shaderUniformLocations.put("fogMinDistance", GL20.glGetUniformLocation(getProgram(), "fogMinDistance"));
 		shaderUniformLocations.put("fogMaxDistance", GL20.glGetUniformLocation(getProgram(), "fogMaxDistance"));
+		
+		// Color picking locations
+		shaderUniformLocations.put("selectedModel", GL20.glGetUniformLocation(getProgram(), "selectedModel"));
 	}
 }

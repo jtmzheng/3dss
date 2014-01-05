@@ -5,12 +5,7 @@ import input.KeyEvent;
 import input.MouseClickEvent;
 import input.MouseMoveEvent;
 
-import java.nio.FloatBuffer;
-
-import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Vector3f;
 
 import renderer.Camera;

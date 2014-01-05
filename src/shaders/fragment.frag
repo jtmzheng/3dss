@@ -32,6 +32,7 @@ struct lightSrc
 };
 
 uniform lightSrc lights[MAX_NUM_LIGHTS];
+uniform int selectedModel = 0;
 
 in vec3 sKs, sKd, sKa;
 in vec2 pass_texture;
@@ -106,16 +107,20 @@ void main(void) {
 	    } 
 	    
 	}
-	
-	// Get the textured color
-	vec4 texel = texture(textureSampler, pass_texture);
-	
-	// Mix the color with the fog color if fog is enabled
-	if(fogOn == 1) {  
-		float fogFactor = getFogFactor(length(position_eye));
-		out_Color = mix(vec4(lightTotal, 1.0) + texel, vec4(fogColor, 1.0), fogFactor);
-	} else {
-		out_Color = vec4(lightTotal, 1.0) + texel;
+	if(selectedModel == 0) {
+		// Get the textured color
+		vec4 texel = texture(textureSampler, pass_texture);
+		
+		// Mix the color with the fog color if fog is enabled
+		if(fogOn == 1) {  
+			float fogFactor = getFogFactor(length(position_eye));
+			out_Color = mix(vec4(lightTotal, 1.0) + texel, vec4(fogColor, 1.0), fogFactor);
+		} else {
+			out_Color = vec4(lightTotal, 1.0) + texel;
+		}
+	} else { 
+		// Color red if selected (picked)
+		out_Color = vec4(1.0, 0.0, 0.0, 1.0);
 	}
 	
 }

@@ -27,6 +27,7 @@ public class ShaderController {
 	private static int fogMaxDistanceLocation = -1;
 	private static int fbTextureSamplerLocation = -1;
 	private static int uniqueIdLocation = -1;
+	private static int selectedModelLocation = -1;
 	
 	private static int currentProgram = 0;
 
@@ -73,6 +74,9 @@ public class ShaderController {
 		
 		// Unique ID location
 		uniqueIdLocation = uniformLocations.containsKey("uniqueId") ? uniformLocations.get("uniqueId") : -1;
+		
+		// Selected model location
+		selectedModelLocation = uniformLocations.containsKey("selectedModel") ? uniformLocations.get("selectedModel") : -1;
 		
 		return true;
 	}
@@ -168,5 +172,9 @@ public class ShaderController {
 	
 	public static int getUniqueIdLocation(){
 		return uniqueIdLocation;
+	}
+	
+	public static int getSelectedModelLocation(){
+		return selectedModelLocation;
 	}
 }

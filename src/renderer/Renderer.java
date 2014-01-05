@@ -46,6 +46,7 @@ public class Renderer {
 	// List of the models that will be rendered
 	private List<Model> models; 
 	private Map<Integer, Model> mapIdToModel;
+	private Model pickedModel = null;
 	
 	private int width;
 	private int height;
@@ -323,7 +324,7 @@ public class Renderer {
 		
 		// Render each model
 		for(Model m: models){
-			m.render();
+			m.render(m.equals(pickedModel));
 		}
         		
 		// Deselect
@@ -435,16 +436,29 @@ public class Renderer {
 	}
 	
 	/**
-	 * 
-	 * @param x
-	 * @param y
+	 * Select or deselect current colour picked model 
+	 * @param x x-coordinate to sample pixel
+	 * @param y y-coordinate to sample pixel
 	 */
 	public void selectPickedModel(int x, int y) {
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, colourPickingFb.getFrameBuffer());	
 		FloatBuffer pixel = BufferUtils.createFloatBuffer(4);
 		GL11.glReadPixels(x, y, 1, 1, GL11.GL_RGBA, GL11.GL_FLOAT, pixel);
 		int modelId = getModelId(pixel.get(0), pixel.get(1), pixel.get(2));
-		System.out.println("Id = " + modelId + " Exists? = " + this.mapIdToModel.containsKey(modelId) + " Keys: " + this.mapIdToModel.keySet());
+		
+		// Check if the model is valid
+		if(mapIdToModel.containsKey(modelId)) {
+			// Select if not picked
+			if(!mapIdToModel.get(modelId).equals(pickedModel)) {
+				pickedModel = mapIdToModel.get(modelId);
+			} else {
+				pickedModel = null;
+			}
+		} else {
+			pickedModel = null;
+		}
+		
+		// System.out.println("Id = " + modelId + " Exists? = " + this.mapIdToModel.containsKey(modelId) + " Keys: " + this.mapIdToModel.keySet());
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
 	}
 	

@@ -512,7 +512,7 @@ public class Model {
 	 * Render a model that has already been set up
 	 * @TODO: Make a class for the HashMaps (a struct) - will keep it cleaner
 	 */
-	public void render() {
+	public void render(boolean isPicked) {
 		if(renderFlag) {		
 			FloatBuffer modelMatrixBuffer = BufferUtils.createFloatBuffer(16);
 			modelMatrix = physicsModel.getTransformMatrix();
@@ -520,6 +520,13 @@ public class Model {
 			modelMatrixBuffer.flip();
 
 			GL20.glUniformMatrix4(ShaderController.getModelMatrixLocation(), false, modelMatrixBuffer);
+			
+			// If model is picked change the colour
+			if(isPicked) {
+				GL20.glUniform1i(ShaderController.getSelectedModelLocation(), 1);
+			} else {
+				GL20.glUniform1i(ShaderController.getSelectedModelLocation(), 0);
+			}
 
 			// Do bind and draw for each material's faces
 			for(Material material : mapMaterialToFaces.keySet()) {
