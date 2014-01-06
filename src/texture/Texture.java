@@ -11,7 +11,7 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
-import renderer.ShaderController;
+import renderer.shader.ShaderController;
 
 /**
  * Basic texture class used by the Renderer.
@@ -124,17 +124,15 @@ public class Texture {
 		// If not already bound and valid unit Id
 		if(!isBound && unitId > 0) {
 			texId = GL11.glGenTextures();
-
+			
+			// Activate the texture unit
+			GL13.glActiveTexture(unitId);
 			// Set uniform variable of texture slot
 			GL20.glUseProgram(ShaderController.getCurrentProgram());
 			GL20.glUniform1i(ShaderController.getTexSamplerLocation(), unitId - GL13.GL_TEXTURE0);
 			GL20.glUseProgram(0);
-			
-			GL13.glActiveTexture(unitId); 
-
 			GL11.glBindTexture(GL_TEXTURE_2D, texId);
 			GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
-			
 			
 			GL11.glTexImage2D (
 					GL_TEXTURE_2D,
@@ -157,6 +155,7 @@ public class Texture {
 			GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
 
 			isBound = true;
+			GL11.glBindTexture(GL_TEXTURE_2D, 0);
 		}
 	}
 

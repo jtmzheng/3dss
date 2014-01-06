@@ -14,7 +14,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
-import renderer.Face;
+import renderer.model.Face;
 import texture.Material;
 
 /**

@@ -1,4 +1,5 @@
-package renderer;
+package renderer.light;
+
 
 /*
  * LightHandle class (Description to be added)

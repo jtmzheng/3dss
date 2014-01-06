@@ -14,9 +14,9 @@ import org.lwjgl.util.vector.Vector3f;
 import physics.PhysicsModelProperties;
 import renderer.Camera;
 import renderer.Fog;
-import renderer.Model;
-import renderer.ModelFactory;
 import renderer.Renderer;
+import renderer.model.Model;
+import renderer.model.ModelFactory;
 import world.World;
 import characters.Player;
 
@@ -82,7 +82,7 @@ public class Main {
 			playerProperties.setProperty("restitution", 0.75f);
 			
 			Model a = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), playerProperties);
-			player = new Player(gameCam, a);
+			player = new Player(gameCam, a, gameRenderer);
 			gameWorld.addModel(a);
 		} catch (InterruptedException | IOException e) {
 			e.printStackTrace();
@@ -106,7 +106,7 @@ public class Main {
 		Fog worldFog = new Fog(true);
 		
 		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
-		gameRenderer = new Renderer(600, 600, gameCam, 60, worldFog);
+		gameRenderer = new Renderer(512, 512, gameCam, 60, worldFog);
 		gameWorld = new World(gameRenderer);
 		
 		try{

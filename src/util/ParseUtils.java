@@ -6,8 +6,8 @@ import java.util.List;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
-import renderer.Face;
-import renderer.VertexData;
+import renderer.model.Face;
+import renderer.model.VertexData;
 import texture.Material;
 
 /**

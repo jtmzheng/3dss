@@ -3,8 +3,8 @@ package world;
 import javax.vecmath.Vector3f;
 
 import physics.PhysicsModel;
-import renderer.Model;
 import renderer.Renderer;
+import renderer.model.Model;
 
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
@@ -45,6 +45,7 @@ public class World {
 	
 	public void simulate() {
 		dynamicsWorld.stepSimulation(1.0f / renderer.getFrameRate());
+		renderer.renderColourPicking();
 		renderer.renderScene();
 	}
 	

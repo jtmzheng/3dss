@@ -27,8 +27,14 @@ public class Settings {
 		settings.put("Ka", 5);
 		settings.put("specExp", 6);
 		settings.put("texture", 7);
+		
+		// Paths
 		settings.put("vertex_path", "src/shaders/vertex.vert");
 		settings.put("fragment_path",  "src/shaders/fragment.frag");
+		settings.put("post_vertex_path", "src/shaders/postVertex.vert");
+		settings.put("post_fragment_path", "src/shaders/postFragment.frag");
+		settings.put("picking_vertex_path", "src/shaders/colorPicking.vert");
+		settings.put("picking_fragment_path", "src/shaders/colorPicking.frag");
 		settings.put("log_folder", "logs/");
 		settings.put("pwd", System.getProperty("user.dir"));
 		settings.put("playerAcceleration", false);

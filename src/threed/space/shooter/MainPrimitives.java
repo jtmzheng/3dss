@@ -13,8 +13,8 @@ import org.lwjgl.util.vector.Vector3f;
 import physics.PhysicsModelProperties;
 import renderer.Camera;
 import renderer.Fog;
-import renderer.Model;
 import renderer.Renderer;
+import renderer.model.Model;
 import util.Primitives;
 import world.World;
 import characters.Player;
@@ -80,7 +80,7 @@ public class MainPrimitives {
 		playerProperties.setProperty("restitution", 0.75f);
 		
 		Model a = Primitives.getRectangularPrism(5, 5, 10, playerProperties);
-		player = new Player(gameCam, a);
+		player = new Player(gameCam, a, gameRenderer);
 		gameWorld.addModel(a);
 		
 		rawInputs.add(new MouseInput());

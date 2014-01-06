@@ -9,10 +9,12 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector3f;
 
 import renderer.Camera;
-import renderer.Light;
-import renderer.LightHandle;
-import renderer.LightManager;
-import renderer.Model;
+import renderer.Conversion;
+import renderer.Renderer;
+import renderer.light.Light;
+import renderer.light.LightHandle;
+import renderer.light.LightManager;
+import renderer.model.Model;
 import system.Settings;
 import event.PubSubListener;
 import event.PublishEventType;
@@ -32,6 +34,7 @@ public class Player implements InputListener {
 	// Camera object that the player uses.
 	private Camera playerCam;
 	private Model playerModel;
+	private Renderer renderer;
 	
 	//Light parameters
 	private Vector3f mLd;
@@ -47,6 +50,9 @@ public class Player implements InputListener {
 	private float speed_y = 0.0f;
 
 	private boolean enableAcceleration;
+	private boolean enablePicking;
+	private boolean enableInvertColours;
+	
 	private float acceleration = 100f;
 	private float MAX_SPEED = 1700f;
 	private float drag = 0.001f;
@@ -62,11 +68,14 @@ public class Player implements InputListener {
 
 	/**
 	 * Constructs a Player with a Camera.
-	 * @param c The Camera object that abstracts out the view matrix logic.
+	 * @param c The camera object that abstracts out the view matrix logic.
+	 * @param m The player model
+	 * @param r The renderer
 	 */
-	public Player(Camera c, Model m) {
+	public Player(Camera c, Model m, Renderer r) {
 		playerCam = c;
 		playerModel = m;
+		renderer = r;
 		setup();
 	}
 
@@ -87,6 +96,7 @@ public class Player implements InputListener {
 		lightManager = LightManager.getLightManagerHandle();
 
 		enableAcceleration = Settings.getBoolean("playerAcceleration");
+		enablePicking = false;
 		
 		// The player model should not be rendered.
 		playerModel.setRenderFlag(false);
@@ -148,7 +158,9 @@ public class Player implements InputListener {
 	 */
 	@Override
 	public void onMouseClickedEvent(MouseClickEvent evt) {
-		// Stub
+		if(enablePicking && evt.isPress()) {
+			renderer.selectPickedModel(evt.getX(), evt.getY());	
+		}
 	}
 
 	/**
@@ -203,6 +215,24 @@ public class Player implements InputListener {
 			if (pressed) {
 				triggerLight();
 			}
+			break;
+		}
+		case Keyboard.KEY_1: {
+			if(pressed) {
+				enablePicking = !enablePicking;
+			}
+			break;
+		}
+		case Keyboard.KEY_2: {
+			if(pressed) {
+				enableInvertColours = !enableInvertColours;
+				if(enableInvertColours) {
+					renderer.addImageConversion(Conversion.INVERT_COLOURS);
+				} else {
+					renderer.removeImageConversion(Conversion.INVERT_COLOURS);
+				}
+			}
+			break;
 		}
 		}
 	}

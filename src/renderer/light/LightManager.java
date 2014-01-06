@@ -1,4 +1,4 @@
-package renderer;
+package renderer.light;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,6 +6,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import org.lwjgl.opengl.GL20;
+
+import renderer.shader.ShaderController;
 
 //@TODO: Id management should probably be handled privately
 //@TODO: updateLight(LightGL lgl) method

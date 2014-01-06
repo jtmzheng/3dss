@@ -1,10 +1,11 @@
-package renderer;
+package renderer.light;
 
 import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Vector3f;
+
 
 /**
  * Phong lighting implementation.

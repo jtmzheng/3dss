@@ -1,4 +1,4 @@
-package renderer;
+package renderer.model;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -22,6 +22,9 @@ import org.lwjgl.util.vector.Vector4f;
 
 import physics.PhysicsModel;
 import physics.PhysicsModelProperties;
+import renderer.light.Light;
+import renderer.light.LightHandle;
+import renderer.shader.ShaderController;
 import system.Settings;
 import texture.Material;
 import texture.Texture;
@@ -65,18 +68,22 @@ public class Model {
 
 	// LightHandle of the model
 	private LightHandle mLightHandle = null;
-	
+
 	// TextureManager instance
 	private TextureManager texManager;
-	
+
 	// Physics model
 	private PhysicsModel physicsModel;
-	
+
 	// Flag for whether this model should be rendered
 	private boolean renderFlag;	
 
+	// Unique ID for the model (used for picking)
+	private final int uniqueId;
+	private final Vector3f uniqueIdColour;
+
 	private PhysicsModelProperties physicsProps;
-	
+
 	/**
 	 * Merges the meshes of two models and returns the merged model.
 	 * Ignores the physics model properties of the two and uses the defaults. If custom
@@ -151,7 +158,7 @@ public class Model {
 		for (int i = 1; i < modelList.size(); i++) {
 			mergedModel = Model.merge(mergedModel, modelList.get(i), props);
 		}
-		
+
 		return mergedModel;
 	}
 
@@ -170,7 +177,7 @@ public class Model {
 			Vector3f ls, 
 			Vector3f la, 
 			PhysicsModelProperties rigidBodyProp){
-		
+
 		this.faces = f;
 		this.physicsProps = rigidBodyProp;
 
@@ -182,6 +189,10 @@ public class Model {
 
 		// Setup the light associated with this model
 		mLightHandle = new LightHandle(this, new Light(pos, ls, ld, la, null));
+
+		// Set the ID to the hash code
+		uniqueIdColour = encodeColour(hashCode());
+		uniqueId = decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
 	}
 
 	/**
@@ -193,7 +204,7 @@ public class Model {
 	public Model(List<Face> f,
 			Vector3f pos,
 			PhysicsModelProperties rigidBodyProp){
-		
+
 		this.faces = f;
 		this.physicsProps = rigidBodyProp;
 
@@ -202,6 +213,10 @@ public class Model {
 
 		// Setup the model 
 		setup(pos, rigidBodyProp);
+
+		// Set the ID to the hash code
+		uniqueIdColour = encodeColour(hashCode());
+		uniqueId = decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
 	}
 
 	/**
@@ -211,7 +226,7 @@ public class Model {
 	 */
 	public Model(List<Face> f,
 			PhysicsModelProperties rigidBodyProp){
-		
+
 		this.faces = f;
 		this.physicsProps = rigidBodyProp;
 
@@ -219,8 +234,12 @@ public class Model {
 		texManager = TextureManager.getInstance();
 
 		setup(DEFAULT_INITIAL_POSITION, rigidBodyProp);
+
+		// Set the ID to the hash code
+		uniqueIdColour = encodeColour(hashCode());
+		uniqueId = decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
 	}
-	
+
 	/**
 	 * Constructs a model (a representation of a 3D object). This constructor
 	 * uses default physicsmodel properties.
@@ -229,11 +248,15 @@ public class Model {
 	public Model(List<Face> f) {
 		this.faces = f;
 		this.physicsProps = new PhysicsModelProperties();
-		
+
 		// Get instance of texture manager.
 		texManager = TextureManager.getInstance();
-		
+
 		setup(DEFAULT_INITIAL_POSITION, physicsProps);
+
+		// Set the UID to the hash code
+		uniqueIdColour = encodeColour(hashCode());
+		uniqueId = decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
 	}
 	/**
 	 * Copy constructor
@@ -242,25 +265,25 @@ public class Model {
 	 */
 	public Model(Model model, 
 			Vector3f position) {
-		
+
 		// Copy the model faces
 		List<Face> faceList = new ArrayList<>();
 		for (Face face : model.getFaceList()) {
-			List<VertexData> transformedVertices = new ArrayList<>();
-			for (VertexData v : face.getVertices()) {
-				transformedVertices.add(new VertexData(v));
-			}
-			faceList.add(new Face(transformedVertices, face.getMaterial()));
+			faceList.add(new Face(face));
 		}
 
 		// Set member variables
 		this.faces = faceList;
 		this.physicsProps = new PhysicsModelProperties(model.getPhysicsProperties());
-		
+
 		// Get instance of texture manager
 		texManager = TextureManager.getInstance();
-		
+
 		setup(position, physicsProps);
+
+		// Set the UID to the hash code
+		uniqueIdColour = encodeColour(hashCode());
+		uniqueId = decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
 	}
 
 	/**
@@ -280,12 +303,12 @@ public class Model {
 
 		// Split face list into a list of face lists, each having their own material.
 		mapMaterialToFaces = new HashMap<>();
-		
+
 		// Set up HashMaps
 		mapVAOIds = new HashMap<>();
 		mapVBOIndexIds = new HashMap<>();
 		mapIndiceCount = new HashMap<>();
-		
+
 		Material currentMaterial = null;
 
 		// Split the faces up by material
@@ -307,10 +330,11 @@ public class Model {
 
 		for(Material material : mapMaterialToFaces.keySet()) {
 			List<Face> materialFaces = mapMaterialToFaces.get(material);
-			
+
 			// Put each 'Vertex' in one FloatBuffer
 			ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(materialFaces.size() *  3 * VertexData.stride); //TODO : Allocating proper amount
 			FloatBuffer verticesFloatBuffer = verticesByteBuffer.asFloatBuffer();
+			
 			Map<VertexData, Integer> vboIndexMap = new HashMap<VertexData, Integer>();
 			List<Integer> vboIndex = new ArrayList<Integer>();
 			VertexData tempVertexData;
@@ -356,8 +380,7 @@ public class Model {
 				else{
 					vboIndex.add(vboIndexMap.get(tempVertexData));
 					modelShapePoints.add(new javax.vecmath.Vector3f(tempVertexData.getXYZ()));
-				}
-
+				}			
 			}
 
 			//Create VBO Index buffer
@@ -378,6 +401,15 @@ public class Model {
 			int vaoID = GL30.glGenVertexArrays();
 			mapVAOIds.put(material, vaoID);
 			GL30.glBindVertexArray(vaoID);
+
+			// Enable the attributes
+			GL20.glEnableVertexAttribArray(0); //position
+			GL20.glEnableVertexAttribArray(1); //color
+			GL20.glEnableVertexAttribArray(2); //texture
+			GL20.glEnableVertexAttribArray(3); //normal
+			GL20.glEnableVertexAttribArray(4);
+			GL20.glEnableVertexAttribArray(5);
+			GL20.glEnableVertexAttribArray(6);
 
 			// Create a new Vertex Buffer Object in memory and select it (bind)
 			int vboId = GL15.glGenBuffers();
@@ -419,47 +451,79 @@ public class Model {
 			mapVBOIndexIds.put(material, vboiID);
 			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiID);
 			GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
-			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-			
+			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);				
 		}
-		
+
 		// Deselect (bind to 0) the VAO
 		GL30.glBindVertexArray(0);
-		
+
 		// Bind all the textures
 		for(Material material : this.mapMaterialToFaces.keySet()) {
 			Texture tex = material.mapKdTexture;
 			int textureUnitId = texManager.getTextureSlot();
-	        tex.bind(textureUnitId);
-	        texManager.returnTextureSlot(textureUnitId);
+			tex.bind(textureUnitId);
+			texManager.returnTextureSlot(textureUnitId);
 		}
-		
+
 		//Initialize model matrix (Initialized to the identity in the constructor)
 		modelMatrix = new Matrix4f(); 
-		
+
 		// Create and initialize the physics model
 		CollisionShape modelShape = new ConvexHullShape(modelShapePoints);
 		physicsModel = setupPhysicsModel(modelShape, initialPosition, rigidBodyProp);
-	
+
 		renderFlag = true;
-		
+
 		System.out.println("Model loading to GPU: " + (System.currentTimeMillis() - curTime));
 	}
-	
+
+	public void renderPicking() {
+		if(renderFlag) {		
+			FloatBuffer modelMatrixBuffer = BufferUtils.createFloatBuffer(16);
+			FloatBuffer uniqueIdBuffer = BufferUtils.createFloatBuffer(3);
+			
+			modelMatrix = physicsModel.getTransformMatrix();
+			modelMatrix.store(modelMatrixBuffer);
+			modelMatrixBuffer.flip();
+			uniqueIdColour.store(uniqueIdBuffer);
+			uniqueIdBuffer.flip();
+
+			GL20.glUniformMatrix4(ShaderController.getModelMatrixLocation(), false, modelMatrixBuffer);
+			GL20.glUniform3(ShaderController.getUniqueIdLocation(), uniqueIdBuffer);
+
+			// Do bind and draw for each material's faces
+			for(Material material : mapMaterialToFaces.keySet()) {
+				GL30.glBindVertexArray(mapVAOIds.get(material));
+				
+				// Bind to the index VBO that has all the information about the order of the vertices
+				GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mapVBOIndexIds.get(material));
+
+				// Draw the vertices
+				GL11.glDrawElements(GL11.GL_TRIANGLES, mapIndiceCount.get(material), GL11.GL_UNSIGNED_INT, 0);
+			}
+		}
+	}
+
 	/**
 	 * Render a model that has already been set up
 	 * @TODO: Make a class for the HashMaps (a struct) - will keep it cleaner
 	 */
-	public void render() {
-		if(renderFlag) {
+	public void render(boolean isPicked) {
+		if(renderFlag) {		
 			FloatBuffer modelMatrixBuffer = BufferUtils.createFloatBuffer(16);
 			modelMatrix = physicsModel.getTransformMatrix();
-
 			modelMatrix.store(modelMatrixBuffer);
 			modelMatrixBuffer.flip();
-	 
+
 			GL20.glUniformMatrix4(ShaderController.getModelMatrixLocation(), false, modelMatrixBuffer);
 			
+			// If model is picked change the colour
+			if(isPicked) {
+				GL20.glUniform1i(ShaderController.getSelectedModelLocation(), 1);
+			} else {
+				GL20.glUniform1i(ShaderController.getSelectedModelLocation(), 0);
+			}
+
 			// Do bind and draw for each material's faces
 			for(Material material : mapMaterialToFaces.keySet()) {
 				// Loop through all texture Ids for a given material
@@ -479,13 +543,6 @@ public class Model {
 				}
 
 				GL30.glBindVertexArray(mapVAOIds.get(material));
-				GL20.glEnableVertexAttribArray(0); //position
-				GL20.glEnableVertexAttribArray(1); //color
-				GL20.glEnableVertexAttribArray(2); //texture
-				GL20.glEnableVertexAttribArray(3); //normal
-				GL20.glEnableVertexAttribArray(4);
-				GL20.glEnableVertexAttribArray(5);
-				GL20.glEnableVertexAttribArray(6);
 
 				// Bind to the index VBO that has all the information about the order of the vertices
 				GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mapVBOIndexIds.get(material));
@@ -495,7 +552,7 @@ public class Model {
 			}
 		}
 	}
-	
+
 	/**
 	 * Apply a force on the model 
 	 * @param force
@@ -503,7 +560,7 @@ public class Model {
 	public void applyForce(Vector3f force) {
 		physicsModel.applyForce(force);
 	}
-	
+
 	/**
 	 * Translate the model by a given vector
 	 * @param s The displacement vector
@@ -563,11 +620,11 @@ public class Model {
 	public Matrix4f getModelMatrix() {
 		return modelMatrix;
 	}
-	
+
 	public float[] getModelMatrixBuffer() {
 		return physicsModel.getOpenGLTransformMatrix();
 	}
-	
+
 	/**
 	 * Get the physics model associated with this model.
 	 * @return
@@ -575,7 +632,7 @@ public class Model {
 	public PhysicsModel getPhysicsModel() {
 		return physicsModel;
 	}
-	
+
 	/**
 	 * Get whether the model is currently being rendered
 	 * @return
@@ -583,7 +640,7 @@ public class Model {
 	public boolean getRenderFlag() {
 		return renderFlag;
 	}
-	
+
 	/**
 	 * Returns the list of faces that make up this model.
 	 * @return the list of faces
@@ -591,7 +648,7 @@ public class Model {
 	public List<Face> getFaceList () {
 		return faces;
 	}
-	
+
 	/**
 	 * Returns the physics properties that this model has.
 	 * @return the physics properties of the model
@@ -599,8 +656,16 @@ public class Model {
 	public PhysicsModelProperties getPhysicsProperties () {
 		return physicsProps;
 	}
-	
-	
+
+	/**
+	 * Get the unique ID of the model
+	 * @return uniqueId 
+	 */
+	public int getUID() {
+		return uniqueId;
+	}
+
+
 	/**
 	 * Set flag for whether this model should be rendered
 	 * @param renderFlag
@@ -608,7 +673,7 @@ public class Model {
 	public void setRenderFlag(boolean renderFlag) {
 		this.renderFlag = renderFlag;
 	}
-	
+
 	/**
 	 * Get the origin of the model
 	 * @return
@@ -616,7 +681,7 @@ public class Model {
 	public javax.vecmath.Vector3f getModelOrigin() {
 		return physicsModel.getRigidBody().getWorldTransform(new Transform()).origin;
 	}
-	
+
 	/**
 	 * Add a light to this model 
 	 * @param light
@@ -628,7 +693,7 @@ public class Model {
 
 		mLightHandle = new LightHandle(this, light);
 	}
-	
+
 	/**
 	 * Resets the model kinematics
 	 */
@@ -636,7 +701,7 @@ public class Model {
 		physicsModel.getRigidBody().setAngularVelocity(new javax.vecmath.Vector3f());
 		physicsModel.getRigidBody().setLinearVelocity(new javax.vecmath.Vector3f());
 	}
-	
+
 	/**
 	 * Resets the model forces
 	 */
@@ -673,7 +738,7 @@ public class Model {
 		this.faces.removeAll(removeFaces);
 		this.faces.addAll(addFaces); 
 	}
-	
+
 	/**
 	 * Helper method to set up the PhysicsModel associated with this Model
 	 * @param modelShape
@@ -684,33 +749,62 @@ public class Model {
 	private PhysicsModel setupPhysicsModel(CollisionShape modelShape,
 			Vector3f position,
 			PhysicsModelProperties rigidBodyProp) {
-		
+
 		// Set up the model in the initial position
-        MotionState modelMotionState = new DefaultMotionState(new Transform(new javax.vecmath.Matrix4f(new Quat4f(0, 0, 0, 1), 
-        		new javax.vecmath.Vector3f(position.x, position.y, position.z), 
-        		1)));
-        
-        javax.vecmath.Vector3f modelInertia = new javax.vecmath.Vector3f();
-        
-        modelShape.calculateLocalInertia(1.0f, modelInertia);
-        RigidBodyConstructionInfo modelConstructionInfo = new RigidBodyConstructionInfo(1.0f, modelMotionState, modelShape, modelInertia);
-        
-        // Retrieve the properties from the PhysicsModelProperties
-        modelConstructionInfo.restitution = rigidBodyProp.getProperty("restitution") == null ? Settings.getFloat("defaultRestitution") : (Float)rigidBodyProp.getProperty("restitution");
-        modelConstructionInfo.mass = rigidBodyProp.getProperty("mass") == null ? Settings.getFloat("defaultMass") : (Float)rigidBodyProp.getProperty("mass");
-        modelConstructionInfo.angularDamping = rigidBodyProp.getProperty("angularDamping") == null ? Settings.getFloat("defaultAngularDamping") : (Float)rigidBodyProp.getProperty("angularDamping");
-        modelConstructionInfo.linearDamping = rigidBodyProp.getProperty("linearDamping") == null ? Settings.getFloat("defaultLinearDamping") : (Float)rigidBodyProp.getProperty("linearDamping");
-        modelConstructionInfo.friction = rigidBodyProp.getProperty("friction") == null ? Settings.getFloat("defaultFriction") : (Float)rigidBodyProp.getProperty("friction");
-        
-        RigidBody modelRigidBody = new RigidBody(modelConstructionInfo);
-        modelRigidBody.setCollisionFlags((Integer) (rigidBodyProp.getProperty("collisionFlags") == null ? modelRigidBody.getCollisionFlags() :
-        	rigidBodyProp.getProperty("collisionFlags")));
-        modelRigidBody.setActivationState(CollisionObject.DISABLE_DEACTIVATION);
-        
-        PhysicsModel model = new PhysicsModel(modelShape, 
-        		modelRigidBody);
-        
-        return model;
+		MotionState modelMotionState = new DefaultMotionState(new Transform(new javax.vecmath.Matrix4f(new Quat4f(0, 0, 0, 1), 
+				new javax.vecmath.Vector3f(position.x, position.y, position.z), 
+				1)));
+
+		javax.vecmath.Vector3f modelInertia = new javax.vecmath.Vector3f();
+
+		modelShape.calculateLocalInertia(1.0f, modelInertia);
+		RigidBodyConstructionInfo modelConstructionInfo = new RigidBodyConstructionInfo(1.0f, modelMotionState, modelShape, modelInertia);
+
+		// Retrieve the properties from the PhysicsModelProperties
+		modelConstructionInfo.restitution = rigidBodyProp.getProperty("restitution") == null ? Settings.getFloat("defaultRestitution") : (Float)rigidBodyProp.getProperty("restitution");
+		modelConstructionInfo.mass = rigidBodyProp.getProperty("mass") == null ? Settings.getFloat("defaultMass") : (Float)rigidBodyProp.getProperty("mass");
+		modelConstructionInfo.angularDamping = rigidBodyProp.getProperty("angularDamping") == null ? Settings.getFloat("defaultAngularDamping") : (Float)rigidBodyProp.getProperty("angularDamping");
+		modelConstructionInfo.linearDamping = rigidBodyProp.getProperty("linearDamping") == null ? Settings.getFloat("defaultLinearDamping") : (Float)rigidBodyProp.getProperty("linearDamping");
+		modelConstructionInfo.friction = rigidBodyProp.getProperty("friction") == null ? Settings.getFloat("defaultFriction") : (Float)rigidBodyProp.getProperty("friction");
+
+		RigidBody modelRigidBody = new RigidBody(modelConstructionInfo);
+		modelRigidBody.setCollisionFlags((Integer) (rigidBodyProp.getProperty("collisionFlags") == null ? modelRigidBody.getCollisionFlags() :
+			rigidBodyProp.getProperty("collisionFlags")));
+		modelRigidBody.setActivationState(CollisionObject.DISABLE_DEACTIVATION);
+
+		PhysicsModel model = new PhysicsModel(modelShape, 
+				modelRigidBody);
+
+		return model;
+	}
+
+	/**
+	 * Encode a number into a colour
+	 * @param num Number to encode (int)
+	 * @return 
+	 */
+	private Vector3f encodeColour(int num) {
+		int r = (num >> 16) & 0xFF;
+		int g = (num >> 8) & 0xFF;
+		int b = num & 0xFF;
+		
+		return new Vector3f((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f);
 	}
 	
+	/**
+	 * Decode a colour into a number
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return
+	 */
+	private int decodeColour(float x, float y, float z) {
+		int red = (int)Math.ceil(x * 255);
+		int green = (int)Math.ceil(y * 255);
+		int blue = (int)Math.ceil(z * 255);
+		
+		int rgb = ((red & 0x0FF) << 16) | ((green & 0x0FF) << 8) | (blue & 0x0FF);
+		return rgb;
+	}
+
 }
