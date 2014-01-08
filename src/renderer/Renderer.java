@@ -276,7 +276,6 @@ public class Renderer {
 		models.remove(model);
 		
 		mapIdToModel.remove(model.getUID());
-		mapIdToModel.put(model.getUID(), model);
 	}
 
 	public void renderColourPicking() {
@@ -392,7 +391,6 @@ public class Renderer {
 	 * Takes model buffer and places it in the main set
 	 */
 	public void updateModels() {
-		System.out.println("Buffer size: " + modelBuffer.size());
 		modelBuffer.drainTo(models);
 	}
 	
