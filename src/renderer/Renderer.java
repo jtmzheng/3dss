@@ -324,7 +324,11 @@ public class Renderer {
 		
 		// Render each model
 		for(Model m: models){
-			m.render(m.equals(pickedModel));
+			if (m.isGLsetup()) {
+				m.render(m.equals(pickedModel));
+			} else {
+				m.setupGL();
+			}
 		}
         		
 		// Deselect
