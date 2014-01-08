@@ -21,8 +21,8 @@ import com.bulletphysics.dynamics.RigidBody;
  */
 public class ParticleEmitter {
 	// Default values.
-	private static final long DEFAULT_SPAWN_RATE = 100;
-	private static final long DEFAULT_PARTICLE_VELOCITY_SCALE = 6;
+	private static final long DEFAULT_SPAWN_RATE = 50;
+	private static final long DEFAULT_PARTICLE_VELOCITY_SCALE = 7;
 	private static final long DEFAULT_PARTICLE_LIFETIME = 1000;
 
 	// Reference to the world this emitter is in.
