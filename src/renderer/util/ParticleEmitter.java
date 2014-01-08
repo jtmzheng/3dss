@@ -13,20 +13,40 @@ import world.World;
 
 import com.bulletphysics.dynamics.RigidBody;
 
+/**
+ * The particle emitter is a helper class used to generate particles at a fixed rate
+ * and velocity. This can be used to create things like explosions and sparks.
+ * 
+ * @author Adi
+ */
 public class ParticleEmitter {
+	// Default values.
 	private static final long DEFAULT_SPAWN_RATE = 100;
 	private static final long DEFAULT_PARTICLE_VELOCITY_SCALE = 6;
 	private static final long DEFAULT_PARTICLE_LIFETIME = 1000;
 
+	// Reference to the world this emitter is in.
 	private World gameWorld;
+	
+	// Initial position of the emitter.
 	private Vector3f initialPosition;
 
+	// Modifier to amplify the velocity of the particles.
 	private long speedModifier = DEFAULT_PARTICLE_VELOCITY_SCALE;
+	
+	// Lifetime of a single particle, in milliseconds.
 	private long particleLifetime = DEFAULT_PARTICLE_LIFETIME;
+	
+	// Rate at which particles spawn, in milliseconds.
 	private long spawnRate = DEFAULT_SPAWN_RATE;
 
+	// The service that schedules tasks for adding and removing particles.
 	private final ScheduledExecutorService particleScheduler = Executors.newScheduledThreadPool(1);
-	private Runnable spawnParticle;
+	
+	// The runnable that binds a particle to the world.
+	private Runnable spawnParticleRunnable;
+	
+	// A helper object to create random numbers.
 	private Random randomGenerator = new Random();
 
 	/**
@@ -99,7 +119,7 @@ public class ParticleEmitter {
 	 * Common setup for the particle runnable.
 	 */
 	private void setupRunnable() {
-		 spawnParticle = new Runnable() {
+		spawnParticleRunnable = new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -119,10 +139,28 @@ public class ParticleEmitter {
 	}
 	
 	/**
+	 * Sets the spawn rate of the particle emitter.
+	 * @param newSpawnRate
+	 */
+	public void setSpawnRate (long newSpawnRate) {
+		stop();
+		spawnRate = newSpawnRate;
+		start();
+	}
+
+	/**
+	 * Sets the speed modifier to amplify the velocity of the particles (default is 6).
+	 * @param modifier
+	 */
+	public void setSpeedModifier (long modifier) {
+		speedModifier = modifier;
+	}
+
+	/**
 	 * Begins spawning particles.
 	 */
 	public void start () {
-		particleScheduler.scheduleAtFixedRate(spawnParticle, 0, spawnRate, TimeUnit.MILLISECONDS);
+		particleScheduler.scheduleAtFixedRate(spawnParticleRunnable, 0, spawnRate, TimeUnit.MILLISECONDS);
 	}
 	
 	/**
@@ -132,10 +170,17 @@ public class ParticleEmitter {
 		particleScheduler.shutdown();
 	}
 
+	/**
+	 * Private inner class to wrap the particle model.
+	 * 
+	 * @author Adi
+	 */
 	private class Particle {
 
+		// The model for this particle.
 		private Model model;
-		private long lifetime = DEFAULT_PARTICLE_LIFETIME;
+		
+		// The runnable to remove a particle from the world.
 		private final Runnable removeParticle = new Runnable() {
 			@Override
 			public void run() {
@@ -147,6 +192,12 @@ public class ParticleEmitter {
 			}
 		};
 
+		/**
+		 * Creates an instance of a particle.
+		 * @param position Initial position of the particle.
+		 * @param velocity Initial velocity of the particle.
+		 * @param lifetime Lifetime of the particle in milliseconds.
+		 */
 		public Particle(Vector3f position, Vector3f velocity, long lifetime) {
 			model = Primitives.getCube(0.1f);
 			model.translate(position);
@@ -156,6 +207,10 @@ public class ParticleEmitter {
 			particleScheduler.schedule(removeParticle, lifetime, TimeUnit.MILLISECONDS);
 		}
 		
+		/**
+		 * Returns the model of this particle.
+		 * @return model
+		 */
 		public Model getModel() {
 			return model;
 		}
