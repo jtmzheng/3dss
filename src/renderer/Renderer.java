@@ -271,8 +271,9 @@ public class Renderer {
 	 * @see Model
 	 */
 	public void removeModel(Model model) {
+		model.destroy();
 		models.remove(model);
-
+		
 		mapIdToModel.remove(model.getUID());
 		mapIdToModel.put(model.getUID(), model);
 	}

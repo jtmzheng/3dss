@@ -15,7 +15,7 @@ import com.bulletphysics.dynamics.RigidBody;
 
 /**
  * The particle emitter is a helper class used to generate particles at a fixed rate
- * and velocity. This can be used to create things like explosions and sparks.
+ * and velocity. This can be used to create things like explosions, sparks, and snow.
  * 
  * @author Adi
  */
@@ -199,7 +199,7 @@ public class ParticleEmitter {
 		 * @param lifetime Lifetime of the particle in milliseconds.
 		 */
 		public Particle(Vector3f position, Vector3f velocity, long lifetime) {
-			model = Primitives.getCube(0.1f);
+			model = Primitives.getCube(0.05f);
 			model.translate(position);
 			
 			RigidBody rb = model.getPhysicsModel().getRigidBody();

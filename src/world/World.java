@@ -41,6 +41,7 @@ public class World {
 	
 	public void removeModel(Model model) {
 		renderer.removeModel(model);
+		dynamicsWorld.removeCollisionObject(model.getPhysicsModel().getRigidBody());
 		dynamicsWorld.removeRigidBody(model.getPhysicsModel().getRigidBody());
 	}
 	
