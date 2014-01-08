@@ -730,13 +730,6 @@ public class Model {
 	}
 
 	/**
-	 * Destroys the model. This should exclusively be called by the renderer.
-	 */
-	public void destroy() {
-		physicsModel.getRigidBody().destroy();
-	}
-
-	/**
 	 * Remove the non-triangle faces from the model
 	 * @param List to remove non-triangles from
 	 */
