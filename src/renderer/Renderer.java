@@ -1,12 +1,12 @@
 package renderer;
 
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -42,9 +42,10 @@ public class Renderer {
 	private static final int DEFAULT_WIDTH = 320;
 	private static final int DEFAULT_HEIGHT = 240;
 	private static final int DEFAULT_FRAME_RATE = 60;
-	
+	private static final int MAX_MODELS = 10000;
+
 	// List of the models that will be rendered
-	private List<Model> models; 
+	private Queue<Model> models; 
 	private Map<Integer, Model> mapIdToModel;
 	private Model pickedModel = null;
 	
@@ -258,15 +259,24 @@ public class Renderer {
 	
 	/**
 	 * Bind a new model to the renderer
-	 * @return <code>true</code> if the binding was successful and false otherwise.
 	 * @see Model
 	 */
-	public boolean bindNewModel(Model model) {
+	public void bindNewModel(Model model) {
 		models.add(model);
 		mapIdToModel.put(model.getUID(), model);
-		return true;
 	}
-	
+
+	/**
+	 * Removes a model from the renderer
+	 * @see Model
+	 */
+	public void removeModel(Model model) {
+		models.remove(model);
+
+		mapIdToModel.remove(model.getUID());
+		mapIdToModel.put(model.getUID(), model);
+	}
+
 	public void renderColourPicking() {
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, colourPickingFb.getFrameBuffer());	
 		GL11.glViewport(0, 0, width, height);
@@ -482,7 +492,7 @@ public class Renderer {
 	 * Initializes the renderer
 	 */
 	private void init() {		
-		models = new ArrayList<>();
+		models = new ArrayBlockingQueue<Model>(MAX_MODELS);
 		mapIdToModel = new HashMap<>();
 		postProcessConversions = new HashSet<>();
 		

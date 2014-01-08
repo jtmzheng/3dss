@@ -763,7 +763,7 @@ public class Model {
 		
 		for (Face face : faces) {
 			for (VertexData vertex : face.getVertices()) {
-				modelShapePoints.add(new javax.vecmath.Vector3f(vertex.getXYZW()));
+				modelShapePoints.add(new javax.vecmath.Vector3f(vertex.getXYZ()));
 			}
 		}
 		

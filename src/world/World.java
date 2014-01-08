@@ -40,7 +40,8 @@ public class World {
 	}
 	
 	public void removeModel(Model model) {
-		// @TODO: Removal of model
+		renderer.removeModel(model);
+		dynamicsWorld.removeRigidBody(model.getPhysicsModel().getRigidBody());
 	}
 	
 	public void simulate() {

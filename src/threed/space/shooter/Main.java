@@ -17,6 +17,7 @@ import renderer.Fog;
 import renderer.Renderer;
 import renderer.model.Model;
 import renderer.model.ModelFactory;
+import renderer.util.ParticleEmitter;
 import world.World;
 import characters.Player;
 
@@ -127,6 +128,9 @@ public class Main {
 			gameWorld.addModel(a);
 			gameWorld.addModel(b);
 			gameWorld.addModel(ground);
+
+			ParticleEmitter p = new ParticleEmitter(gameWorld, new Vector3f(0, 2, 0));
+			p.start();
 		}
 		catch(IOException e){
 			e.printStackTrace();
