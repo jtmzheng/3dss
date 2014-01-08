@@ -11,7 +11,7 @@ import com.bulletphysics.linearmath.Transform;
  *
  * @author Max
  */
-public class PhysicsMotionState extends MotionState{
+public class PhysicsMotionState extends MotionState {
 
 	@SuppressWarnings("unused")
 	private final Vector3f X_AXIS = new Vector3f(1, 0, 0);

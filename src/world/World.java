@@ -21,7 +21,8 @@ import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSo
  * @author Max
  */
 public class World {
-
+	private final Object PHYSICS_WORLD_LOCK = new Object(); 
+	
 	private DynamicsWorld dynamicsWorld;
 	private Renderer renderer;
 	
@@ -35,20 +36,26 @@ public class World {
 	}
 	
 	public void addModel(Model model) {
-		renderer.bindNewModel(model);
-		dynamicsWorld.addRigidBody(model.getPhysicsModel().getRigidBody());
+		synchronized(PHYSICS_WORLD_LOCK) {
+			renderer.bindNewModel(model);
+			dynamicsWorld.addRigidBody(model.getPhysicsModel().getRigidBody());
+		}
 	}
-	
+
 	public void removeModel(Model model) {
-		renderer.removeModel(model);
-		dynamicsWorld.removeCollisionObject(model.getPhysicsModel().getRigidBody());
-		dynamicsWorld.removeRigidBody(model.getPhysicsModel().getRigidBody());
+		synchronized(PHYSICS_WORLD_LOCK) {
+			renderer.removeModel(model);
+			dynamicsWorld.removeCollisionObject(model.getPhysicsModel().getRigidBody());
+			dynamicsWorld.removeRigidBody(model.getPhysicsModel().getRigidBody());
+		}
 	}
 	
 	public void simulate() {
-		dynamicsWorld.stepSimulation(1.0f / renderer.getFrameRate());
-		renderer.renderColourPicking();
-		renderer.renderScene();
+		synchronized(PHYSICS_WORLD_LOCK) {
+			dynamicsWorld.stepSimulation(1.0f / renderer.getFrameRate());
+			renderer.renderColourPicking();
+			renderer.renderScene();
+		}
 	}
 	
 	/**
