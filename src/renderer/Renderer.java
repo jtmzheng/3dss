@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -503,7 +504,7 @@ public class Renderer {
 	private void init() {		
 		modelBuffer = new ArrayBlockingQueue<>(MAX_MODELS);
 		models = new HashSet<>();
-		mapIdToModel = new HashMap<>();
+		mapIdToModel = new ConcurrentHashMap<>();
 		postProcessConversions = new HashSet<>();
 		
 		// Set up view and projection matrices
