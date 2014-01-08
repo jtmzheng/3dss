@@ -4,9 +4,9 @@ import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -42,10 +42,11 @@ public class Renderer {
 	private static final int DEFAULT_WIDTH = 320;
 	private static final int DEFAULT_HEIGHT = 240;
 	private static final int DEFAULT_FRAME_RATE = 60;
-	private static final int MAX_MODELS = 10000;
+	private static final int MAX_MODELS = 100;
 
 	// List of the models that will be rendered
-	private Queue<Model> models; 
+	private Set<Model> models;
+	private BlockingQueue<Model> modelBuffer;
 	private Map<Integer, Model> mapIdToModel;
 	private Model pickedModel = null;
 	
@@ -262,7 +263,7 @@ public class Renderer {
 	 * @see Model
 	 */
 	public void bindNewModel(Model model) {
-		models.add(model);
+		modelBuffer.add(model);
 		mapIdToModel.put(model.getUID(), model);
 	}
 
@@ -387,6 +388,14 @@ public class Renderer {
 	}
 	
 	/**
+	 * Takes model buffer and places it in the main set
+	 */
+	public void updateModels() {
+		System.out.println("Buffer size: " + modelBuffer.size());
+		modelBuffer.drainTo(models);
+	}
+	
+	/**
 	 * Get the camera associated with this renderer.
 	 * @return camera the camera
 	 * @throws NullPointerException
@@ -492,7 +501,8 @@ public class Renderer {
 	 * Initializes the renderer
 	 */
 	private void init() {		
-		models = new ArrayBlockingQueue<Model>(MAX_MODELS);
+		modelBuffer = new ArrayBlockingQueue<>(MAX_MODELS);
+		models = new HashSet<>();
 		mapIdToModel = new HashMap<>();
 		postProcessConversions = new HashSet<>();
 		

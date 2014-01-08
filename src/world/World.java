@@ -53,6 +53,7 @@ public class World {
 	public void simulate() {
 		synchronized(PHYSICS_WORLD_LOCK) {
 			dynamicsWorld.stepSimulation(1.0f / renderer.getFrameRate());
+			renderer.updateModels();
 			renderer.renderColourPicking();
 			renderer.renderScene();
 		}
