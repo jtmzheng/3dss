@@ -127,6 +127,7 @@ public class ParticleEmitter {
 	 * @param velocityScale The modifier to scale the velocity of the particles.
 	 * @param particleLife The lifetime of a single particle in milliseconds.
 	 * @param spawnRate The spawn rate of particles in milliseconds.
+	 * @param particleSizeScale The scaling factor for the size of the particles (default is 1).
 	 */
 	public ParticleEmitter(World world, Vector3f initialPos, long velocityScale,
 			long particleLife, long particleSpawnRate, long particleSizeScale) {
