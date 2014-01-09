@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -275,7 +276,6 @@ public class Renderer {
 		models.remove(model);
 		
 		mapIdToModel.remove(model.getUID());
-		mapIdToModel.put(model.getUID(), model);
 	}
 
 	public void renderColourPicking() {
@@ -393,7 +393,6 @@ public class Renderer {
 	 * Takes model buffer and places it in the main set
 	 */
 	public void updateModels() {
-		System.out.println("Buffer size: " + modelBuffer.size());
 		modelBuffer.drainTo(models);
 	}
 	
@@ -505,7 +504,7 @@ public class Renderer {
 	private void init() {		
 		modelBuffer = new ArrayBlockingQueue<>(MAX_MODELS);
 		models = new HashSet<>();
-		mapIdToModel = new HashMap<>();
+		mapIdToModel = new ConcurrentHashMap<>();
 		postProcessConversions = new HashSet<>();
 		
 		// Set up view and projection matrices

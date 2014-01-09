@@ -21,9 +21,10 @@ import com.bulletphysics.dynamics.RigidBody;
  */
 public class ParticleEmitter {
 	// Default values.
-	private static final long DEFAULT_SPAWN_RATE = 100;
-	private static final long DEFAULT_PARTICLE_VELOCITY_SCALE = 6;
+	private static final long DEFAULT_SPAWN_RATE = 50;
 	private static final long DEFAULT_PARTICLE_LIFETIME = 1000;
+	private static final float DEFAULT_PARTICLE_VELOCITY_SCALE = 7;
+	private static final float PARTICLE_SIZE_SCALE = 1f;
 
 	// Reference to the world this emitter is in.
 	private World gameWorld;
@@ -32,11 +33,14 @@ public class ParticleEmitter {
 	private Vector3f initialPosition;
 
 	// Modifier to amplify the velocity of the particles.
-	private long speedModifier = DEFAULT_PARTICLE_VELOCITY_SCALE;
+	private float speedModifier = DEFAULT_PARTICLE_VELOCITY_SCALE;
 	
 	// Lifetime of a single particle, in milliseconds.
 	private long particleLifetime = DEFAULT_PARTICLE_LIFETIME;
-	
+
+	// Scaling factor for the size of a particle.
+	private float particleSizeScale = PARTICLE_SIZE_SCALE;
+
 	// Rate at which particles spawn, in milliseconds.
 	private long spawnRate = DEFAULT_SPAWN_RATE;
 
@@ -116,6 +120,28 @@ public class ParticleEmitter {
 	}
 
 	/**
+	 * Creates an instance of a ParticleEmitter.
+	 * 
+	 * @param world A reference to the world that the emitter is created in.
+	 * @param initialPos The initial position to begin emitting particles.
+	 * @param velocityScale The modifier to scale the velocity of the particles.
+	 * @param particleLife The lifetime of a single particle in milliseconds.
+	 * @param spawnRate The spawn rate of particles in milliseconds.
+	 * @param particleSizeScale The scaling factor for the size of the particles (default is 1).
+	 */
+	public ParticleEmitter(World world, Vector3f initialPos, long velocityScale,
+			long particleLife, long particleSpawnRate, long particleSizeScale) {
+		gameWorld = world;
+		initialPosition = initialPos;
+		speedModifier = velocityScale;
+		particleLifetime = particleLife;
+		spawnRate = particleSpawnRate;
+		this.particleSizeScale = particleSizeScale;
+
+		setupRunnable();
+	}
+
+	/**
 	 * Common setup for the particle runnable.
 	 */
 	private void setupRunnable() {
@@ -128,7 +154,7 @@ public class ParticleEmitter {
 			        velocity.y = randomGenerator.nextFloat() - 0.5f;
 			        velocity.z = randomGenerator.nextFloat() - 0.5f;
 			        velocity.scale(speedModifier);
-					Particle p = new Particle(initialPosition, velocity, particleLifetime);
+					Particle p = new Particle(initialPosition, velocity, particleLifetime, particleSizeScale);
 
 					gameWorld.addModel(p.getModel());
 				} catch (Exception e) {
@@ -137,19 +163,9 @@ public class ParticleEmitter {
 			}
 		};
 	}
-	
-	/**
-	 * Sets the spawn rate of the particle emitter.
-	 * @param newSpawnRate
-	 */
-	public void setSpawnRate (long newSpawnRate) {
-		stop();
-		spawnRate = newSpawnRate;
-		start();
-	}
 
 	/**
-	 * Sets the speed modifier to amplify the velocity of the particles (default is 6).
+	 * Sets the speed modifier to amplify the velocity of the particles (default is 7).
 	 * @param modifier
 	 */
 	public void setSpeedModifier (long modifier) {
@@ -176,6 +192,9 @@ public class ParticleEmitter {
 	 * @author Adi
 	 */
 	private class Particle {
+		
+		// Default particle size (edge length of the cube).
+		private static final float DEFAULT_PARTICLE_SIZE = 0.03f;
 
 		// The model for this particle.
 		private Model model;
@@ -197,9 +216,10 @@ public class ParticleEmitter {
 		 * @param position Initial position of the particle.
 		 * @param velocity Initial velocity of the particle.
 		 * @param lifetime Lifetime of the particle in milliseconds.
+		 * @param particleSizeScale Scaling factor for the size of a particle (Default is 1).
 		 */
-		public Particle(Vector3f position, Vector3f velocity, long lifetime) {
-			model = Primitives.getCube(0.05f);
+		public Particle(Vector3f position, Vector3f velocity, long lifetime, float particleSizeScale) {
+			model = Primitives.getCube(DEFAULT_PARTICLE_SIZE * particleSizeScale);
 			model.translate(position);
 			
 			RigidBody rb = model.getPhysicsModel().getRigidBody();
