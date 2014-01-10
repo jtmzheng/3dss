@@ -23,6 +23,7 @@ public class ParticleEmitter {
 	// Default values.
 	private static final long DEFAULT_SPAWN_RATE = 50;
 	private static final long DEFAULT_PARTICLE_LIFETIME = 1000;
+	private static final long TERMINATE_EMITTER_TIMEOUT = Long.MAX_VALUE;
 	private static final float DEFAULT_PARTICLE_VELOCITY_SCALE = 7;
 	private static final float PARTICLE_SIZE_SCALE = 1f;
 
@@ -180,10 +181,15 @@ public class ParticleEmitter {
 	}
 	
 	/**
-	 * Stops spawning particles.
+	 * Stops spawning particles (blocking). 
 	 */
 	public void stop () {
 		particleScheduler.shutdown();
+		try {
+			particleScheduler.awaitTermination(TERMINATE_EMITTER_TIMEOUT, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
