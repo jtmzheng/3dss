@@ -1,10 +1,14 @@
 package world;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.vecmath.Vector3f;
 
 import physics.PhysicsModel;
 import renderer.Renderer;
 import renderer.model.Model;
+import renderer.util.DynamicWorldObject;
 
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
@@ -26,18 +30,36 @@ public class World {
 	private DynamicsWorld dynamicsWorld;
 	private Renderer renderer;
 	
+	private List<DynamicWorldObject> worldObjects;
+	
 	/**
 	 * Constructor for World class
 	 * @param renderer
 	 */
 	public World(Renderer renderer) {
 		this.renderer = renderer;
+		this.worldObjects = new ArrayList<>();
 		setupPhysics(/*@TODO: Options*/);
 	}
 	
-	public void addModel(Model model) {
+	public void addDynamicWorldObject(DynamicWorldObject dwo) {
+		worldObjects.add(dwo);
+	}
+	
+	public boolean cleanupDynamicWorldObjects() {
+		boolean success = true;
+		for(DynamicWorldObject dwo : worldObjects) {
+			if(dwo.needsCleanup()) {
+				success &= dwo.runCleanup();
+			}
+		}
+		worldObjects.clear();
+		return success;
+	}
+	
+	public void addModel(Model model) throws IllegalStateException {
 		synchronized(PHYSICS_WORLD_LOCK) {
-			renderer.bindNewModel(model);
+			renderer.addModel(model);
 			dynamicsWorld.addRigidBody(model.getPhysicsModel().getRigidBody());
 		}
 	}

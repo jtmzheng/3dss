@@ -259,10 +259,10 @@ public class Renderer {
 	}	
 	
 	/**
-	 * Bind a new model to the renderer
+	 * Bind a new model to the renderer (buffers up model to be added during main render loop)
 	 * @see Model
 	 */
-	public void bindNewModel(Model model) {
+	public void addModel(Model model) throws IllegalStateException {
 		modelBuffer.add(model);
 		mapIdToModel.put(model.getUID(), model);
 	}
@@ -272,8 +272,7 @@ public class Renderer {
 	 * @see Model
 	 */
 	public void removeModel(Model model) {
-		models.remove(model);
-		
+		models.remove(model);	
 		mapIdToModel.remove(model.getUID());
 	}
 
@@ -583,7 +582,7 @@ public class Renderer {
 			
 		} catch (LWJGLException e){
 			e.printStackTrace();
-			System.exit(-1); //quit if opengl context fails
+			System.exit(-1); // Quit if OpenGL context fails
 		}
 		
 		// XNA like background color

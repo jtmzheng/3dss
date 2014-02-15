@@ -52,6 +52,10 @@ public class Model {
 	// Defaults
 	private static final Vector3f DEFAULT_INITIAL_POSITION = new Vector3f(0, 0, 0);
 
+	// Unique ID for the model (used for picking)
+	private final int uniqueId;
+	private final Vector3f uniqueIdColour;
+	
 	// Map of VBOs and indices for each material in the model
 	private Map<Material, Integer> mapVBOIndexIds;
 	private Map<Material, Integer> mapIndiceCount;
@@ -77,10 +81,6 @@ public class Model {
 
 	// Flag for whether this model should be rendered
 	private boolean renderFlag;	
-
-	// Unique ID for the model (used for picking)
-	private final int uniqueId;
-	private final Vector3f uniqueIdColour;
 
 	// Physics properties of the model.
 	private PhysicsModelProperties physicsProps;

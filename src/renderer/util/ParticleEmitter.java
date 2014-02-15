@@ -19,7 +19,8 @@ import com.bulletphysics.dynamics.RigidBody;
  * 
  * @author Adi
  */
-public class ParticleEmitter {
+public class ParticleEmitter implements DynamicWorldObject {
+	
 	// Default values.
 	private static final long DEFAULT_SPAWN_RATE = 50;
 	private static final long DEFAULT_PARTICLE_LIFETIME = 1000;
@@ -141,6 +142,17 @@ public class ParticleEmitter {
 
 		setupRunnable();
 	}
+	
+
+	@Override
+	public boolean needsCleanup() {
+		return true;
+	}
+
+	@Override
+	public boolean runCleanup() {
+		return stop();
+	}
 
 	/**
 	 * Common setup for the particle runnable.
@@ -149,16 +161,16 @@ public class ParticleEmitter {
 		spawnParticleRunnable = new Runnable() {
 			@Override
 			public void run() {
-				try {
-					Vector3f velocity = new Vector3f();
-			        velocity.x = randomGenerator.nextFloat() - 0.5f;
-			        velocity.y = randomGenerator.nextFloat() - 0.5f;
-			        velocity.z = randomGenerator.nextFloat() - 0.5f;
-			        velocity.scale(speedModifier);
-					Particle p = new Particle(initialPosition, velocity, particleLifetime, particleSizeScale);
+				Vector3f velocity = new Vector3f();
+				velocity.x = randomGenerator.nextFloat() - 0.5f;
+				velocity.y = randomGenerator.nextFloat() - 0.5f;
+				velocity.z = randomGenerator.nextFloat() - 0.5f;
+				velocity.scale(speedModifier);
+				Particle p = new Particle(initialPosition, velocity, particleLifetime, particleSizeScale);
 
+				try {
 					gameWorld.addModel(p.getModel());
-				} catch (Exception e) {
+				} catch(IllegalStateException e) {
 					e.printStackTrace();
 				}
 			}
@@ -183,12 +195,13 @@ public class ParticleEmitter {
 	/**
 	 * Stops spawning particles (blocking). 
 	 */
-	public void stop () {
+	public boolean stop () {
 		particleScheduler.shutdown();
 		try {
 			particleScheduler.awaitTermination(TERMINATE_EMITTER_TIMEOUT, TimeUnit.MILLISECONDS);
+			return true;
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			return false;
 		}
 	}
 
@@ -241,4 +254,5 @@ public class ParticleEmitter {
 			return model;
 		}
 	}
+
 }
