@@ -1,12 +1,12 @@
 package renderer;
 
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -42,9 +42,11 @@ public class Renderer {
 	private static final int DEFAULT_WIDTH = 320;
 	private static final int DEFAULT_HEIGHT = 240;
 	private static final int DEFAULT_FRAME_RATE = 60;
-	
+	private static final int MAX_MODELS = 100;
+
 	// List of the models that will be rendered
-	private List<Model> models; 
+	private Set<Model> models;
+	private BlockingQueue<Model> modelBuffer;
 	private Map<Integer, Model> mapIdToModel;
 	private Model pickedModel = null;
 	
@@ -257,16 +259,23 @@ public class Renderer {
 	}	
 	
 	/**
-	 * Bind a new model to the renderer
-	 * @return <code>true</code> if the binding was successful and false otherwise.
+	 * Bind a new model to the renderer (buffers up model to be added during main render loop)
 	 * @see Model
 	 */
-	public boolean bindNewModel(Model model) {
-		models.add(model);
+	public void addModel(Model model) throws IllegalStateException {
+		modelBuffer.add(model);
 		mapIdToModel.put(model.getUID(), model);
-		return true;
 	}
-	
+
+	/**
+	 * Removes a model from the renderer
+	 * @see Model
+	 */
+	public void removeModel(Model model) {
+		models.remove(model);	
+		mapIdToModel.remove(model.getUID());
+	}
+
 	public void renderColourPicking() {
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, colourPickingFb.getFrameBuffer());	
 		GL11.glViewport(0, 0, width, height);
@@ -286,6 +295,9 @@ public class Renderer {
 		
 		// Render each model
 		for(Model m: models){
+			if (!m.isGLsetup()) {
+				m.setupGL();
+			} 
 			m.renderPicking();
 		}
 		
@@ -324,6 +336,9 @@ public class Renderer {
 		
 		// Render each model
 		for(Model m: models){
+			if (!m.isGLsetup()) {
+				m.setupGL();
+			} 
 			m.render(m.equals(pickedModel));
 		}
         		
@@ -370,6 +385,13 @@ public class Renderer {
 		Display.sync(frameRate);
 		// Let the CPU synchronize with the GPU if GPU is tagging behind (I think update refreshs the display)
 		Display.update();
+	}
+	
+	/**
+	 * Takes model buffer and places it in the main set
+	 */
+	public void updateModels() {
+		modelBuffer.drainTo(models);
 	}
 	
 	/**
@@ -478,7 +500,8 @@ public class Renderer {
 	 * Initializes the renderer
 	 */
 	private void init() {		
-		models = new ArrayList<>();
+		modelBuffer = new ArrayBlockingQueue<>(MAX_MODELS);
+		models = new HashSet<>();
 		mapIdToModel = new HashMap<>();
 		postProcessConversions = new HashSet<>();
 		
@@ -559,7 +582,7 @@ public class Renderer {
 			
 		} catch (LWJGLException e){
 			e.printStackTrace();
-			System.exit(-1); //quit if opengl context fails
+			System.exit(-1); // Quit if OpenGL context fails
 		}
 		
 		// XNA like background color

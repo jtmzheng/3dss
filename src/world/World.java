@@ -1,10 +1,14 @@
 package world;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.vecmath.Vector3f;
 
 import physics.PhysicsModel;
 import renderer.Renderer;
 import renderer.model.Model;
+import renderer.util.DynamicWorldObject;
 
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
@@ -21,9 +25,12 @@ import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSo
  * @author Max
  */
 public class World {
-
+	private final Object PHYSICS_WORLD_LOCK = new Object(); 
+	
 	private DynamicsWorld dynamicsWorld;
 	private Renderer renderer;
+	
+	private List<DynamicWorldObject> worldObjects;
 	
 	/**
 	 * Constructor for World class
@@ -31,22 +38,47 @@ public class World {
 	 */
 	public World(Renderer renderer) {
 		this.renderer = renderer;
+		this.worldObjects = new ArrayList<>();
 		setupPhysics(/*@TODO: Options*/);
 	}
 	
-	public void addModel(Model model) {
-		renderer.bindNewModel(model);
-		dynamicsWorld.addRigidBody(model.getPhysicsModel().getRigidBody());
+	public void addDynamicWorldObject(DynamicWorldObject dwo) {
+		worldObjects.add(dwo);
 	}
 	
+	public boolean cleanupDynamicWorldObjects() {
+		boolean success = true;
+		for(DynamicWorldObject dwo : worldObjects) {
+			if(dwo.needsCleanup()) {
+				success &= dwo.runCleanup();
+			}
+		}
+		worldObjects.clear();
+		return success;
+	}
+	
+	public void addModel(Model model) throws IllegalStateException {
+		synchronized(PHYSICS_WORLD_LOCK) {
+			renderer.addModel(model);
+			dynamicsWorld.addRigidBody(model.getPhysicsModel().getRigidBody());
+		}
+	}
+
 	public void removeModel(Model model) {
-		// @TODO: Removal of model
+		synchronized(PHYSICS_WORLD_LOCK) {
+			renderer.removeModel(model);
+			dynamicsWorld.removeCollisionObject(model.getPhysicsModel().getRigidBody());
+			dynamicsWorld.removeRigidBody(model.getPhysicsModel().getRigidBody());
+		}
 	}
 	
 	public void simulate() {
-		dynamicsWorld.stepSimulation(1.0f / renderer.getFrameRate());
-		renderer.renderColourPicking();
-		renderer.renderScene();
+		synchronized(PHYSICS_WORLD_LOCK) {
+			dynamicsWorld.stepSimulation(1.0f / renderer.getFrameRate());
+			renderer.updateModels();
+			renderer.renderColourPicking();
+			renderer.renderScene();
+		}
 	}
 	
 	/**
