@@ -97,7 +97,7 @@ public class Face {
 	 * @return the VertexData 
 	 */
 	public VertexData getVertex(int index){
-		if( index > faceData.size() ){
+		if(index > faceData.size()){
 			throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + faceData.size());
 		}
 		

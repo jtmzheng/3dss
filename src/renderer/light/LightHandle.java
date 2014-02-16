@@ -7,27 +7,26 @@ package renderer.light;
  */
 public class LightHandle {
 
-	private Object m_owner;
-	private Light m_light;
-	private boolean m_valid;
+	private Object mOwner;
+	private Light mLight;
+	private boolean mValid;
 	
-	private LightManager m_lightManager = null; //local reference
+	private LightManager mLightManager = null; //local reference
 	
 	public LightHandle(Object owner, Light light){
-		m_owner = owner;
-		m_light = light;
+		mOwner = owner;
+		mLight = light;
 		
-		if(m_lightManager == null){
-			m_lightManager = LightManager.getLightManagerHandle();
+		if(mLightManager == null){
+			mLightManager = LightManager.getLightManagerHandle();
 		}
 		
-		if(!m_lightManager.addLight(m_owner, m_light)){
-			m_owner = null; //Invalid light handle
-			m_light = null;
-			m_valid = false;
-		}
-		else {
-			m_valid = true;
+		if(!mLightManager.addLight(mOwner, mLight)){
+			mOwner = null; //Invalid light handle
+			mLight = null;
+			mValid = false;
+		} else {
+			mValid = true;
 		}
 	}
 	
@@ -35,7 +34,7 @@ public class LightHandle {
 	 * Checks whether the light handle is valid or not
 	 */
 	public boolean isValid(){
-		return m_valid;
+		return mValid;
 	}
 	
 	
@@ -43,14 +42,14 @@ public class LightHandle {
 	 * Call this when the light is destroyed by the owner
 	 */
 	public void invalidate(){
-		if(!m_valid){
+		if(!mValid){
 			return;
 		}
 		
-		m_lightManager.removeLight(m_owner);
-		m_light = null;
-		m_owner = null;
-		m_valid = false;
+		mLightManager.removeLight(mOwner);
+		mLight = null;
+		mOwner = null;
+		mValid = false;
 	}
 	
 	/*
@@ -58,29 +57,29 @@ public class LightHandle {
 	 * @brief Owner doesn't change with reset
 	 */
 	public boolean reset(Light light) {
-		Object owner = m_owner;
+		Object owner = mOwner;
 		
 		// Invalidate first if handle holds a valid light
-		if(m_valid) {
+		if(mValid) {
 			invalidate();
 		}
 		
-		m_light = light;
-		m_owner = owner;
+		mLight = light;
+		mOwner = owner;
 		
 		// Add the light to the light manager
-		if(!m_lightManager.addLight(m_owner, m_light)){
-			m_owner = null; //Invalid light handle
-			m_light = null;
-			m_valid = false;
+		if(!mLightManager.addLight(mOwner, mLight)) {
+			mOwner = null; //Invalid light handle
+			mLight = null;
+			mValid = false;
 		}
 		
-		m_valid = true;		
+		mValid = true;		
 		
-		return m_valid;
+		return mValid;
 	}
 
 	public Light getLight() {
-		return m_light;
+		return mLight;
 	}
 }

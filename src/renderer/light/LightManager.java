@@ -14,38 +14,38 @@ import renderer.shader.ShaderController;
 
 public class LightManager {
 
-	private Map<Object, Light> m_lightMap; 
-	private Map<Light, LightGL> m_lightToGLMap;
+	private Map<Object, Light> mLightMap; 
+	private Map<Light, LightGL> mLightToGLMap;
 	
 	private final Object LightManagerLock = new Object();
 	
 	private final static int MAX_LIGHTS = 30;
-	private static BlockingQueue<Integer> m_lightIndices; // Holds uniform location of each light
-	private static LightManager m_lightManager = null;
+	private static BlockingQueue<Integer> mLightIndices; // Holds uniform location of each light
+	private static LightManager mLightManager = null;
 	private LightGL[] lightsGL;
 	
 	private LightManager() throws InterruptedException {
-		m_lightMap = new HashMap<Object, Light>(MAX_LIGHTS);
-		m_lightToGLMap = new HashMap<Light, LightGL>(MAX_LIGHTS);
+		mLightMap = new HashMap<Object, Light>(MAX_LIGHTS);
+		mLightToGLMap = new HashMap<Light, LightGL>(MAX_LIGHTS);
 		
-		m_lightIndices = new ArrayBlockingQueue<Integer>(MAX_LIGHTS);
+		mLightIndices = new ArrayBlockingQueue<Integer>(MAX_LIGHTS);
 		for(int i = 0; i < MAX_LIGHTS; i++){
-			m_lightIndices.put(i);
+			mLightIndices.put(i);
 		}
 		
 		initGL(); //initialize gl components 
 	}
 	
 	public static LightManager getLightManagerHandle(){
-		if(m_lightManager == null){
+		if(mLightManager == null){
 			try{
-				m_lightManager = new LightManager();
+				mLightManager = new LightManager();
 			} catch (InterruptedException e){
 				return null;
 			}
 		}
 		
-		return m_lightManager;
+		return mLightManager;
 	}
 	
 	/**
@@ -56,10 +56,10 @@ public class LightManager {
 	 */
 	public boolean addLight(Object owner, Light newLight){
 		synchronized(LightManagerLock){
-			if(m_lightMap.size() < MAX_LIGHTS){
-				m_lightMap.put(owner, newLight);
+			if(mLightMap.size() < MAX_LIGHTS){
+				mLightMap.put(owner, newLight);
 				int lightId = getLightID();
-				m_lightToGLMap.put(newLight, lightsGL[lightId]);
+				mLightToGLMap.put(newLight, lightsGL[lightId]);
 				
 				// Update the uniform variables that won't change (for now)
 				GL20.glUseProgram(ShaderController.getCurrentProgram());
@@ -87,20 +87,19 @@ public class LightManager {
 	 */
 	public boolean removeLight(Object owner){
 		synchronized(LightManagerLock){
-			if(m_lightMap.size() > 0){
+			if(mLightMap.size() > 0){
 				GL20.glUseProgram(ShaderController.getCurrentProgram());
 	
-				Light toRemove = m_lightMap.remove(owner);
-				toRemove.updateIsUsed(m_lightToGLMap.get(toRemove), false);
+				Light toRemove = mLightMap.remove(owner);
+				toRemove.updateIsUsed(mLightToGLMap.get(toRemove), false);
 				
-				LightGL ret = m_lightToGLMap.remove(toRemove);
+				LightGL ret = mLightToGLMap.remove(toRemove);
 				returnLightID(ret.getIndex()); // return the GL light to available lights
 
 				GL20.glUseProgram(0);
 
 				return true;
-			}
-			else{
+			} else {
 				return false;
 			}
 		}
@@ -111,10 +110,10 @@ public class LightManager {
 	 */
 	public void updateAllLights() {
 		synchronized(LightManagerLock) {
-			for(Light l : m_lightMap.values()) {
+			for(Light l : mLightMap.values()) {
 				GL20.glUseProgram(ShaderController.getCurrentProgram());
-				l.updatePosition(m_lightToGLMap.get(l));
-				l.updateDirection(m_lightToGLMap.get(l));
+				l.updatePosition(mLightToGLMap.get(l));
+				l.updateDirection(mLightToGLMap.get(l));
 				GL20.glUseProgram(0);
 			}
 		}
@@ -126,7 +125,7 @@ public class LightManager {
 	 * @return a light ID or null if all light slots are full
 	 */
 	private int getLightID(){
-		return m_lightIndices.poll();
+		return mLightIndices.poll();
 	}
 	
 	/**
@@ -136,7 +135,7 @@ public class LightManager {
 	 * @return true if success
 	 */
 	private boolean returnLightID(int id){
-		return m_lightIndices.add(id);
+		return mLightIndices.add(id);
 	}
 	
 	/**
