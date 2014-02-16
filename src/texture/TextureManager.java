@@ -60,15 +60,14 @@ public class TextureManager {
 			}
 			
 			// Load the default texture
-			defaultTexture = TextureLoader.loadTexture(DEFAULT_TEXTURE_FILENAME, texSlotIds.poll(2000, TimeUnit.MILLISECONDS));
+			defaultTexture = TextureLoader.loadTexture2D(DEFAULT_TEXTURE_FILENAME);
 			
 		} catch (IOException e) {
 			System.err.println("Could not find default texture file in res/textures/!");
 			System.err.println("Please add the file " + DEFAULT_TEXTURE_FILENAME + " in that directory.");
 			System.exit(1);
-		} catch (InterruptedException e) {
-			System.exit(1);
-		}
+		} 
+		
 		textureFileMapping.put(DEFAULT_TEXTURE_FILENAME, defaultTexture);
 	}
 	
@@ -99,17 +98,14 @@ public class TextureManager {
 				return textureFileMapping.get(textureFileName);
 			} else {
 				try {
-					Texture loadedTexture = TextureLoader.loadTexture(textureFileName, texSlotIds.poll(2000, TimeUnit.MILLISECONDS));
+					Texture loadedTexture = TextureLoader.loadTexture2D(textureFileName);
 					textureFileMapping.put(textureFileName, loadedTexture);
 					return loadedTexture;
 				} catch (IOException e) {
 					System.err.println("Could not find " + textureFileName + " in res/textures/.");
 					System.err.println("Falling back to the default texture map -> " + DEFAULT_TEXTURE_FILENAME);
 					return defaultTexture;
-				} catch (InterruptedException e) {
-					System.err.println("Timed out waiting for texture slot!");					
-					return defaultTexture;
-				}
+				} 
 			}
 		}
 	}

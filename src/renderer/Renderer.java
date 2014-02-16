@@ -29,6 +29,7 @@ import renderer.shader.DefaultShaderProgram;
 import renderer.shader.PixelShaderProgram;
 import renderer.shader.ShaderController;
 import renderer.shader.ShaderProgram;
+import renderer.util.Skybox;
 import system.Settings;
 import texture.TextureManager;
 
@@ -49,6 +50,7 @@ public class Renderer {
 	private BlockingQueue<Model> modelBuffer;
 	private Map<Integer, Model> mapIdToModel;
 	private Model pickedModel = null;
+	private Skybox skybox = null;
 	
 	private int width;
 	private int height;
@@ -57,7 +59,6 @@ public class Renderer {
 	// Matrix variables (should be moved to camera class in the future)
 	private Matrix4f projectionMatrix = null;
 	private Matrix4f viewMatrix = null;
-	
 	private FloatBuffer matrix44Buffer = null;
 	
 	// The view matrix will be calculated based off this camera
@@ -266,6 +267,10 @@ public class Renderer {
 		modelBuffer.add(model);
 		mapIdToModel.put(model.getUID(), model);
 	}
+	
+	public void addSkybox(Skybox skybox) {
+		this.skybox = skybox;
+	}
 
 	/**
 	 * Removes a model from the renderer
@@ -274,6 +279,10 @@ public class Renderer {
 	public void removeModel(Model model) {
 		models.remove(model);	
 		mapIdToModel.remove(model.getUID());
+	}
+	
+	public void removeSkybox() {
+		skybox = null;
 	}
 
 	public void renderColourPicking() {
@@ -309,6 +318,7 @@ public class Renderer {
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		GL20.glUseProgram(0);
 	}
+	
 	/**
 	 * Renders the new scene.
 	 */
@@ -345,6 +355,11 @@ public class Renderer {
 		// Deselect
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		GL30.glBindVertexArray(0);
+		
+		// Render the skybox last 
+		if(skybox != null) {
+			skybox.render();
+		}
 
 		// Render frame buffer to screen if needed
 		if(!postProcessConversions.isEmpty()) {
