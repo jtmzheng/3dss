@@ -42,13 +42,14 @@ public class Skybox {
 		Integer unitId = tm.getTextureSlot();
 		
 		GL11.glDepthMask(false);
-		GL20.glUseProgram(ShaderController.getCurrentProgram());
 		GL13.glActiveTexture(unitId);
+		GL20.glUniform1i(ShaderController.getCubeTextureLocation(), unitId - GL13.GL_TEXTURE0);
 		GL11.glBindTexture(GL13.GL_TEXTURE_CUBE_MAP, texture.getID());
 		GL30.glBindVertexArray(vaoId);
 		GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 36);
 		GL13.glActiveTexture(0);
 		GL11.glDepthMask(true);
+		GL30.glBindVertexArray(0);
 		tm.returnTextureSlot(unitId);
 	}
 

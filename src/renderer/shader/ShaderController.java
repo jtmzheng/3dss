@@ -28,6 +28,7 @@ public class ShaderController {
 	private static int fbTextureSamplerLocation = -1;
 	private static int uniqueIdLocation = -1;
 	private static int selectedModelLocation = -1;
+	private static int cubeTextureLocation = -1;
 	
 	private static int currentProgram = 0;
 
@@ -77,6 +78,9 @@ public class ShaderController {
 		
 		// Selected model location
 		selectedModelLocation = uniformLocations.containsKey("selectedModel") ? uniformLocations.get("selectedModel") : -1;
+		
+		// Cube texture location (skybox)
+		cubeTextureLocation = uniformLocations.containsKey("cubeTexture") ? uniformLocations.get("cubeTexture") : -1;
 		
 		return true;
 	}
@@ -176,5 +180,9 @@ public class ShaderController {
 	
 	public static int getSelectedModelLocation(){
 		return selectedModelLocation;
+	}
+	
+	public static int getCubeTextureLocation(){
+		return cubeTextureLocation;
 	}
 }

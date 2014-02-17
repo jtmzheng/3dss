@@ -29,6 +29,7 @@ import renderer.shader.DefaultShaderProgram;
 import renderer.shader.PixelShaderProgram;
 import renderer.shader.ShaderController;
 import renderer.shader.ShaderProgram;
+import renderer.shader.SkyboxShaderProgram;
 import renderer.util.Skybox;
 import system.Settings;
 import texture.TextureManager;
@@ -73,6 +74,7 @@ public class Renderer {
 	private final ShaderProgram DEFAULT_SHADER_PROGRAM;
 	private final ShaderProgram POST_PROCESS_SHADER_PROGRAM; 
 	private final ShaderProgram COLOR_PICKING_SHADER_PROGRAM;
+	private final ShaderProgram SKY_BOX_SHADER_PROGRAM;
 	
 	// Frame buffers
 	private FrameBuffer postProcessFb;
@@ -112,6 +114,10 @@ public class Renderer {
 		sh.put(Settings.getString("picking_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
 		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
+		sh = new HashMap<>();
+		sh.put(Settings.getString("skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
 		
 		// Initialize the texture manager
 		texManager = TextureManager.getInstance();
@@ -154,6 +160,10 @@ public class Renderer {
 		sh.put(Settings.getString("picking_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
 		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
+		sh = new HashMap<>();
+		sh.put(Settings.getString("skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
 		
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
@@ -197,6 +207,10 @@ public class Renderer {
 		sh.put(Settings.getString("picking_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
 		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
+		sh = new HashMap<>();
+		sh.put(Settings.getString("skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
 		
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
@@ -246,6 +260,10 @@ public class Renderer {
 		sh.put(Settings.getString("picking_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("picking_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
+		sh = new HashMap<>();
+		sh.put(Settings.getString("skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
 		
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
@@ -358,7 +376,14 @@ public class Renderer {
 		
 		// Render the skybox last 
 		if(skybox != null) {
+			ShaderController.setProgram(SKY_BOX_SHADER_PROGRAM);
+			GL20.glUseProgram(ShaderController.getCurrentProgram());
+			Matrix4f rotMatrix = camera.getRotationMatrix();
+			rotMatrix.store(matrix44Buffer);
+			matrix44Buffer.flip();
+			GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
 			skybox.render();
+			ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		}
 
 		// Render frame buffer to screen if needed
@@ -389,6 +414,7 @@ public class Renderer {
 				// Unbind 
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 				GL30.glBindVertexArray(0);
+				
 				ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 			} else {
 				System.out.println("Error: " + testVal);
@@ -566,6 +592,9 @@ public class Renderer {
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
 		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
 		ShaderController.setProgram(COLOR_PICKING_SHADER_PROGRAM);
+		GL20.glUseProgram(ShaderController.getCurrentProgram());
+		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
+		ShaderController.setProgram(SKY_BOX_SHADER_PROGRAM);
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
 		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
 		
