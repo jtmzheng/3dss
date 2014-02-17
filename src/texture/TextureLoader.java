@@ -29,7 +29,7 @@ public class TextureLoader {
 	 * @param slotId
 	 * @return Texture tex (a bound texture)
 	 */
-	public static Texture loadTexture2D(String filename) throws IOException{
+	public static Texture loadTexture2D(String filename) throws IOException, IllegalArgumentException {
 		BufferedImage image = null;
 		image = loadImage(filename);
 		
@@ -41,23 +41,13 @@ public class TextureLoader {
 		image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
 
         ByteBuffer buffer = BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * bpp);
-       
-        // Iterates through the image and adds each pixel to the buffer.
-        for (int y = 0; y < image.getHeight(); y++){
-            for (int x = 0; x < image.getWidth(); x++){
-                int pixel = pixels[y * image.getWidth() + x];
-                
-                buffer.put((byte) ((pixel >> 16) & 0xFF));  // Red component.
-                buffer.put((byte) ((pixel >> 8) & 0xFF));   // Green component.
-                buffer.put((byte) (pixel & 0xFF));          // Blue component
-                
-                if (bpp == 4)
-                	buffer.put((byte) ((pixel >> 24) & 0xFF));  // Alpha component, if it has one.
-                
-            }
-        }
-
-        buffer.flip();
+        try {
+			fillBuffer(buffer, image.getHeight(), image.getWidth(), bpp, pixels);
+		} catch(ArrayIndexOutOfBoundsException e) {
+			e.printStackTrace();
+			throw new IllegalArgumentException();
+		}
+        
         Texture tex = new Texture2D(image.getWidth(), 
         		image.getHeight(), 
         		buffer,
@@ -67,7 +57,7 @@ public class TextureLoader {
         return tex;
 	}
 
-	public static Texture loadCubeMapTexture(List<String> files, String name) throws IOException {
+	public static Texture loadCubeMapTexture(List<String> files, String name) throws IOException, IllegalArgumentException {
 		BufferedImage image = null;
 		List<ByteBuffer> imgBuffers = new ArrayList<>();
 		
@@ -81,23 +71,12 @@ public class TextureLoader {
 			int[] pixels = new int[image.getWidth() * image.getHeight()];
 			image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
 			ByteBuffer buffer = BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * bpp);
-
-			// Iterates through the image and adds each pixel to the buffer.
-			for (int y = 0; y < image.getHeight(); y++){
-				for (int x = 0; x < image.getWidth(); x++){
-					int pixel = pixels[y * image.getWidth() + x];
-
-					buffer.put((byte) ((pixel >> 16) & 0xFF));  // Red component.
-					buffer.put((byte) ((pixel >> 8) & 0xFF));   // Green component.
-					buffer.put((byte) (pixel & 0xFF));          // Blue component
-
-					if (bpp == 4)
-						buffer.put((byte) ((pixel >> 24) & 0xFF));  // Alpha component, if it has one.
-
-				}
+			try {
+				fillBuffer(buffer, image.getHeight(), image.getWidth(), bpp, pixels);
+			} catch(ArrayIndexOutOfBoundsException e) {
+				e.printStackTrace();
+				throw new IllegalArgumentException();
 			}
-			
-			buffer.flip();
 			imgBuffers.add(buffer);
 		}
 		
@@ -108,6 +87,25 @@ public class TextureLoader {
 				image.getColorModel().hasAlpha());
 	}
 
+	private static void fillBuffer(ByteBuffer buffer, int width, int height, int bpp, int [] pixels) throws ArrayIndexOutOfBoundsException {
+		// Iterates through the image and adds each pixel to the buffer.
+		for (int y = 0; y < height; y++){
+			for (int x = 0; x < width; x++){
+				int pixel = pixels[y * width + x];
+
+				buffer.put((byte) ((pixel >> 16) & 0xFF));  // Red component.
+				buffer.put((byte) ((pixel >> 8) & 0xFF));   // Green component.
+				buffer.put((byte) (pixel & 0xFF));          // Blue component
+
+				if (bpp == 4)
+					buffer.put((byte) ((pixel >> 24) & 0xFF));  // Alpha component, if it has one.
+
+			}
+		}
+		
+		buffer.flip();
+	}
+	
 	private static BufferedImage loadImage (String textureName) throws IOException {
 		// Get the absolute path to the texture.
 		String abspath = Settings.getString("pwd") + "/res/textures/" + textureName;

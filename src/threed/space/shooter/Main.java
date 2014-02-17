@@ -22,7 +22,6 @@ import renderer.util.ParticleEmitter;
 import renderer.util.Skybox;
 import texture.Texture;
 import texture.TextureLoader;
-import texture.TextureManager;
 import world.World;
 import characters.Player;
 
@@ -112,6 +111,8 @@ public class Main {
 			sb = new Skybox(sbTex);
 		} catch (IOException e1) {
 			e1.printStackTrace();
+		} catch (IllegalArgumentException e2) {
+			e2.printStackTrace();
 		}
 		
 		if(sb != null) {
