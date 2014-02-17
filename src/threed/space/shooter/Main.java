@@ -99,12 +99,12 @@ public class Main {
 		gameWorld = new World(gameRenderer);
 		
 		List<String> files = new ArrayList<>();
+		files.add("miramar_ft.png");
+		files.add("miramar_bk.png");
+		files.add("miramar_up.png");
+		files.add("miramar_dn.png");
 		files.add("miramar_rt.png");
-		files.add("miramar_rt.png");
-		files.add("miramar_rt.png");
-		files.add("miramar_rt.png");
-		files.add("miramar_rt.png");
-		files.add("miramar_rt.png");
+		files.add("miramar_lf.png");
 		
 		Skybox sb = null;
 		try {

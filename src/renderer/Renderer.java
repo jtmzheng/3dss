@@ -347,13 +347,25 @@ public class Renderer {
 		}
 		
 		GL11.glViewport(0, 0, width, height);
-
-		// Select shader program.
-		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
-		GL20.glUseProgram(ShaderController.getCurrentProgram());
 		
 		// Clear the color and depth buffers
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+
+		// Render the skybox first 
+		if(skybox != null) {
+			ShaderController.setProgram(SKY_BOX_SHADER_PROGRAM);
+			GL20.glUseProgram(ShaderController.getCurrentProgram());
+			Matrix4f rotMatrix = camera.getRotationMatrix();
+			rotMatrix.store(matrix44Buffer);
+			matrix44Buffer.flip();
+			GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
+			skybox.render();
+			ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
+		}
+		
+		// Select shader program.
+		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
+		GL20.glUseProgram(ShaderController.getCurrentProgram());
 		
 		// Set the uniform values of the view matrix 
 		viewMatrix = camera.getViewMatrix();
@@ -373,18 +385,6 @@ public class Renderer {
 		// Deselect
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		GL30.glBindVertexArray(0);
-		
-		// Render the skybox last 
-		if(skybox != null) {
-			ShaderController.setProgram(SKY_BOX_SHADER_PROGRAM);
-			GL20.glUseProgram(ShaderController.getCurrentProgram());
-			Matrix4f rotMatrix = camera.getRotationMatrix();
-			rotMatrix.store(matrix44Buffer);
-			matrix44Buffer.flip();
-			GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
-			skybox.render();
-			ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
-		}
 
 		// Render frame buffer to screen if needed
 		if(!postProcessConversions.isEmpty()) {
@@ -609,9 +609,9 @@ public class Renderer {
 	private void initOpenGL(boolean fullscreen){
 		try{
 			PixelFormat pixelFormat = new PixelFormat();
-			ContextAttribs contextAtr = new ContextAttribs(3, 2)
+			ContextAttribs contextAtr = new ContextAttribs(3, 3)
 				.withForwardCompatible(true)
-				.withProfileCore(true);
+				.withProfileCore(false);
 
 			if (fullscreen) 
 				Display.setFullscreen(true);

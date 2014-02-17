@@ -21,7 +21,7 @@ public class Texture2D extends Texture {
 
 	public void bind(int unitId) {
 		// If not already bound and valid unit Id
-		if(!isBound && unitId > 0) {
+		if(!isBound && unitId > 0) {		    
 			texId = GL11.glGenTextures();
 
 			// Activate the texture unit

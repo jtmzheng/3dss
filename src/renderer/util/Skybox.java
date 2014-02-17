@@ -19,6 +19,11 @@ public class Skybox {
 		this.texture = texture;
 		this.vaoId = GL30.glGenVertexArrays();
 		
+		TextureManager tm = TextureManager.getInstance();
+		Integer unitId = tm.getTextureSlot();
+		texture.bind(unitId);
+		tm.returnTextureSlot(unitId);
+		
 		GL30.glBindVertexArray(vaoId);
 		GL20.glEnableVertexAttribArray(0); // position
 		
@@ -41,6 +46,9 @@ public class Skybox {
 		TextureManager tm = TextureManager.getInstance();
 		Integer unitId = tm.getTextureSlot();
 		
+		GL11.glDisable(GL11.GL_CULL_FACE);
+		GL11.glDisable(GL11.GL_DEPTH_TEST);
+		
 		GL11.glDepthMask(false);
 		GL13.glActiveTexture(unitId);
 		GL20.glUniform1i(ShaderController.getCubeTextureLocation(), unitId - GL13.GL_TEXTURE0);
@@ -50,6 +58,10 @@ public class Skybox {
 		GL13.glActiveTexture(0);
 		GL11.glDepthMask(true);
 		GL30.glBindVertexArray(0);
+		
+		GL11.glEnable(GL11.GL_CULL_FACE);
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
+		
 		tm.returnTextureSlot(unitId);
 	}
 

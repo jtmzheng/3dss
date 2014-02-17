@@ -80,7 +80,6 @@ public class TextureLoader {
 
 			int[] pixels = new int[image.getWidth() * image.getHeight()];
 			image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
-
 			ByteBuffer buffer = BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * bpp);
 
 			// Iterates through the image and adds each pixel to the buffer.
@@ -98,6 +97,7 @@ public class TextureLoader {
 				}
 			}
 			
+			buffer.flip();
 			imgBuffers.add(buffer);
 		}
 		

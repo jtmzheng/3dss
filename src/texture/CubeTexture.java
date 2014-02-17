@@ -1,7 +1,5 @@
 package texture;
 
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -23,7 +21,7 @@ public class CubeTexture extends Texture {
 	@Override
 	public void bind(int unitId) {
 		// If not already bound and valid unit Id
-		if(!isBound && unitId > 0) {
+		if(!isBound && unitId > 0) {			
 			texId = GL11.glGenTextures();
 
 			// Activate the texture unit
@@ -31,14 +29,13 @@ public class CubeTexture extends Texture {
 			
 			// Set uniform variable of texture slot
 			GL20.glUseProgram(ShaderController.getCurrentProgram());
-			GL20.glUniform1i(ShaderController.getTexSamplerLocation(), unitId - GL13.GL_TEXTURE0);
-			GL20.glUseProgram(0);
-			
+			GL20.glUniform1i(ShaderController.getCubeTextureLocation(), unitId - GL13.GL_TEXTURE0);
 			GL11.glBindTexture(GL13.GL_TEXTURE_CUBE_MAP, texId);
 			GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
 
+			int side = GL13.GL_TEXTURE_CUBE_MAP_POSITIVE_X;
 			for(ByteBuffer buffer : imgBuffers) {
-				GL11.glTexImage2D(GL13.GL_TEXTURE_CUBE_MAP, 0, colorFormat, width, height, 0, colorFormat, GL11.GL_UNSIGNED_BYTE, buffer);
+				GL11.glTexImage2D(side++, 0, colorFormat, width, height, 0, colorFormat, GL11.GL_UNSIGNED_BYTE, buffer);
 			}
 
 			// Set texture parameters
@@ -49,7 +46,8 @@ public class CubeTexture extends Texture {
 			GL11.glTexParameteri(GL13.GL_TEXTURE_CUBE_MAP, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
 
 			isBound = true;
-			GL11.glBindTexture(GL_TEXTURE_2D, 0);
+			GL11.glBindTexture(GL13.GL_TEXTURE_CUBE_MAP, 0);
+			GL20.glUseProgram(0);
 		}
 
 	}

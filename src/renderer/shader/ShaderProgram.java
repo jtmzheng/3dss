@@ -31,10 +31,8 @@ public abstract class ShaderProgram {
 		shaderNameToId = new HashMap<>();
 		shaderIdToType = new HashMap<>();
 		
-		for(String file : shaders.keySet()){
-			System.out.println(file);
+		for(String file : shaders.keySet()) {
 			int shaderId = loadShader(file, shaders.get(file));
-			System.out.println(shaderId);
 			GL20.glAttachShader(programId, shaderId);
 			shaderNameToId.put(file, shaderId);
 			shaderIdToType.put(shaderId, shaders.get(file));
@@ -112,7 +110,6 @@ public abstract class ShaderProgram {
 			System.exit(-1);
 		}
 
-		System.out.println(shaderSource);
 		shaderID = GL20.glCreateShader(type);
 		GL20.glShaderSource(shaderID, shaderSource);
 		GL20.glCompileShader(shaderID);

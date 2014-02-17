@@ -1,17 +1,8 @@
 package texture;
 
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.glDeleteTextures;
 
-import java.nio.ByteBuffer;
-
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
-
-import renderer.shader.ShaderController;
 
 /**
  * Basic texture class used by the Renderer.
@@ -112,7 +103,7 @@ public abstract class Texture {
 	}
 
 	/**
-	 * Binds this texture to the GL_TEXTURE_2D target.
+	 * Binds this texture to the target.
 	 * @param unitId - an OpenGL texture unit index
 	 */
 	public abstract void bind (int unitId);
