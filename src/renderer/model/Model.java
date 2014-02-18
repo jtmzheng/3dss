@@ -16,6 +16,7 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL31;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -44,7 +45,8 @@ import com.bulletphysics.util.ObjectArrayList;
  * Model class is an abstraction used by both the renderer and the physics engine. Each model represents a physical object
  * in the environment. The OpenGL attributes will be passed as an interleaved VBO. Changes are applied to the physics model.
  *
- * TODO: This class needs cleanup.
+ * @TODO: This class needs cleanup.
+ * @TODO: Dynamically assigning attributes for each model
  * @author Max
  * @author Adi
  */
@@ -87,6 +89,9 @@ public class Model {
 
 	// Initial position of the model.
 	private Vector3f initialPos;
+	
+	// Bounding box for the model
+	private BoundingBox boundBox;
 
 	// If the model is set up yet.
 	private boolean isGLsetup = false;
@@ -187,6 +192,7 @@ public class Model {
 
 		this.faces = f;
 		this.physicsProps = rigidBodyProp;
+		this.boundBox = new BoundingBox();
 
 		// Get instance of texture manager
 		texManager = TextureManager.getInstance();
@@ -216,6 +222,7 @@ public class Model {
 
 		this.faces = f;
 		this.physicsProps = rigidBodyProp;
+		this.boundBox = new BoundingBox();
 
 		// Get instance of texture manager
 		texManager = TextureManager.getInstance();
@@ -240,6 +247,7 @@ public class Model {
 
 		this.faces = f;
 		this.physicsProps = rigidBodyProp;
+		this.boundBox = new BoundingBox();
 
 		// Get instance of texture manager
 		texManager = TextureManager.getInstance();
@@ -261,6 +269,7 @@ public class Model {
 	public Model(List<Face> f) {
 		this.faces = f;
 		this.physicsProps = new PhysicsModelProperties();
+		this.boundBox = new BoundingBox();
 
 		// Get instance of texture manager.
 		texManager = TextureManager.getInstance();
@@ -290,6 +299,7 @@ public class Model {
 		// Set member variables
 		this.faces = faceList;
 		this.physicsProps = new PhysicsModelProperties(model.getPhysicsProperties());
+		this.boundBox = new BoundingBox();
 
 		// Get instance of texture manager
 		texManager = TextureManager.getInstance();
@@ -307,7 +317,6 @@ public class Model {
 	 * Setup GL for rendering.
 	 */
 	public void setupGL(){
-		long curTime = System.currentTimeMillis();
 		isGLsetup = true;
 
 		// Strip any quads / polygons. 
@@ -324,7 +333,7 @@ public class Model {
 		Material currentMaterial = null;
 
 		// Split the faces up by material
-		for (Face face : this.faces) {
+		for(Face face : this.faces) {
 			currentMaterial = face.getMaterial();
 
 			// If already in the map append to the list (else make new entry)
@@ -337,8 +346,6 @@ public class Model {
 				mapMaterialToFaces.put(currentMaterial, faceList);
 			}
 		}
-
-		// System.out.println("Number of face lists by material: " +  mapMaterialToFace.size());
 
 		for(Material material : mapMaterialToFaces.keySet()) {
 			List<Face> materialFaces = mapMaterialToFaces.get(material);
@@ -354,7 +361,8 @@ public class Model {
 			// VBO index
 			int index = 0;
 
-			/** For each face in the list, process the data and add to 
+			/** 
+			 *  For each face in the list, process the data and add to 
 			 *  the byte buffer.
 			 */
 			for(Face face: materialFaces){			
@@ -363,9 +371,9 @@ public class Model {
 				if(!vboIndexMap.containsKey(tempVertexData)){
 					vboIndexMap.put(tempVertexData, index);
 					verticesFloatBuffer.put(tempVertexData.getElements());
+					boundBox.addVertex(tempVertexData.getXYZ());
 					vboIndex.add(index++);
-				}
-				else{
+				} else {
 					vboIndex.add(vboIndexMap.get(tempVertexData));
 				}
 
@@ -374,9 +382,9 @@ public class Model {
 				if(!vboIndexMap.containsKey(tempVertexData)){
 					vboIndexMap.put(tempVertexData, index);
 					verticesFloatBuffer.put(tempVertexData.getElements());
+					boundBox.addVertex(tempVertexData.getXYZ());
 					vboIndex.add(index++);
-				}
-				else{
+				} else {
 					vboIndex.add(vboIndexMap.get(tempVertexData));
 				}
 
@@ -385,20 +393,20 @@ public class Model {
 				if(!vboIndexMap.containsKey(tempVertexData)){
 					vboIndexMap.put(tempVertexData, index);
 					verticesFloatBuffer.put(tempVertexData.getElements());
+					boundBox.addVertex(tempVertexData.getXYZ());
 					vboIndex.add(index++);
-				}
-				else{
+				} else {
 					vboIndex.add(vboIndexMap.get(tempVertexData));
 				}			
 			}
-
-			//Create VBO Index buffer
+			
+			// Create VBO Index buffer
 			verticesFloatBuffer.flip();
 			int [] indices = new int[vboIndex.size()];
 			int indicesCount = vboIndex.size();
 			mapIndiceCount.put(material, indicesCount);
 
-			for(int i = 0; i < vboIndex.size(); i++){
+			for(int i = 0; i < vboIndex.size(); i++) {
 				indices[i] = vboIndex.get(i); 
 			}
 
@@ -473,12 +481,14 @@ public class Model {
 			tex.bind(textureUnitId);
 			texManager.returnTextureSlot(textureUnitId);
 		}
+		
+		// Bind the bounding box
+		boundBox.bind();
 
 		//Initialize model matrix (Initialized to the identity in the constructor)
 		modelMatrix = new Matrix4f(); 
 
 		renderFlag = true;
-		System.out.println("Model loading to GPU: " + (System.currentTimeMillis() - curTime));
 	}
 
 	public void renderPicking() {
@@ -495,6 +505,18 @@ public class Model {
 			GL20.glUniformMatrix4(ShaderController.getModelMatrixLocation(), false, modelMatrixBuffer);
 			GL20.glUniform3(ShaderController.getUniqueIdLocation(), uniqueIdBuffer);
 
+			GL11.glEnable(GL31.GL_PRIMITIVE_RESTART_INDEX); 
+			GL31.glPrimitiveRestartIndex(BoundingBox.PRIMITIVE_RESTART_INDEX);
+			GL30.glBindVertexArray(boundBox.getVAO());
+			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, boundBox.getVBOInd());
+			GL11.glDrawElements(GL11.GL_TRIANGLE_STRIP, BoundingBox.INDICES.length, GL11.GL_UNSIGNED_INT, 0);
+			GL11.glDisable(GL31.GL_PRIMITIVE_RESTART_INDEX); 
+
+			/* 
+			 * The code below is more accurate for picking, but slower 
+			 */
+			
+			/*
 			// Do bind and draw for each material's faces
 			for(Material material : mapMaterialToFaces.keySet()) {
 				GL30.glBindVertexArray(mapVAOIds.get(material));
@@ -505,6 +527,8 @@ public class Model {
 				// Draw the vertices
 				GL11.glDrawElements(GL11.GL_TRIANGLES, mapIndiceCount.get(material), GL11.GL_UNSIGNED_INT, 0);
 			}
+			*/
+			
 		}
 	}
 
