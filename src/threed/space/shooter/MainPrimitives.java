@@ -100,7 +100,7 @@ public class MainPrimitives {
 		Fog worldFog = new Fog(new Vector3f(0.2f, 0.2f, 0.2f), 2.0f, 10.0f, true);
 				
 		gameCam = new Camera(new Vector3f(10.0f, 0.0f, -20.0f));
-		gameRenderer = new Renderer(600, 600, gameCam, 60, worldFog);
+		gameRenderer = new Renderer(600, 600, gameCam, 60, worldFog, "Primitives Test");
 		gameWorld = new World(gameRenderer);
 
 		PhysicsModelProperties groundProps = new PhysicsModelProperties();

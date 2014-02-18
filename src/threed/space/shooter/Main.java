@@ -94,7 +94,7 @@ public class Main {
 		Fog worldFog = new Fog(true);
 		
 		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
-		gameRenderer = new Renderer(512, 512, gameCam, 60, worldFog);
+		gameRenderer = new Renderer(512, 512, gameCam, 60, worldFog, "Skybox Test");
 		gameWorld = new World(gameRenderer);
 		
 		List<String> files = new ArrayList<>();

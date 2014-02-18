@@ -91,7 +91,7 @@ public class Renderer {
 	 * Default constructor
 	 * @param camera The camera associated with the renderer
 	 */
-	public Renderer(Camera camera) {
+	public Renderer(Camera camera, String title) {
 		this.camera = camera;
 		this.width = DEFAULT_WIDTH;
 		this.height = DEFAULT_HEIGHT;
@@ -99,7 +99,7 @@ public class Renderer {
 		this.fog = new Fog(false);		
 
 		// Initialize the OpenGL context
-		initOpenGL(width <= 0 && height <= 0);
+		initOpenGL(width <= 0 && height <= 0, title);
 		
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
@@ -137,7 +137,7 @@ public class Renderer {
 	 * @param height The height of the renderer.
 	 * @param camera The camera associated with the renderer.
 	 */
-	public Renderer(int width, int height, Camera camera) {
+	public Renderer(int width, int height, Camera camera, String title) {
 		this.camera = camera;
 		this.width = width;
 		this.height = height;
@@ -145,7 +145,7 @@ public class Renderer {
 		this.fog = new Fog(false);
 		
 		// Initialize the OpenGL context
-		initOpenGL(width <= 0 && height <= 0);
+		initOpenGL(width <= 0 && height <= 0, title);
 		
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
@@ -184,7 +184,7 @@ public class Renderer {
 	 * @param camera The camera associated with the renderer.
 	 * @param frameRate The frame rate. 
 	 */
-	public Renderer(int width, int height, Camera camera, int frameRate) {
+	public Renderer(int width, int height, Camera camera, int frameRate, String title) {
 		this.camera = camera;
 		this.width = width;
 		this.height = height;
@@ -192,7 +192,7 @@ public class Renderer {
 		this.fog = new Fog(false);
 		
 		// Initialize the OpenGL context
-		initOpenGL(width <= 0 && height <= 0);
+		initOpenGL(width <= 0 && height <= 0, title);
 		
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
@@ -236,7 +236,8 @@ public class Renderer {
 			int height, 
 			Camera camera, 
 			int frameRate,
-			Fog fog) {
+			Fog fog,
+			String title) {
 		
 		this.camera = camera;
 		this.width = width;
@@ -245,7 +246,7 @@ public class Renderer {
 		this.fog = fog;
 		
 		// Initialize the OpenGL context
-		initOpenGL(width <= 0 && height <= 0);
+		initOpenGL(width <= 0 && height <= 0, title);
 		
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
@@ -606,7 +607,7 @@ public class Renderer {
 	 * Initializes OpenGL (currently using 3.2).
 	 * @param fullscreen Determines whether we should run in fullscreen.
 	 */
-	private void initOpenGL(boolean fullscreen){
+	private void initOpenGL(boolean fullscreen, String title) {
 		try{
 			PixelFormat pixelFormat = new PixelFormat();
 			ContextAttribs contextAtr = new ContextAttribs(3, 3)
@@ -618,7 +619,7 @@ public class Renderer {
 			else 
 				Display.setDisplayMode(new DisplayMode(this.width, this.height));
 
-			Display.setTitle("Game the Name 2.0");
+			Display.setTitle(title);
 			Display.create(pixelFormat, contextAtr);
 			
 			if (width != 0 && height != 0)
