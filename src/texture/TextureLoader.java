@@ -58,6 +58,10 @@ public class TextureLoader {
 	}
 
 	public static Texture loadCubeMapTexture(List<String> files, String name) throws IOException, IllegalArgumentException {
+		if(files.size() != 6) {
+			throw new IllegalArgumentException();
+		}
+		
 		BufferedImage image = null;
 		List<ByteBuffer> imgBuffers = new ArrayList<>();
 		

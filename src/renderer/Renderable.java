@@ -1,6 +1,6 @@
 package renderer;
 
-// @TODO: Use this interface for anything that can be rendereds
+// @TODO: Use this interface for anything that can be rendered
 public interface Renderable {
 
 	public void setup();
