@@ -5,5 +5,6 @@ public interface Renderable {
 
 	public void setup();
 	public void render();
+	public void bind(); 
 	
 }

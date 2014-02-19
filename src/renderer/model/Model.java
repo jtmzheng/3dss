@@ -47,6 +47,7 @@ import com.bulletphysics.util.ObjectArrayList;
  *
  * @TODO: This class needs cleanup.
  * @TODO: Dynamically assigning attributes for each model
+ * @TODO: Each model should basically be given a shader program that it will use to render
  * @author Max
  * @author Adi
  */

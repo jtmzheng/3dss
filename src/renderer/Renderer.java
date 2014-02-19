@@ -36,6 +36,8 @@ import texture.TextureManager;
 
 /**
  * The renderer class should set up OpenGL.
+ * @TODO Move context setting to the client
+ * @ADD Setting a client defined default shader
  * @author Adi
  * @author Max
  */
@@ -44,8 +46,10 @@ public class Renderer {
 	private static final int DEFAULT_WIDTH = 320;
 	private static final int DEFAULT_HEIGHT = 240;
 	private static final int DEFAULT_FRAME_RATE = 60;
-	private static final int MAX_MODELS = 100;
+	private static final int MAX_MODELS = 100; // Max models on the temp buffer
 
+	private final Integer DEFAULT_FRAME_BUFFER = 0;
+	
 	// List of the models that will be rendered
 	private Set<Model> models;
 	private BlockingQueue<Model> modelBuffer;
@@ -79,7 +83,6 @@ public class Renderer {
 	// Frame buffers
 	private FrameBuffer postProcessFb;
 	private FrameBuffer colourPickingFb;
-	private final Integer DEFAULT_FRAME_BUFFER = 0;
 	private Set<Conversion> postProcessConversions;
 	
 	// The frame buffer has its own unit id (for safety)
@@ -287,6 +290,10 @@ public class Renderer {
 		mapIdToModel.put(model.getUID(), model);
 	}
 	
+	/**
+	 * Add a Skybox to the renderer
+	 * @param skybox
+	 */
 	public void addSkybox(Skybox skybox) {
 		this.skybox = skybox;
 	}
@@ -300,6 +307,9 @@ public class Renderer {
 		mapIdToModel.remove(model.getUID());
 	}
 	
+	/**
+	 * Remove the Skybox currently attached to the renderer
+	 */
 	public void removeSkybox() {
 		skybox = null;
 	}
@@ -390,7 +400,7 @@ public class Renderer {
 		// Render frame buffer to screen if needed
 		if(!postProcessConversions.isEmpty()) {
 			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
-			GL11.glViewport(-width, -height, width * 2, height * 2); // @TODO: Hack
+			GL11.glViewport(-width, -height, width * 2, height * 2); // @TODO: Fix hack
 
 			int testVal = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
 			if(testVal == GL30.GL_FRAMEBUFFER_COMPLETE) {
@@ -423,9 +433,7 @@ public class Renderer {
 		}
 
 		GL20.glUseProgram(0);
-		// Force a maximum FPS of about 60
 		Display.sync(frameRate);
-		// Let the CPU synchronize with the GPU if GPU is tagging behind (I think update refreshs the display)
 		Display.update();
 	}
 	
@@ -441,7 +449,7 @@ public class Renderer {
 	 * @return camera the camera
 	 * @throws NullPointerException
 	 */
-	public Camera getCamera() throws NullPointerException{
+	public Camera getCamera() throws NullPointerException {
 		if(camera == null){
 			throw new NullPointerException();
 		}

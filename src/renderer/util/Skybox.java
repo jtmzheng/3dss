@@ -13,6 +13,11 @@ import renderer.shader.ShaderController;
 import texture.Texture;
 import texture.TextureManager;
 
+/**
+ * The Skybox class uses a cube map texture for a Skybox
+ * @author Max
+ *
+ */
 public class Skybox {
 
 	public Skybox(Texture texture) {
@@ -29,7 +34,7 @@ public class Skybox {
 		
 		int posVboId = GL15.glGenBuffers();
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, posVboId);
-		FloatBuffer dataBuffer = BufferUtils.createFloatBuffer(36 * 3);
+		FloatBuffer dataBuffer = BufferUtils.createFloatBuffer(POINTS.length);
 		dataBuffer.put(POINTS);
 		dataBuffer.flip();
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, dataBuffer, GL15.GL_STATIC_DRAW);
@@ -41,7 +46,6 @@ public class Skybox {
 		GL30.glBindVertexArray(0);
 	}
 
-	// @TODO: Implement Renderable
 	public void render() {
 		TextureManager tm = TextureManager.getInstance();
 		Integer unitId = tm.getTextureSlot();
