@@ -14,7 +14,7 @@ import org.lwjgl.opengl.GL20;
  * @author Max
  *
  */
-public class ShaderProgram {
+public abstract class ShaderProgram {
 	protected Map<String, Integer> shaderAttributes;
 	protected Map<String, Integer> shaderUniformLocations;
 	
@@ -31,7 +31,7 @@ public class ShaderProgram {
 		shaderNameToId = new HashMap<>();
 		shaderIdToType = new HashMap<>();
 		
-		for(String file : shaders.keySet()){
+		for(String file : shaders.keySet()) {
 			int shaderId = loadShader(file, shaders.get(file));
 			GL20.glAttachShader(programId, shaderId);
 			shaderNameToId.put(file, shaderId);

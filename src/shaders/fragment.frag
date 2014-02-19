@@ -1,4 +1,4 @@
-#version 330 core
+#version 330
 
 const float SPOT_ARC = cos(13.66 / 90.0);
 const int MAX_NUM_LIGHTS = 30;

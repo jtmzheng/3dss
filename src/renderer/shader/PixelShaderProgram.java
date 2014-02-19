@@ -11,7 +11,7 @@ import org.lwjgl.opengl.GL20;
  * @author Max
  *
  */
-public class PixelShaderProgram extends ShaderProgram{
+public class PixelShaderProgram extends ShaderProgram {
 
 	public PixelShaderProgram(Map<String, Integer> shaders) {
 		super(shaders);

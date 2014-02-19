@@ -29,11 +29,15 @@ import renderer.shader.DefaultShaderProgram;
 import renderer.shader.PixelShaderProgram;
 import renderer.shader.ShaderController;
 import renderer.shader.ShaderProgram;
+import renderer.shader.SkyboxShaderProgram;
+import renderer.util.Skybox;
 import system.Settings;
 import texture.TextureManager;
 
 /**
  * The renderer class should set up OpenGL.
+ * @TODO Move context setting to the client
+ * @ADD Setting a client defined default shader
  * @author Adi
  * @author Max
  */
@@ -42,13 +46,16 @@ public class Renderer {
 	private static final int DEFAULT_WIDTH = 320;
 	private static final int DEFAULT_HEIGHT = 240;
 	private static final int DEFAULT_FRAME_RATE = 60;
-	private static final int MAX_MODELS = 100;
+	private static final int MAX_MODELS = 100; // Max models on the temp buffer
 
+	private final Integer DEFAULT_FRAME_BUFFER = 0;
+	
 	// List of the models that will be rendered
 	private Set<Model> models;
 	private BlockingQueue<Model> modelBuffer;
 	private Map<Integer, Model> mapIdToModel;
 	private Model pickedModel = null;
+	private Skybox skybox = null;
 	
 	private int width;
 	private int height;
@@ -57,7 +64,6 @@ public class Renderer {
 	// Matrix variables (should be moved to camera class in the future)
 	private Matrix4f projectionMatrix = null;
 	private Matrix4f viewMatrix = null;
-	
 	private FloatBuffer matrix44Buffer = null;
 	
 	// The view matrix will be calculated based off this camera
@@ -72,11 +78,11 @@ public class Renderer {
 	private final ShaderProgram DEFAULT_SHADER_PROGRAM;
 	private final ShaderProgram POST_PROCESS_SHADER_PROGRAM; 
 	private final ShaderProgram COLOR_PICKING_SHADER_PROGRAM;
+	private final ShaderProgram SKY_BOX_SHADER_PROGRAM;
 	
 	// Frame buffers
 	private FrameBuffer postProcessFb;
 	private FrameBuffer colourPickingFb;
-	private final Integer DEFAULT_FRAME_BUFFER = 0;
 	private Set<Conversion> postProcessConversions;
 	
 	// The frame buffer has its own unit id (for safety)
@@ -88,7 +94,7 @@ public class Renderer {
 	 * Default constructor
 	 * @param camera The camera associated with the renderer
 	 */
-	public Renderer(Camera camera) {
+	public Renderer(Camera camera, String title) {
 		this.camera = camera;
 		this.width = DEFAULT_WIDTH;
 		this.height = DEFAULT_HEIGHT;
@@ -96,7 +102,7 @@ public class Renderer {
 		this.fog = new Fog(false);		
 
 		// Initialize the OpenGL context
-		initOpenGL(width <= 0 && height <= 0);
+		initOpenGL(width <= 0 && height <= 0, title);
 		
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
@@ -111,6 +117,10 @@ public class Renderer {
 		sh.put(Settings.getString("picking_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
 		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
+		sh = new HashMap<>();
+		sh.put(Settings.getString("skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
 		
 		// Initialize the texture manager
 		texManager = TextureManager.getInstance();
@@ -130,7 +140,7 @@ public class Renderer {
 	 * @param height The height of the renderer.
 	 * @param camera The camera associated with the renderer.
 	 */
-	public Renderer(int width, int height, Camera camera) {
+	public Renderer(int width, int height, Camera camera, String title) {
 		this.camera = camera;
 		this.width = width;
 		this.height = height;
@@ -138,7 +148,7 @@ public class Renderer {
 		this.fog = new Fog(false);
 		
 		// Initialize the OpenGL context
-		initOpenGL(width <= 0 && height <= 0);
+		initOpenGL(width <= 0 && height <= 0, title);
 		
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
@@ -153,6 +163,10 @@ public class Renderer {
 		sh.put(Settings.getString("picking_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
 		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
+		sh = new HashMap<>();
+		sh.put(Settings.getString("skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
 		
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
@@ -173,7 +187,7 @@ public class Renderer {
 	 * @param camera The camera associated with the renderer.
 	 * @param frameRate The frame rate. 
 	 */
-	public Renderer(int width, int height, Camera camera, int frameRate) {
+	public Renderer(int width, int height, Camera camera, int frameRate, String title) {
 		this.camera = camera;
 		this.width = width;
 		this.height = height;
@@ -181,7 +195,7 @@ public class Renderer {
 		this.fog = new Fog(false);
 		
 		// Initialize the OpenGL context
-		initOpenGL(width <= 0 && height <= 0);
+		initOpenGL(width <= 0 && height <= 0, title);
 		
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
@@ -196,6 +210,10 @@ public class Renderer {
 		sh.put(Settings.getString("picking_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
 		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
+		sh = new HashMap<>();
+		sh.put(Settings.getString("skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
 		
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
@@ -221,7 +239,8 @@ public class Renderer {
 			int height, 
 			Camera camera, 
 			int frameRate,
-			Fog fog) {
+			Fog fog,
+			String title) {
 		
 		this.camera = camera;
 		this.width = width;
@@ -230,7 +249,7 @@ public class Renderer {
 		this.fog = fog;
 		
 		// Initialize the OpenGL context
-		initOpenGL(width <= 0 && height <= 0);
+		initOpenGL(width <= 0 && height <= 0, title);
 		
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
@@ -245,6 +264,10 @@ public class Renderer {
 		sh.put(Settings.getString("picking_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(Settings.getString("picking_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
+		sh = new HashMap<>();
+		sh.put(Settings.getString("skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(Settings.getString("skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
 		
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
@@ -266,6 +289,14 @@ public class Renderer {
 		modelBuffer.add(model);
 		mapIdToModel.put(model.getUID(), model);
 	}
+	
+	/**
+	 * Add a Skybox to the renderer
+	 * @param skybox
+	 */
+	public void addSkybox(Skybox skybox) {
+		this.skybox = skybox;
+	}
 
 	/**
 	 * Removes a model from the renderer
@@ -274,6 +305,13 @@ public class Renderer {
 	public void removeModel(Model model) {
 		models.remove(model);	
 		mapIdToModel.remove(model.getUID());
+	}
+	
+	/**
+	 * Remove the Skybox currently attached to the renderer
+	 */
+	public void removeSkybox() {
+		skybox = null;
 	}
 
 	public void renderColourPicking() {
@@ -309,6 +347,7 @@ public class Renderer {
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		GL20.glUseProgram(0);
 	}
+	
 	/**
 	 * Renders the new scene.
 	 */
@@ -319,13 +358,25 @@ public class Renderer {
 		}
 		
 		GL11.glViewport(0, 0, width, height);
-
-		// Select shader program.
-		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
-		GL20.glUseProgram(ShaderController.getCurrentProgram());
 		
 		// Clear the color and depth buffers
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+
+		// Render the skybox first 
+		if(skybox != null) {
+			ShaderController.setProgram(SKY_BOX_SHADER_PROGRAM);
+			GL20.glUseProgram(ShaderController.getCurrentProgram());
+			Matrix4f rotMatrix = camera.getRotationMatrix();
+			rotMatrix.store(matrix44Buffer);
+			matrix44Buffer.flip();
+			GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
+			skybox.render();
+			ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
+		}
+		
+		// Select shader program.
+		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
+		GL20.glUseProgram(ShaderController.getCurrentProgram());
 		
 		// Set the uniform values of the view matrix 
 		viewMatrix = camera.getViewMatrix();
@@ -349,7 +400,7 @@ public class Renderer {
 		// Render frame buffer to screen if needed
 		if(!postProcessConversions.isEmpty()) {
 			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
-			GL11.glViewport(-width, -height, width * 2, height * 2); // @TODO: Hack
+			GL11.glViewport(-width, -height, width * 2, height * 2); // @TODO: Fix hack
 
 			int testVal = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
 			if(testVal == GL30.GL_FRAMEBUFFER_COMPLETE) {
@@ -374,6 +425,7 @@ public class Renderer {
 				// Unbind 
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 				GL30.glBindVertexArray(0);
+				
 				ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 			} else {
 				System.out.println("Error: " + testVal);
@@ -381,9 +433,7 @@ public class Renderer {
 		}
 
 		GL20.glUseProgram(0);
-		// Force a maximum FPS of about 60
 		Display.sync(frameRate);
-		// Let the CPU synchronize with the GPU if GPU is tagging behind (I think update refreshs the display)
 		Display.update();
 	}
 	
@@ -399,7 +449,7 @@ public class Renderer {
 	 * @return camera the camera
 	 * @throws NullPointerException
 	 */
-	public Camera getCamera() throws NullPointerException{
+	public Camera getCamera() throws NullPointerException {
 		if(camera == null){
 			throw new NullPointerException();
 		}
@@ -553,6 +603,9 @@ public class Renderer {
 		ShaderController.setProgram(COLOR_PICKING_SHADER_PROGRAM);
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
 		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
+		ShaderController.setProgram(SKY_BOX_SHADER_PROGRAM);
+		GL20.glUseProgram(ShaderController.getCurrentProgram());
+		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
 		
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		GL20.glUseProgram(0);
@@ -562,19 +615,19 @@ public class Renderer {
 	 * Initializes OpenGL (currently using 3.2).
 	 * @param fullscreen Determines whether we should run in fullscreen.
 	 */
-	private void initOpenGL(boolean fullscreen){
+	private void initOpenGL(boolean fullscreen, String title) {
 		try{
 			PixelFormat pixelFormat = new PixelFormat();
-			ContextAttribs contextAtr = new ContextAttribs(3, 2)
+			ContextAttribs contextAtr = new ContextAttribs(3, 3)
 				.withForwardCompatible(true)
-				.withProfileCore(true);
+				.withProfileCore(false);
 
 			if (fullscreen) 
 				Display.setFullscreen(true);
 			else 
 				Display.setDisplayMode(new DisplayMode(this.width, this.height));
 
-			Display.setTitle("Game the Name 2.0");
+			Display.setTitle(title);
 			Display.create(pixelFormat, contextAtr);
 			
 			if (width != 0 && height != 0)
@@ -587,7 +640,7 @@ public class Renderer {
 		
 		// XNA like background color
 		GL11.glClearColor(0.4f, 0.6f, 0.9f, 0f);		
-		// GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE ); //for debug
+		// GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE); //for debug
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glCullFace(GL11.GL_BACK);

@@ -35,6 +35,8 @@ public class Settings {
 		settings.put("post_fragment_path", "src/shaders/postFragment.frag");
 		settings.put("picking_vertex_path", "src/shaders/colorPicking.vert");
 		settings.put("picking_fragment_path", "src/shaders/colorPicking.frag");
+		settings.put("skybox_vertex_path", "src/shaders/skybox.vert");
+		settings.put("skybox_fragment_path", "src/shaders/skybox.frag");
 		settings.put("log_folder", "logs/");
 		settings.put("pwd", System.getProperty("user.dir"));
 		settings.put("playerAcceleration", false);

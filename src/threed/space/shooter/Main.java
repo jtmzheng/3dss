@@ -7,6 +7,7 @@ import input.MouseInput;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
@@ -18,6 +19,9 @@ import renderer.Renderer;
 import renderer.model.Model;
 import renderer.model.ModelFactory;
 import renderer.util.ParticleEmitter;
+import renderer.util.Skybox;
+import texture.Texture;
+import texture.TextureLoader;
 import world.World;
 import characters.Player;
 
@@ -32,30 +36,11 @@ import com.bulletphysics.collision.dispatch.CollisionFlags;
  */
 public class Main {
 	
-	/**
-	 * The world object
-	 */
-	static World gameWorld;
-
-	/**
-	 * The renderer the game uses.
-	 */
-	static Renderer gameRenderer;
-	
-	/**
-	 * The player.
-	 */
-	static Player player;
-	
-	/**
-	 * The camera object.
-	 */
-	static Camera gameCam;
-	
-	/**
-	 * The inputs used in this game.
-	 */
-	static ArrayList<Input> rawInputs = new ArrayList<Input>();
+	private static World gameWorld;
+	private static Renderer gameRenderer;
+	private static Player player;
+	private static Camera gameCam;
+	private static ArrayList<Input> rawInputs = new ArrayList<Input>();
 	
 	public static void main(String [] args){
 		setupWorld();
@@ -109,10 +94,32 @@ public class Main {
 		Fog worldFog = new Fog(true);
 		
 		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
-		gameRenderer = new Renderer(512, 512, gameCam, 60, worldFog);
+		gameRenderer = new Renderer(512, 512, gameCam, 60, worldFog, "Skybox Test");
 		gameWorld = new World(gameRenderer);
 		
-		try{
+		List<String> files = new ArrayList<>();
+		files.add("miramar_ft.png");
+		files.add("miramar_bk.png");
+		files.add("miramar_up.png");
+		files.add("miramar_dn.png");
+		files.add("miramar_rt.png");
+		files.add("miramar_lf.png");
+		
+		Skybox sb = null;
+		try {
+			Texture sbTex = TextureLoader.loadCubeMapTexture(files, "miramar");
+			sb = new Skybox(sbTex);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} catch (IllegalArgumentException e2) {
+			e2.printStackTrace();
+		}
+		
+		if(sb != null) {
+			gameRenderer.addSkybox(sb);
+		}
+		
+		try {
 			PhysicsModelProperties bProperties = new PhysicsModelProperties();
 			bProperties.setProperty("mass", 100f);
 			bProperties.setProperty("restitution", 0.75f);
@@ -134,11 +141,9 @@ public class Main {
 			ParticleEmitter p = new ParticleEmitter(gameWorld, new Vector3f(0, 2, 0));
 			gameWorld.addDynamicWorldObject(p);
 			p.start();
-		}
-		catch(IOException e){
+		} catch(IOException e){
 			e.printStackTrace();
-		}
-		catch(InterruptedException e){
+		} catch(InterruptedException e){
 			e.printStackTrace();
 		}
 	}

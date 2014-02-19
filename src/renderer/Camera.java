@@ -12,7 +12,8 @@ import org.lwjgl.util.vector.Vector3f;
 public class Camera {
 	// View matrix the camera maintains.
 	protected Matrix4f viewMatrix;
-		
+	protected Matrix4f rotMatrix;
+	
 	// Location of our camera.
 	private Vector3f cameraPosition;
 
@@ -44,6 +45,7 @@ public class Camera {
 	public Camera (Vector3f pos) {
 		cameraPosition = pos;	
 		viewMatrix = new Matrix4f();
+		rotMatrix = new Matrix4f();
 		applyTransformations();
 	}
 	
@@ -60,7 +62,8 @@ public class Camera {
 		yaw = (float) Math.atan2((double) direction.x, (double) direction.z);
 		pitch = (float) Math.asin(direction.y);
 
-		viewMatrix = new Matrix4f();		
+		viewMatrix = new Matrix4f();
+		rotMatrix = new Matrix4f();
 		recalculateCameraVectors();
 		applyTransformations();
 	}
@@ -103,6 +106,10 @@ public class Camera {
 	 */
 	public Matrix4f getViewMatrix(){
 		return viewMatrix;
+	}
+	
+	public Matrix4f getRotationMatrix(){
+		return rotMatrix;
 	}
 	
 	/**
@@ -160,6 +167,7 @@ public class Camera {
 	 */
 	public void applyTransformations() {
 		Matrix4f orientation = new Matrix4f();
+		Matrix4f rotationMatrix = new Matrix4f();
 		
 		Vector3f right = new Vector3f(cameraRight);
 		Vector3f forwards = new Vector3f(cameraDirection);
@@ -189,6 +197,17 @@ public class Camera {
 		orientation.m22 = forwards.z; 	
 		orientation.m32 = -Vector3f.dot(forwards, pos);
 		
+		rotationMatrix.m00 = right.x; 		
+		rotationMatrix.m10 = right.y; 		
+		rotationMatrix.m20 = right.z; 		 
+		rotationMatrix.m01 = up.x;			
+		rotationMatrix.m11 = up.y;			
+		rotationMatrix.m21 = up.z; 	  		
+		rotationMatrix.m02 = forwards.x; 	
+		rotationMatrix.m12 = forwards.y;	
+		rotationMatrix.m22 = forwards.z; 	
+		
+		rotMatrix = rotationMatrix;
 		viewMatrix = orientation; // translation built in 
 	}
 	

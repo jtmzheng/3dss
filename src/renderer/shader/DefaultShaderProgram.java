@@ -12,7 +12,7 @@ import system.Settings;
  * @author Max
  *
  */
-public class DefaultShaderProgram extends ShaderProgram{
+public class DefaultShaderProgram extends ShaderProgram {
 
 	public DefaultShaderProgram(Map<String, Integer> shaders) {
 		super(shaders);
