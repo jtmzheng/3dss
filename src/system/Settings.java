@@ -43,9 +43,9 @@ public class Settings {
 
 		// Default physics model properties.
 		settings.put("defaultRestitution", 0.5f);
-		settings.put("defaultMass", 100f);
-		settings.put("defaultAngularDamping", 0.1f);
-		settings.put("defaultLinearDamping", 0.1f);
+		settings.put("defaultMass", 10f);
+		settings.put("defaultAngularDamping", 0.4f);
+		settings.put("defaultLinearDamping", 0.4f);
 		settings.put("defaultFriction", 1f);
 	}
 
