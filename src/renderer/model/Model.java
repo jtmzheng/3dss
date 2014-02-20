@@ -637,23 +637,6 @@ public class Model {
 		Matrix4f.scale(scale, modelMatrix, modelMatrix);
 	}
 
-	/**
-	 * Scale the model by a scalar.
-	 * @param scale The scalar to scale by.
-	 * @deprecated
-	 */
-	public void scale(float scale){
-		Matrix4f.scale(new Vector3f(scale, scale, scale), modelMatrix, modelMatrix);
-	}
-
-	/**
-	 * Get the model matrix associated with this model.
-	 * @return the model matrix
-	 */
-	public Matrix4f getModelMatrix() {
-		return modelMatrix;
-	}
-
 	public float[] getModelMatrixBuffer() {
 		return physicsModel.getOpenGLTransformMatrix();
 	}

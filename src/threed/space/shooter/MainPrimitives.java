@@ -14,8 +14,8 @@ import physics.PhysicsModelProperties;
 import renderer.Camera;
 import renderer.Fog;
 import renderer.Renderer;
-import renderer.model.Ground;
 import renderer.model.Model;
+import renderer.util.Ground;
 import util.Primitives;
 import world.World;
 import characters.Player;
@@ -30,31 +30,12 @@ import com.bulletphysics.collision.dispatch.CollisionFlags;
  * @author Max
  */
 public class MainPrimitives {
-	
-	/**
-	 * The world object
-	 */
-	static World gameWorld;
 
-	/**
-	 * The renderer the game uses.
-	 */
-	static Renderer gameRenderer;
-	
-	/**
-	 * The player.
-	 */
-	static Player player;
-	
-	/**
-	 * The camera object.
-	 */
-	static Camera gameCam;
-	
-	/**
-	 * The inputs used in this game.
-	 */
-	static ArrayList<Input> rawInputs = new ArrayList<Input>();
+	private static World gameWorld;
+	private static Renderer gameRenderer;
+	private static Player player;
+	private static Camera gameCam;
+	private static ArrayList<Input> rawInputs = new ArrayList<Input>();
 	
 	public static void main(String [] args){
 		setupWorld();

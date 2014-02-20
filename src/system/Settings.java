@@ -35,7 +35,7 @@ public class Settings extends Wini {
 	 */
 	public static void loadIni (File file) throws IOException {
 		if (!file.isFile()) {
-			throw new IOException("Cannot find file specified.");
+			throw new IOException("Cannot find the file \"" + file.getAbsolutePath() + "\".");
 		} else {
 			instance = new Settings(file);
 			isFileLoaded = true;
@@ -48,6 +48,7 @@ public class Settings extends Wini {
 	 * @return
 	 */
 	public static Settings getInstance() {
+		// Note that loadIni creates the instance, so we don't need to check for null here.
 		if (!isFileLoaded) {
 			try {
 				loadIni(new File("src/config/default.ini"));

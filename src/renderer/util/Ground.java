@@ -1,8 +1,9 @@
-package renderer.model;
+package renderer.util;
 
 import com.bulletphysics.collision.dispatch.CollisionFlags;
 
 import physics.PhysicsModelProperties;
+import renderer.model.Model;
 import util.Primitives;
 
 /**
