@@ -43,7 +43,6 @@ public class Main {
 	private static ArrayList<Input> rawInputs = new ArrayList<Input>();
 	
 	public static void main(String [] args){
-		System.out.println(Settings.getInstance().get("attributes", "in_Color", int.class));
 		setupWorld();
 		setupPlayer();
 

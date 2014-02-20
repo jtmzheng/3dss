@@ -24,6 +24,8 @@ public class Settings extends Wini {
 	// Settings instance.
 	private static Settings instance = null;
 	
+	private static final Object SETTINGS_LOCK = new Object();
+
 	private Settings (File file) throws InvalidFileFormatException, IOException {
 		super(file);
 	}
@@ -48,15 +50,17 @@ public class Settings extends Wini {
 	 * @return
 	 */
 	public static Settings getInstance() {
-		// Note that loadIni creates the instance, so we don't need to check for null here.
-		if (!isFileLoaded) {
-			try {
-				loadIni(new File("src/config/default.ini"));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} 
-		
-		return instance;
+		synchronized(SETTINGS_LOCK) {
+			// Note that loadIni creates the instance, so we don't need to check for null here.
+			if (!isFileLoaded) {
+				try {
+					loadIni(new File("src/config/default.ini"));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} 
+			
+			return instance;
+		}
 	}
 }
