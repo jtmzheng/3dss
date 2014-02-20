@@ -98,6 +98,9 @@ public class Model {
 	// If the model is set up yet.
 	private boolean isGLsetup = false;
 
+	// Instance of the shared settings object.
+	private Settings settings = Settings.getInstance();
+
 	/**
 	 * Merges the meshes of two models and returns the merged model.
 	 * Ignores the physics model properties of the two and uses the defaults. If custom
@@ -807,11 +810,11 @@ public class Model {
 		RigidBodyConstructionInfo modelConstructionInfo = new RigidBodyConstructionInfo(1.0f, modelMotionState, modelShape, modelInertia);
 
 		// Retrieve the properties from the PhysicsModelProperties
-		modelConstructionInfo.restitution = physicsProps.getProperty("restitution") == null ? Settings.getFloat("defaultRestitution") : (Float)physicsProps.getProperty("restitution");
-		modelConstructionInfo.mass = physicsProps.getProperty("mass") == null ? Settings.getFloat("defaultMass") : (Float)physicsProps.getProperty("mass");
-		modelConstructionInfo.angularDamping = physicsProps.getProperty("angularDamping") == null ? Settings.getFloat("defaultAngularDamping") : (Float)physicsProps.getProperty("angularDamping");
-		modelConstructionInfo.linearDamping = physicsProps.getProperty("linearDamping") == null ? Settings.getFloat("defaultLinearDamping") : (Float)physicsProps.getProperty("linearDamping");
-		modelConstructionInfo.friction = physicsProps.getProperty("friction") == null ? Settings.getFloat("defaultFriction") : (Float)physicsProps.getProperty("friction");
+		modelConstructionInfo.restitution = physicsProps.getProperty("restitution") == null ? settings.get("physics", "defaultRestitution", float.class) : (Float)physicsProps.getProperty("restitution");
+		modelConstructionInfo.mass = physicsProps.getProperty("mass") == null ? settings.get("physics", "defaultMass", float.class) : (Float)physicsProps.getProperty("mass");
+		modelConstructionInfo.angularDamping = physicsProps.getProperty("angularDamping") == null ? settings.get("physics", "defaultAngularDamping", float.class) : (Float)physicsProps.getProperty("angularDamping");
+		modelConstructionInfo.linearDamping = physicsProps.getProperty("linearDamping") == null ? settings.get("physics", "defaultLinearDamping", float.class) : (Float)physicsProps.getProperty("linearDamping");
+		modelConstructionInfo.friction = physicsProps.getProperty("friction") == null ? settings.get("physics", "defaultFriction", float.class) : (Float)physicsProps.getProperty("friction");
 
 		RigidBody modelRigidBody = new RigidBody(modelConstructionInfo);
 		modelRigidBody.setCollisionFlags((Integer) (physicsProps.getProperty("collisionFlags") == null ? modelRigidBody.getCollisionFlags() :

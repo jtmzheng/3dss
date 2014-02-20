@@ -112,7 +112,7 @@ public class TextureLoader {
 	
 	private static BufferedImage loadImage (String textureName) throws IOException {
 		// Get the absolute path to the texture.
-		String abspath = Settings.getString("pwd") + "/res/textures/" + textureName;
+		String abspath = System.getProperty("user.dir") + "/res/textures/" + textureName;
         BufferedImage im = ImageIO.read(new File(abspath));
         
         if ((im.getHeight() & im.getHeight() - 1) != 0 || (im.getWidth() & im.getWidth() - 1) != 0) {

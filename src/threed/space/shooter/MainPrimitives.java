@@ -105,7 +105,7 @@ public class MainPrimitives {
 		gameWorld = new World(gameRenderer);
 
 		Ground ground = new Ground(1000, 1000);
-		ground.translate(new Vector3f(-500, -1, -500));
+		ground.translate(new Vector3f(-500, 0, -500));
 
 		List<Model> modelsToMerge = new ArrayList<Model>();
 		Model current = Primitives.getCube(2);

@@ -1,156 +1,61 @@
 package system;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.prefs.Preferences;
+
+import org.ini4j.InvalidFileFormatException;
+import org.ini4j.Wini;
 
 /*
- * A static utility class defining the settings globally used in the applications.
- * This creates an instance at load time. There isn't a need to use a singleton
- * because we don't need control over when to create or destroy this, it needs
- * to be initialized at load time.
+ * A Singleton class used to retrieve key-value pairs stored in an ini file. Call Settings.loadIni(File file)
+ * in the beginning of your application to load any custom ini file. Omit this call to use the default
+ * configuration file. Note that if any other filetype other than .ini is used, this will throw a
+ * InvalidFileFormatException.
  * 
  * @author Adi
  */
-public class Settings {
+public class Settings extends Wini {
+	// True if settings file has been loaded and the instance has been created.
+	private static boolean isFileLoaded = false;
 	
-	public static Map<String, Object> settings = new HashMap<String, Object> ();
+	// Settings instance.
+	private static Settings instance = null;
 	
-	// List of default settings.
-	static {
-		settings.put("Fullscreen", true);
-		settings.put("Framerate", 40);
-		settings.put("in_Position", 0);
-		settings.put("in_Color", 1);
-		settings.put("in_TextureCoord", 2);
-		settings.put("in_Normal", 3);
-		settings.put("Ks", 4);
-		settings.put("Ka", 5);
-		settings.put("specExp", 6);
-		settings.put("texture", 7);
-		
-		// Paths
-		settings.put("vertex_path", "src/shaders/vertex.vert");
-		settings.put("fragment_path",  "src/shaders/fragment.frag");
-		settings.put("post_vertex_path", "src/shaders/postVertex.vert");
-		settings.put("post_fragment_path", "src/shaders/postFragment.frag");
-		settings.put("picking_vertex_path", "src/shaders/colorPicking.vert");
-		settings.put("picking_fragment_path", "src/shaders/colorPicking.frag");
-		settings.put("skybox_vertex_path", "src/shaders/skybox.vert");
-		settings.put("skybox_fragment_path", "src/shaders/skybox.frag");
-		settings.put("log_folder", "logs/");
-		settings.put("pwd", System.getProperty("user.dir"));
-		settings.put("playerAcceleration", false);
-
-		// Default physics model properties.
-		settings.put("defaultRestitution", 0.5f);
-		settings.put("defaultMass", 10f);
-		settings.put("defaultAngularDamping", 0.4f);
-		settings.put("defaultLinearDamping", 0.4f);
-		settings.put("defaultFriction", 1f);
+	private Settings (File file) throws InvalidFileFormatException, IOException {
+		super(file);
 	}
-
+	
 	/**
-	 * Adds an integer value to our settings.
-	 * @param key
-	 * @param val
+	 * Loads an ini file to use for the application settings.
+	 * @param file File to load. 
+	 * @throws IOException
 	 */
-	public static void putInteger (String key, int val) {
-		settings.put(key, new Integer(val));
-	}
-
-	/**
-	 * Adds a string value to our settings.
-	 * @param key
-	 * @param val
-	 */
-	public static void putString (String key, String val) {
-		settings.put(key, val);
-	}
-
-	/**
-	 * Adds a float value to our settings.
-	 * @param key
-	 * @param val
-	 */
-	public static void putFloat (String key, float val) {
-		settings.put(key, new Float(val));
-	}
-
-	/**
-	 * Adds a boolean value to our settings.
-	 * @param key
-	 * @param val
-	 */
-	public static void putBoolean (String key, boolean val) {
-		settings.put(key, new Boolean(val));
-	}
-
-	/**
-	 * Gets an integer.
-	 * @param key
-	 * @return the integer value
-	 */
-	public static int getInteger (String key) {
-		Integer val = (Integer) settings.get(key);
-		
-		if (val == null) 
-			throw new IllegalArgumentException ("Key '" + val + "' does not exist");
-		
-		return val.intValue();
-	}
-
-	/**
-	 * Gets a String.
-	 * @param key
-	 * @return the string value
-	 */
-	public static String getString (String key) {
-		String val = (String) settings.get(key);
-		
-		if (val == null) 
-			throw new IllegalArgumentException ("Key '" + val + "' does not exist");
-		
-		return val;
-	}
-
-	/**
-	 * Gets a float.
-	 * @param key
-	 * @return the float value
-	 */
-	public static float getFloat (String key) {
-		Float val = (Float) settings.get(key);
-		
-		if (val == null) 
-			throw new IllegalArgumentException ("Key '" + val + "' does not exist");
-		
-		return val.floatValue();
-	}
-
-	/**
-	 * Gets a boolean.
-	 * @param key
-	 * @return the boolean value
-	 */
-	public static boolean getBoolean (String key) {
-		Boolean val = (Boolean) settings.get(key);
-		
-		if (val == null) 
-			throw new IllegalArgumentException ("Key '" + val + "' does not exist");
-		
-		return val.booleanValue();
-	}
-
-	/**
-	 * Gets a string representation of our settings.
-	 * @return the string representation
-	 */
-	public static String getStringRepresentation () {
-		String ret = "";
-		for (String str : settings.keySet()) {
-			ret += str + ": [" + settings.get(str).toString() + "]";
-			ret += "\r\n";
+	public static void loadIni (File file) throws IOException {
+		if (!file.isFile()) {
+			throw new IOException("Cannot find file specified.");
+		} else {
+			instance = new Settings(file);
+			isFileLoaded = true;
 		}
-		return ret;
+	}
+
+	/**
+	 * Gets the instance of the settings object. If Settings.loadIni(File file) hasn't been previously called
+	 * before this, this will call loadIni to populate the settings with the default ini file.
+	 * @return
+	 */
+	public static Settings getInstance() {
+		if (!isFileLoaded) {
+			try {
+				loadIni(new File("src/config/default.ini"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} 
+		
+		return instance;
 	}
 }

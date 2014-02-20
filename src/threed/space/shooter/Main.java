@@ -21,12 +21,11 @@ import renderer.model.Model;
 import renderer.model.ModelFactory;
 import renderer.util.ParticleEmitter;
 import renderer.util.Skybox;
+import system.Settings;
 import texture.Texture;
 import texture.TextureLoader;
 import world.World;
 import characters.Player;
-
-import com.bulletphysics.collision.dispatch.CollisionFlags;
 
 /**
  * Main class for our game.
@@ -44,6 +43,7 @@ public class Main {
 	private static ArrayList<Input> rawInputs = new ArrayList<Input>();
 	
 	public static void main(String [] args){
+		System.out.println(Settings.getInstance().get("attributes", "in_Color", int.class));
 		setupWorld();
 		setupPlayer();
 
