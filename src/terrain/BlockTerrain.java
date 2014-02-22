@@ -67,13 +67,17 @@ public class BlockTerrain {
 
 	}
 	
+	/**
+	 * Test client
+	 * @param args
+	 */
 	public static void main(String [] args) {
 		BlockTerrainGenerator btg = new BlockTerrainGenerator(20, 1, 1.1);
 		BlockTerrain bt = btg.generateTerrain();
 		
 		Camera gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
 		Fog fog = new Fog(true);
-		Renderer gameRenderer = new Renderer(512, 512, gameCam, 60, fog, "Skybox Test");
+		Renderer gameRenderer = new Renderer(512, 512, gameCam, 60, fog, "Terrain Test");
 		World gameWorld = new World(gameRenderer);
 		List<String> files = new ArrayList<>();
 		files.add("miramar_ft.png");

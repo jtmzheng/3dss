@@ -77,9 +77,6 @@ public class Model {
 	// LightHandle of the model
 	private LightHandle mLightHandle = null;
 
-	// TextureManager instance
-	private TextureManager texManager;
-
 	// Physics model
 	private PhysicsModel physicsModel;
 
@@ -216,10 +213,6 @@ public class Model {
 
 		this.faces = f;
 		this.physicsProps = rigidBodyProp;
-		this.boundBox = new BoundingBox();
-
-		// Get instance of texture manager
-		texManager = TextureManager.getInstance();
 
 		initialPos = pos;
 
@@ -245,10 +238,6 @@ public class Model {
 
 		this.faces = f;
 		this.physicsProps = rigidBodyProp;
-		this.boundBox = new BoundingBox();
-
-		// Get instance of texture manager
-		texManager = TextureManager.getInstance();
 
 		// Setup the model 
 		initialPos = pos;
@@ -270,10 +259,6 @@ public class Model {
 
 		this.faces = f;
 		this.physicsProps = rigidBodyProp;
-		this.boundBox = new BoundingBox();
-
-		// Get instance of texture manager
-		texManager = TextureManager.getInstance();
 
 		initialPos = DEFAULT_INITIAL_POSITION;
 
@@ -292,11 +277,7 @@ public class Model {
 	public Model(List<Face> f) {
 		this.faces = f;
 		this.physicsProps = new PhysicsModelProperties();
-		this.boundBox = new BoundingBox();
-
-		// Get instance of texture manager.
-		texManager = TextureManager.getInstance();
-
+		
 		initialPos = DEFAULT_INITIAL_POSITION;
 
 		// Set the UID to the hash code
@@ -322,10 +303,6 @@ public class Model {
 		// Set member variables
 		this.faces = faceList;
 		this.physicsProps = new PhysicsModelProperties(model.getPhysicsProperties());
-		this.boundBox = new BoundingBox();
-
-		// Get instance of texture manager
-		texManager = TextureManager.getInstance();
 
 		initialPos = position;
 
@@ -350,6 +327,9 @@ public class Model {
 		mapIndiceCount = new HashMap<>();
 
 		Material currentMaterial = null;
+		
+		// Generate bounding box
+		boundBox = new BoundingBox();
 
 		// Split the faces up by material
 		for(Face face : this.faces) {
@@ -495,10 +475,11 @@ public class Model {
 
 		// Bind all the textures
 		for(Material material : this.mapMaterialToFaces.keySet()) {
+			TextureManager tm = TextureManager.getInstance();
 			Texture tex = material.mapKdTexture;
-			int textureUnitId = texManager.getTextureSlot();
-			tex.bind(textureUnitId);
-			texManager.returnTextureSlot(textureUnitId);
+			int unitId = tm.getTextureSlot();
+			tex.bind(unitId);
+			tm.returnTextureSlot(unitId);
 		}
 
 		// Bind the bounding box
@@ -578,7 +559,8 @@ public class Model {
 			for(Material material : mapMaterialToFaces.keySet()) {
 				// Loop through all texture Ids for a given material
 				for(Integer tex : material.getActiveTextureIds()) {
-					Integer unitId = texManager.getTextureSlot();
+					TextureManager tm = TextureManager.getInstance();
+					Integer unitId = tm.getTextureSlot();
 
 					// If invalid continue
 					if(unitId == null) {
@@ -589,7 +571,7 @@ public class Model {
 					GL20.glUniform1i(ShaderController.getTexSamplerLocation(), unitId - GL13.GL_TEXTURE0);
 					GL13.glActiveTexture(unitId);
 					GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex);
-					texManager.returnTextureSlot(unitId);
+					tm.returnTextureSlot(unitId);
 				}
 
 				GL30.glBindVertexArray(mapVAOIds.get(material));
