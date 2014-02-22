@@ -303,8 +303,7 @@ public class Model {
 	 * @param model Model to copy
 	 * @param position Initial position of copy
 	 */
-	public Model(Model model, 
-			Vector3f position) {
+	public Model(Model model, Vector3f position) {
 
 		// Copy the model faces
 		List<Face> faceList = new ArrayList<>();
