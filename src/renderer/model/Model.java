@@ -96,10 +96,14 @@ public class Model {
 	private BoundingBox boundBox;
 
 	// If the model is set up yet.
+<<<<<<< Upstream, based on master
 	private boolean isGLsetup = false;
 
 	// Instance of the shared settings object.
 	private Settings settings = Settings.getInstance();
+=======
+	private boolean isBound = false;
+>>>>>>> c6e03ef - Merge now uses divide-and-conquer approach (much faster, from 75s to 2s for test case) - Refactored model to use consistent naming for methods (bind, setup, render)
 
 	/**
 	 * Merges the meshes of two models and returns the merged model.
@@ -171,12 +175,27 @@ public class Model {
 			throw new IllegalArgumentException("Requires a list of size greater than one.");
 		}
 
-		Model mergedModel = modelList.get(0);
-		for (int i = 1; i < modelList.size(); i++) {
-			mergedModel = Model.merge(mergedModel, modelList.get(i), props);
-		}
+		Model mergedModel = merge(modelList, 0, modelList.size() - 1, props);
 
 		return mergedModel;
+	}
+	
+	/**
+	 * Divide and conquer the task of merging
+	 * @param modelList
+	 * @param i
+	 * @param j
+	 * @param props
+	 * @return
+	 */
+	private static Model merge(List<Model> modelList, int i, int j, PhysicsModelProperties props) {
+		if(i >= j) {
+			return modelList.get(i); 
+		} else {
+			Model a = merge(modelList, i, i + (j - i) / 2, props);
+			Model b = merge(modelList, i + (j - i) / 2 + 1, j, props);
+			return merge(a, b, props);
+		}
 	}
 
 	/**
@@ -211,8 +230,7 @@ public class Model {
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
 		
-		// Set up the physics model.
-		setupPhysicsModel();
+		setup();
 	}
 
 	/**
@@ -239,7 +257,7 @@ public class Model {
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
 
-		setupPhysicsModel();
+		setup();
 	}
 
 	/**
@@ -263,7 +281,7 @@ public class Model {
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
 		
-		setupPhysicsModel();
+		setup();
 	}
 
 	/**
@@ -285,7 +303,7 @@ public class Model {
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
 		
-		setupPhysicsModel();
+		setup();
 	}
 	/**
 	 * Copy constructor
@@ -315,18 +333,14 @@ public class Model {
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
 		
-		setupPhysicsModel();
+		setup();
 	}
-
+	
 	/**
-	 * Setup GL for rendering.
+	 * Bind the model for rendering
+	 * @return
 	 */
-	public void setupGL(){
-		isGLsetup = true;
-
-		// Strip any quads / polygons. 
-		this.triangulate();
-
+	public boolean bind() {
 		// Split face list into a list of face lists, each having their own material.
 		mapMaterialToFaces = new HashMap<>();
 
@@ -358,7 +372,7 @@ public class Model {
 			// Put each 'Vertex' in one FloatBuffer
 			ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(materialFaces.size() *  3 * VertexData.stride); //TODO : Allocating proper amount
 			FloatBuffer verticesFloatBuffer = verticesByteBuffer.asFloatBuffer();
-			
+
 			Map<VertexData, Integer> vboIndexMap = new HashMap<VertexData, Integer>();
 			List<Integer> vboIndex = new ArrayList<Integer>();
 			VertexData tempVertexData;
@@ -404,7 +418,7 @@ public class Model {
 					vboIndex.add(vboIndexMap.get(tempVertexData));
 				}			
 			}
-			
+
 			// Create VBO Index buffer
 			verticesFloatBuffer.flip();
 			int [] indices = new int[vboIndex.size()];
@@ -486,15 +500,18 @@ public class Model {
 			tex.bind(textureUnitId);
 			texManager.returnTextureSlot(textureUnitId);
 		}
-		
+
 		// Bind the bounding box
 		boundBox.bind();
 
 		//Initialize model matrix (Initialized to the identity in the constructor)
 		modelMatrix = new Matrix4f(); 
-
 		renderFlag = true;
+		isBound = true;
+		
+		return isBound;
 	}
+
 
 	public void renderPicking() {
 		if(renderFlag) {		
@@ -541,8 +558,8 @@ public class Model {
 	 * Render a model that has already been set up
 	 * @TODO: Make a class for the HashMaps (a struct) - will keep it cleaner
 	 */
-	public void render(boolean isPicked) {
-		if(renderFlag) {		
+	public void render(boolean isPicked) {		
+		if(renderFlag) {					
 			FloatBuffer modelMatrixBuffer = BufferUtils.createFloatBuffer(16);
 			modelMatrix = physicsModel.getTransformMatrix();
 			modelMatrix.store(modelMatrixBuffer);
@@ -683,10 +700,10 @@ public class Model {
 
 	/**
 	 * Returns if the model is set up for rendering
-	 * @return isGLsetup
+	 * @return isBound
 	 */
-	public boolean isGLsetup() {
-		return isGLsetup;
+	public boolean isBound() {
+		return isBound;
 	}
 
 	/**
@@ -761,7 +778,20 @@ public class Model {
 		this.faces.removeAll(removeFaces);
 		this.faces.addAll(addFaces); 
 	}
+	
+	/**
+	 * Setup the model
+	 */
+	private void setup() {
+		isBound = false;
 
+		// Strip any quads / polygons. 
+		triangulate();
+		
+		// Setup the physics model
+		setupPhysicsModel();
+	}
+	 
 	/**
 	 * Helper method to set up the PhysicsModel associated with this Model
 	 * @param modelShape

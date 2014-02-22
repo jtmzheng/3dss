@@ -42,6 +42,7 @@ public class BlockTerrain {
 	private void setup() {
 		List<Model> modelsToMerge = new ArrayList<>();
 		Model base = Primitives.getCube(cSize);
+		
 		for (int x = 0; x < data.length; x++) {
 			for (int y = 0; y < data[0].length; y++) {
 				for (int z = 0; z < data[0][0].length; z++) {
@@ -52,14 +53,18 @@ public class BlockTerrain {
 				}
 			}
 		}
-		
+	
 		PhysicsModelProperties groundProps = new PhysicsModelProperties();
 		groundProps.setProperty("mass", 0f);
 		groundProps.setProperty("restitution", 0.9f);
 		groundProps.setProperty("damping", 0.9f);
 		groundProps.setProperty("collisionFlags", CollisionFlags.STATIC_OBJECT);
 		
+		long start = System.currentTimeMillis();
 		this.blockModel = Model.merge(modelsToMerge, groundProps);
+		long end = System.currentTimeMillis();
+		System.out.println("Time: " + (end - start));
+
 	}
 	
 	public static void main(String [] args) {

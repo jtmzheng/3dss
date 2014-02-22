@@ -17,6 +17,7 @@ public class BlockTerrainGenerator {
 					xf = (double)x / tSize;
 					yf = (double)y / tSize;
 					zf = (double)z / tSize;
+					System.out.println(xf);
 					val = SimplexNoise.simplex(1, xf * 3, yf * 3, zf * 3);
 					volume[x][y][z] = val > sFactor ? 1 : 0; 
 				}

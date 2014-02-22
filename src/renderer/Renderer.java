@@ -335,9 +335,9 @@ public class Renderer {
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
 		
 		// Render each model
-		for(Model m: models){
-			if (!m.isGLsetup()) {
-				m.setupGL();
+		for(Model m: models) {
+			if (!m.isBound()) {
+				m.bind();
 			} 
 			m.renderPicking();
 		}
@@ -390,8 +390,8 @@ public class Renderer {
 		
 		// Render each model
 		for(Model m: models){
-			if (!m.isGLsetup()) {
-				m.setupGL();
+			if (!m.isBound()) {
+				m.bind();
 			} 
 			m.render(m.equals(pickedModel));
 		}
