@@ -43,6 +43,7 @@ public class BlockTerrain {
 		List<Model> modelsToMerge = new ArrayList<>();
 		Model base = Primitives.getCube(cSize);
 		
+		long start = System.currentTimeMillis();
 		for (int x = 0; x < data.length; x++) {
 			for (int y = 0; y < data[0].length; y++) {
 				for (int z = 0; z < data[0][0].length; z++) {
@@ -53,17 +54,19 @@ public class BlockTerrain {
 				}
 			}
 		}
-	
+		long end = System.currentTimeMillis();
+		System.out.println("Time 1: " + (end - start));
+		
 		PhysicsModelProperties groundProps = new PhysicsModelProperties();
 		groundProps.setProperty("mass", 0f);
 		groundProps.setProperty("restitution", 0.9f);
 		groundProps.setProperty("damping", 0.9f);
 		groundProps.setProperty("collisionFlags", CollisionFlags.STATIC_OBJECT);
 		
-		long start = System.currentTimeMillis();
+		start = System.currentTimeMillis();
 		this.blockModel = Model.merge(modelsToMerge, groundProps);
-		long end = System.currentTimeMillis();
-		System.out.println("Time: " + (end - start));
+		end = System.currentTimeMillis();
+		System.out.println("Time 2: " + (end - start));
 
 	}
 	
@@ -72,7 +75,7 @@ public class BlockTerrain {
 	 * @param args
 	 */
 	public static void main(String [] args) {
-		BlockTerrainGenerator btg = new BlockTerrainGenerator(20, 1, 1.1);
+		BlockTerrainGenerator btg = new BlockTerrainGenerator(25, 1, 1.1);
 		BlockTerrain bt = btg.generateTerrain();
 		
 		Camera gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));

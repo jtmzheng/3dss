@@ -55,7 +55,7 @@ import com.bulletphysics.util.ObjectArrayList;
 public class Model {
 	// Defaults
 	private static final Vector3f DEFAULT_INITIAL_POSITION = new Vector3f(0, 0, 0);
-
+	
 	// Unique ID for the model (used for picking)
 	private final int uniqueId;
 	private final Vector3f uniqueIdColour;
@@ -108,10 +108,15 @@ public class Model {
 	 * physics properties are required, please use the other merge method.
 	 * @param a
 	 * @param b
+	 * @param transform
 	 * @return the merged model
 	 */
+	public static Model merge (Model a, Model b, boolean transform) {
+		return Model.merge(a, b, new PhysicsModelProperties(), transform);
+	}
+	
 	public static Model merge (Model a, Model b) {
-		return Model.merge(a, b, new PhysicsModelProperties());
+		return Model.merge(a, b, new PhysicsModelProperties(), true);
 	}
 
 	/**
@@ -120,33 +125,41 @@ public class Model {
 	 * @param a The first model.
 	 * @param b The second model.
 	 * @param props Custom physics model properties.
+	 * @param transform Whether the models should be transformed in world space first
 	 * @return the merged model
 	 */
-	public static Model merge (Model a, Model b, PhysicsModelProperties props) {
-		Matrix4f mMatrixA = a.getPhysicsModel().getTransformMatrix();
-		Matrix4f mMatrixB = b.getPhysicsModel().getTransformMatrix();
-
+	public static Model merge (Model a, Model b, PhysicsModelProperties props, boolean transform) {
 		List<Face> mergedList = new ArrayList<Face>();
-		for (Face face : a.getFaceList()) {
-			List<VertexData> transformedVertices = new ArrayList<>();
-			for (VertexData v : face.getVertices()) {
-				float[] pos = v.getXYZW();
-				Vector4f position = new Vector4f(pos[0], pos[1], pos[2], pos[3]);
-				Matrix4f.transform(mMatrixA, position, position);
-				transformedVertices.add(new VertexData(v, position));
+		
+		if(transform) {
+			Matrix4f mMatrixA = a.getPhysicsModel().getTransformMatrix();
+			Matrix4f mMatrixB = b.getPhysicsModel().getTransformMatrix();
+			
+			for (Face face : a.getFaceList()) {
+				List<VertexData> transformedVertices = new ArrayList<>();
+				for (VertexData v : face.getVertices()) {
+					float[] pos = v.getXYZW();
+					Vector4f position = new Vector4f(pos[0], pos[1], pos[2], pos[3]);
+					Matrix4f.transform(mMatrixA, position, position);
+					transformedVertices.add(new VertexData(v, position));
+				}
+				mergedList.add(new Face(transformedVertices, face.getMaterial()));
 			}
-			mergedList.add(new Face(transformedVertices, face.getMaterial()));
-		}
-		for (Face face : b.getFaceList()) {
-			List<VertexData> transformedVertices = new ArrayList<>();
-			for (VertexData v : face.getVertices()) {
-				float[] pos = v.getXYZW();
-				Vector4f position = new Vector4f(pos[0], pos[1], pos[2], pos[3]);
-				Matrix4f.transform(mMatrixB, position, position);
-				transformedVertices.add(new VertexData(v, position));
+			for (Face face : b.getFaceList()) {
+				List<VertexData> transformedVertices = new ArrayList<>();
+				for (VertexData v : face.getVertices()) {
+					float[] pos = v.getXYZW();
+					Vector4f position = new Vector4f(pos[0], pos[1], pos[2], pos[3]);
+					Matrix4f.transform(mMatrixB, position, position);
+					transformedVertices.add(new VertexData(v, position));
+				}
+				mergedList.add(new Face(transformedVertices, face.getMaterial()));
 			}
-			mergedList.add(new Face(transformedVertices, face.getMaterial()));
+		} else {
+			mergedList.addAll(a.getFaceList());
+			mergedList.addAll(b.getFaceList());
 		}
+		
 		return new Model(mergedList, props);
 	}
 
@@ -191,7 +204,7 @@ public class Model {
 		} else {
 			Model a = merge(modelList, i, i + (j - i) / 2, props);
 			Model b = merge(modelList, i + (j - i) / 2 + 1, j, props);
-			return merge(a, b, props);
+			return i - j > 1 ? merge(a, b, props, false) : merge(a, b, props, true);
 		}
 	}
 
@@ -254,8 +267,7 @@ public class Model {
 	 * @param f The list of faces that make up the model.
 	 * @param rigidBodyProp Custom physics properties this model should have.
 	 */
-	public Model(List<Face> f,
-			PhysicsModelProperties rigidBodyProp){
+	public Model(List<Face> f, PhysicsModelProperties rigidBodyProp){
 
 		this.faces = f;
 		this.physicsProps = rigidBodyProp;
@@ -463,9 +475,9 @@ public class Model {
 			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);			
 
 			// Create a new VBO for the indices and select it (bind) - INDICES
-			int vboiID = GL15.glGenBuffers();
-			mapVBOIndexIds.put(material, vboiID);
-			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiID);
+			int vboIndId = GL15.glGenBuffers();
+			mapVBOIndexIds.put(material, vboIndId);
+			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboIndId);
 			GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
 			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);				
 		}
@@ -741,7 +753,7 @@ public class Model {
 	}
 
 	/**
-	 * Remove the non-triangle faces from the model
+	 * Remove the non-triangle faces from the model (triangulates quads)
 	 * @param List to remove non-triangles from
 	 */
 	private void triangulate() {
