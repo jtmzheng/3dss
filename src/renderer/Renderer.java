@@ -43,8 +43,7 @@ import texture.TextureManager;
  */
 public class Renderer {
 	private static final int MAX_MODELS = 100; // Max models on the temp buffer
-
-	private final Integer DEFAULT_FRAME_BUFFER = 0;
+	private static final Integer DEFAULT_FRAME_BUFFER = 0;
 	
 	// List of the models that will be rendered
 	private Set<Model> models;
@@ -82,8 +81,6 @@ public class Renderer {
 	// The frame buffer has its own unit id (for safety)
 	private int fbTexUnitId;
 	
-	private TextureManager texManager;
-
 	// Instance of the shared settings object.
 	private Settings settings = Settings.getInstance();
 
@@ -119,9 +116,8 @@ public class Renderer {
 		sh.put(settings.get("paths", "skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
 		
-		// Initialize the texture manager
-		texManager = TextureManager.getInstance();
-		fbTexUnitId = texManager.getTextureSlot();
+		TextureManager tm = TextureManager.getInstance();
+		fbTexUnitId = tm.getTextureSlot();
 		
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
@@ -170,8 +166,8 @@ public class Renderer {
 		colourPickingFb = new FrameBuffer(context.width, context.height);
 		
 		// Initialize the texture manager
-		texManager = TextureManager.getInstance();
-		fbTexUnitId = texManager.getTextureSlot();
+		TextureManager tm = TextureManager.getInstance();
+		fbTexUnitId = tm.getTextureSlot();
 		
 		init();
 	}	

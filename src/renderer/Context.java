@@ -1,5 +1,11 @@
 package renderer;
 
+/**
+ * The Context class allows definition of the context that will be used to 
+ * build the Renderer
+ * @author Max
+ *
+ */
 public class Context {
 
 	public Context(String title, int width, int height, int majorVersion, int minorVersion, boolean useCore) {
@@ -47,8 +53,6 @@ public class Context {
 	}
 	
 	// Defaults 
-	private static final int DEFAULT_WIDTH = 320;
-	private static final int DEFAULT_HEIGHT = 240;
 	private static final int DEFAULT_FRAME_RATE = 60;
 	
 	public final String title;
