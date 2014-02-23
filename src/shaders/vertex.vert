@@ -95,7 +95,7 @@ void main(void) {
 	sKs = Ks;
 	sKd = normalize(in_Color.rgb); 
 	sKa = Ka;
-	diffuseColour = sh_light(normal_eye, tomb);
+	diffuseColour = sh_light(normal_eye, groove);
 	
     gl_Position = projectionMatrix * vm * in_Position;
 	pass_texture = in_Texture;

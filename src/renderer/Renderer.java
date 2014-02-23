@@ -42,10 +42,6 @@ import texture.TextureManager;
  * @author Max
  */
 public class Renderer {
-	// Defaults 
-	private static final int DEFAULT_WIDTH = 320;
-	private static final int DEFAULT_HEIGHT = 240;
-	private static final int DEFAULT_FRAME_RATE = 60;
 	private static final int MAX_MODELS = 100; // Max models on the temp buffer
 
 	private final Integer DEFAULT_FRAME_BUFFER = 0;
@@ -57,9 +53,7 @@ public class Renderer {
 	private Model pickedModel = null;
 	private Skybox skybox = null;
 	
-	private int width;
-	private int height;
-	private int frameRate;
+	private Context context;
 	
 	// Matrix variables (should be moved to camera class in the future)
 	private Matrix4f projectionMatrix = null;
@@ -95,17 +89,17 @@ public class Renderer {
 
 	/**
 	 * Default constructor
+	 * @param context The context to build the renderer with 
 	 * @param camera The camera associated with the renderer
 	 */
-	public Renderer(Camera camera, String title) {
+	public Renderer(Context context, Camera camera) {
 		this.camera = camera;
-		this.width = DEFAULT_WIDTH;
-		this.height = DEFAULT_HEIGHT;
-		this.frameRate = DEFAULT_FRAME_RATE;
+		this.context = context;
+		
 		this.fog = new Fog(false);		
 
 		// Initialize the OpenGL context
-		initOpenGL(width <= 0 && height <= 0, title);
+		initOpenGL();
 		
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
@@ -131,128 +125,26 @@ public class Renderer {
 		
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
-		postProcessFb = new FrameBuffer(width, height);
-		colourPickingFb = new FrameBuffer(width, height);
-		
-		init();
-	}
-	
-	/**
-	 * Constructor for the renderer (no fog) 
-	 * @param width The width of the renderer.
-	 * @param height The height of the renderer.
-	 * @param camera The camera associated with the renderer.
-	 */
-	public Renderer(int width, int height, Camera camera, String title) {
-		this.camera = camera;
-		this.width = width;
-		this.height = height;
-		this.frameRate = DEFAULT_FRAME_RATE;
-		this.fog = new Fog(false);
-		
-		// Initialize the OpenGL context
-		initOpenGL(width <= 0 && height <= 0, title);
-		
-		// Initialize shader programs
-		Map<String, Integer> sh = new HashMap<String, Integer>();
-		sh.put(settings.get("paths", "vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
-		sh = new HashMap<String, Integer>();
-		sh.put(settings.get("paths", "post_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
-		sh = new HashMap<>();
-		sh.put(settings.get("paths", "picking_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
-		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
-		sh = new HashMap<>();
-		sh.put(settings.get("paths", "skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
-		
-		// Initialize the ScreenQuad
-		screen = new ScreenQuad();
-		postProcessFb = new FrameBuffer(width, height);
-		colourPickingFb = new FrameBuffer(width, height);
-		
-		// Initialize the texture manager
-		texManager = TextureManager.getInstance();
-		fbTexUnitId = texManager.getTextureSlot();
-		
-		init();
-	}
-	
-	/**
-	 * Constructor for the renderer (no fog)
-	 * @param width The width of the renderer.
-	 * @param height The height of the renderer.
-	 * @param camera The camera associated with the renderer.
-	 * @param frameRate The frame rate. 
-	 */
-	public Renderer(int width, int height, Camera camera, int frameRate, String title) {
-		this.camera = camera;
-		this.width = width;
-		this.height = height;
-		this.frameRate = frameRate;
-		this.fog = new Fog(false);
-		
-		// Initialize the OpenGL context
-		initOpenGL(width <= 0 && height <= 0, title);
-		
-		// Initialize shader programs
-		Map<String, Integer> sh = new HashMap<String, Integer>();
-		sh.put(settings.get("paths", "vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
-		sh = new HashMap<String, Integer>();
-		sh.put(settings.get("paths", "post_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
-		sh = new HashMap<>();
-		sh.put(settings.get("paths", "picking_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
-		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
-		sh = new HashMap<>();
-		sh.put(settings.get("paths", "skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
-		
-		// Initialize the ScreenQuad
-		screen = new ScreenQuad();
-		postProcessFb = new FrameBuffer(width, height);
-		colourPickingFb = new FrameBuffer(width, height);
-		
-		// Initialize the texture manager
-		texManager = TextureManager.getInstance();
-		fbTexUnitId = texManager.getTextureSlot();
+		postProcessFb = new FrameBuffer(context.width, context.height);
+		colourPickingFb = new FrameBuffer(context.width, context.height);
 		
 		init();
 	}
 	
 	/**
 	 * Constructor for the renderer
-	 * @param width The width of the renderer.
-	 * @param height The height of the renderer.
-	 * @param camera The camera associated with the renderer.
+	 * @param context The context to build the renderer with
 	 * @param frameRate The frame rate. 
 	 * @param fog The fog
 	 */
-	public Renderer(int width, 
-			int height, 
-			Camera camera, 
-			int frameRate,
-			Fog fog,
-			String title) {
-		
+	public Renderer(Context context, Camera camera, Fog fog) {
 		this.camera = camera;
-		this.width = width;
-		this.height = height;
-		this.frameRate = frameRate;
+		this.context = context;
+		
 		this.fog = fog;
 		
 		// Initialize the OpenGL context
-		initOpenGL(width <= 0 && height <= 0, title);
+		initOpenGL();
 		
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
@@ -274,8 +166,8 @@ public class Renderer {
 		
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
-		postProcessFb = new FrameBuffer(width, height);
-		colourPickingFb = new FrameBuffer(width, height);
+		postProcessFb = new FrameBuffer(context.width, context.height);
+		colourPickingFb = new FrameBuffer(context.width, context.height);
 		
 		// Initialize the texture manager
 		texManager = TextureManager.getInstance();
@@ -319,7 +211,7 @@ public class Renderer {
 
 	public void renderColourPicking() {
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, colourPickingFb.getFrameBuffer());	
-		GL11.glViewport(0, 0, width, height);
+		GL11.glViewport(0, 0, context.width, context.height);
 
 		// Select shader program.
 		ShaderController.setProgram(COLOR_PICKING_SHADER_PROGRAM);
@@ -360,7 +252,7 @@ public class Renderer {
 			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, postProcessFb.getFrameBuffer());
 		}
 		
-		GL11.glViewport(0, 0, width, height);
+		GL11.glViewport(0, 0, context.width, context.height);
 		
 		// Clear the color and depth buffers
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
@@ -403,7 +295,7 @@ public class Renderer {
 		// Render frame buffer to screen if needed
 		if(!postProcessConversions.isEmpty()) {
 			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
-			GL11.glViewport(-width, -height, width * 2, height * 2); // @TODO: Fix hack
+			GL11.glViewport(-context.width, -context.height, context.width * 2, context.height * 2); // @TODO: Fix hack
 
 			int testVal = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
 			if(testVal == GL30.GL_FRAMEBUFFER_COMPLETE) {
@@ -436,7 +328,7 @@ public class Renderer {
 		}
 
 		GL20.glUseProgram(0);
-		Display.sync(frameRate);
+		Display.sync(context.frameRate);
 		Display.update();
 	}
 	
@@ -465,15 +357,15 @@ public class Renderer {
 	 * @return frameRate the frame rate 
 	 */
 	public int getFrameRate() {
-		return frameRate;
+		return context.frameRate;
 	}
 	
 	public int getWidth() {
-		return width;
+		return context.width;
 	}
 	
 	public int getHeight() {
-		return height;
+		return context.height;
 	}
 	
 	/**
@@ -561,11 +453,11 @@ public class Renderer {
 		// Set up view and projection matrices
 		projectionMatrix = new Matrix4f();
 		float fieldOfView = 45f;
-		float aspectRatio = (float)width / (float)height;
+		float aspectRatio = (float)context.width / (float)context.height;
 		float near_plane = 0.1f;
 		float far_plane = 100f;
 
-		float y_scale = (float)(1/Math.tan((Math.toRadians(fieldOfView / 2f))));
+		float y_scale = (float)(1 / Math.tan((Math.toRadians(fieldOfView / 2f))));
 		float x_scale = y_scale / aspectRatio;
 		float frustum_length = far_plane - near_plane;
 
@@ -618,23 +510,23 @@ public class Renderer {
 	 * Initializes OpenGL (currently using 3.2).
 	 * @param fullscreen Determines whether we should run in fullscreen.
 	 */
-	private void initOpenGL(boolean fullscreen, String title) {
+	private void initOpenGL() {
 		try{
 			PixelFormat pixelFormat = new PixelFormat();
-			ContextAttribs contextAtr = new ContextAttribs(3, 3)
+			ContextAttribs contextAtr = new ContextAttribs(context.majorVersion, context.minorVersion)
 				.withForwardCompatible(true)
-				.withProfileCore(false);
+				.withProfileCore(context.useCore);
 
-			if (fullscreen) 
+			if (context.useFullscreen) 
 				Display.setFullscreen(true);
 			else 
-				Display.setDisplayMode(new DisplayMode(this.width, this.height));
+				Display.setDisplayMode(new DisplayMode(context.width, context.height));
 
-			Display.setTitle(title);
+			Display.setTitle(context.title);
 			Display.create(pixelFormat, contextAtr);
 			
-			if (width != 0 && height != 0)
-				setViewPort(0, 0, this.width, this.height);
+			if (context.width != 0 && context.height != 0)
+				setViewPort(0, 0, context.width, context.height);
 			
 		} catch (LWJGLException e){
 			e.printStackTrace();

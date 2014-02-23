@@ -14,6 +14,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import physics.PhysicsModelProperties;
 import renderer.Camera;
+import renderer.Context;
 import renderer.Fog;
 import renderer.Renderer;
 import renderer.model.Model;
@@ -37,10 +38,14 @@ public class MainTerrain {
 		BlockTerrainGenerator btg = new BlockTerrainGenerator(25, 1, 1.1);
 		BlockTerrain bt = btg.generateTerrain();
 
+		// Define the context for the renderer
+		Context context = new Context("Terrain Test", 600, 600, 3, 3, false, 60);
+		
 		Camera gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
 		Fog fog = new Fog(false);
-		Renderer gameRenderer = new Renderer(512, 512, gameCam, 60, fog, "Terrain Test");
+		Renderer gameRenderer = new Renderer(context, gameCam, fog);
 		World gameWorld = new World(gameRenderer);
+		
 		List<String> files = new ArrayList<>();
 		files.add("miramar_ft.png");
 		files.add("miramar_bk.png");
