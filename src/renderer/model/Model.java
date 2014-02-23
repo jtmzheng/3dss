@@ -92,15 +92,9 @@ public class Model {
 	// Bounding box for the model
 	private BoundingBox boundBox;
 
-	// If the model is set up yet.
-<<<<<<< Upstream, based on master
-	private boolean isGLsetup = false;
-
 	// Instance of the shared settings object.
 	private Settings settings = Settings.getInstance();
-=======
 	private boolean isBound = false;
->>>>>>> c6e03ef - Merge now uses divide-and-conquer approach (much faster, from 75s to 2s for test case) - Refactored model to use consistent naming for methods (bind, setup, render)
 
 	/**
 	 * Merges the meshes of two models and returns the merged model.
