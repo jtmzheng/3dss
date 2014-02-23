@@ -90,6 +90,9 @@ public class Renderer {
 	
 	private TextureManager texManager;
 
+	// Instance of the shared settings object.
+	private Settings settings = Settings.getInstance();
+
 	/**
 	 * Default constructor
 	 * @param camera The camera associated with the renderer
@@ -106,20 +109,20 @@ public class Renderer {
 		
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
-		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		sh.put(settings.get("paths", "vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
 		sh = new HashMap<>();
-		sh.put(Settings.getString("post_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		sh.put(settings.get("paths", "post_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
 		sh = new HashMap<>();
-		sh.put(Settings.getString("picking_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
+		sh.put(settings.get("paths", "picking_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
 		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
 		sh = new HashMap<>();
-		sh.put(Settings.getString("skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		sh.put(settings.get("paths", "skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
 		
 		// Initialize the texture manager
@@ -152,20 +155,20 @@ public class Renderer {
 		
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
-		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		sh.put(settings.get("paths", "vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
 		sh = new HashMap<String, Integer>();
-		sh.put(Settings.getString("post_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		sh.put(settings.get("paths", "post_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
 		sh = new HashMap<>();
-		sh.put(Settings.getString("picking_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
+		sh.put(settings.get("paths", "picking_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
 		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
 		sh = new HashMap<>();
-		sh.put(Settings.getString("skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		sh.put(settings.get("paths", "skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
 		
 		// Initialize the ScreenQuad
@@ -199,20 +202,20 @@ public class Renderer {
 		
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
-		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		sh.put(settings.get("paths", "vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
 		sh = new HashMap<String, Integer>();
-		sh.put(Settings.getString("post_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		sh.put(settings.get("paths", "post_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
 		sh = new HashMap<>();
-		sh.put(Settings.getString("picking_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
+		sh.put(settings.get("paths", "picking_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
 		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
 		sh = new HashMap<>();
-		sh.put(Settings.getString("skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		sh.put(settings.get("paths", "skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
 		
 		// Initialize the ScreenQuad
@@ -253,20 +256,20 @@ public class Renderer {
 		
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
-		sh.put(Settings.getString("vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("fragment_path"), GL20.GL_FRAGMENT_SHADER);		
+		sh.put(settings.get("paths", "vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "fragment_path"), GL20.GL_FRAGMENT_SHADER);		
 		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
 		sh = new HashMap<String, Integer>();
-		sh.put(Settings.getString("post_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		sh.put(settings.get("paths", "post_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
 		sh = new HashMap<>();
-		sh.put(Settings.getString("picking_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("picking_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		sh.put(settings.get("paths", "picking_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "picking_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
 		sh = new HashMap<>();
-		sh.put(Settings.getString("skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(Settings.getString("skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		sh.put(settings.get("paths", "skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
 		
 		// Initialize the ScreenQuad

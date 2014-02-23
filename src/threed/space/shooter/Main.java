@@ -18,14 +18,14 @@ import renderer.Fog;
 import renderer.Renderer;
 import renderer.model.Model;
 import renderer.model.ModelFactory;
+import renderer.util.Ground;
 import renderer.util.ParticleEmitter;
 import renderer.util.Skybox;
+import system.Settings;
 import texture.Texture;
 import texture.TextureLoader;
 import world.World;
 import characters.Player;
-
-import com.bulletphysics.collision.dispatch.CollisionFlags;
 
 /**
  * Main class for our game.
@@ -121,18 +121,14 @@ public class Main {
 		
 		try {
 			PhysicsModelProperties bProperties = new PhysicsModelProperties();
-			bProperties.setProperty("mass", 100f);
-			bProperties.setProperty("restitution", 0.75f);
+			bProperties.setProperty("mass", 10f);
+			bProperties.setProperty("restitution", 0.2f);
 			
 			Model a = ModelFactory.loadObjModel(new File("res/obj/ATAT.obj"), new Vector3f(5, 0, 5));
 			Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), new Vector3f(-5, 0, -5), bProperties);
 			
-			PhysicsModelProperties groundProps = new PhysicsModelProperties();
-			groundProps.setProperty("mass", 0f);
-			groundProps.setProperty("restitution", 0.9f);
-			groundProps.setProperty("damping", 0.9f);
-			groundProps.setProperty("collisionFlags", CollisionFlags.STATIC_OBJECT);
-			Model ground = ModelFactory.loadObjModel(new File("res/obj/cube.obj"), new Vector3f(-25, -55, -25), groundProps);
+			Ground ground = new Ground(1000, 1000);
+			ground.translate(new Vector3f(-500, 0, -500));
 
 			gameWorld.addModel(a);
 			gameWorld.addModel(b);

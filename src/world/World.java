@@ -26,7 +26,8 @@ import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSo
  */
 public class World {
 	private final Object PHYSICS_WORLD_LOCK = new Object(); 
-	
+	private float WORLD_GRAVITY = -9.81f;
+
 	private DynamicsWorld dynamicsWorld;
 	private Renderer renderer;
 	
@@ -91,7 +92,7 @@ public class World {
         CollisionDispatcher dispatcher = new CollisionDispatcher(collisionConfiguration);
         ConstraintSolver solver = new SequentialImpulseConstraintSolver();
         dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-        dynamicsWorld.setGravity(new Vector3f(0.0f, -2f, 0.0f));
+        dynamicsWorld.setGravity(new Vector3f(0.0f, WORLD_GRAVITY, 0.0f));
 	}
 	
 	/**

@@ -95,7 +95,7 @@ public class Player implements InputListener {
 		
 		lightManager = LightManager.getLightManagerHandle();
 
-		enableAcceleration = Settings.getBoolean("playerAcceleration");
+		enableAcceleration = Settings.getInstance().get("gameplay", "playerAcceleration", boolean.class);
 		enablePicking = false;
 		
 		// The player model should not be rendered.

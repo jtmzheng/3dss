@@ -13,21 +13,22 @@ import system.Settings;
  *
  */
 public class DefaultShaderProgram extends ShaderProgram {
-
 	public DefaultShaderProgram(Map<String, Integer> shaders) {
 		super(shaders);
 	}
 	
 	protected void setupAttributes() {
 		shaderAttributes = new HashMap<>();
-		shaderAttributes.put("in_Position", Settings.getInteger("in_Position"));
-		shaderAttributes.put("in_Color", Settings.getInteger("in_Color"));
-		shaderAttributes.put("in_TextureCoord", Settings.getInteger("in_TextureCoord"));
-		shaderAttributes.put("in_Normal", Settings.getInteger("in_Normal"));
-		shaderAttributes.put("Ks", Settings.getInteger("Ks"));
-		shaderAttributes.put("Ka", Settings.getInteger("Ka"));
-		shaderAttributes.put("specExp", Settings.getInteger("specExp"));
-		shaderAttributes.put("texture", Settings.getInteger("texture"));		
+		Settings settings = Settings.getInstance();
+
+		shaderAttributes.put("in_Position", settings.get("attributes", "in_Position", int.class));
+		shaderAttributes.put("in_Color", settings.get("attributes", "in_Color", int.class));
+		shaderAttributes.put("in_TextureCoord", settings.get("attributes", "in_TextureCoord", int.class));
+		shaderAttributes.put("in_Normal", settings.get("attributes", "in_Normal", int.class));
+		shaderAttributes.put("Ks", settings.get("attributes", "Ks", int.class));
+		shaderAttributes.put("Ka", settings.get("attributes", "Ka", int.class));
+		shaderAttributes.put("specExp", settings.get("attributes", "specExp", int.class));
+		shaderAttributes.put("texture", settings.get("attributes", "texture", int.class));	
 	}
 	
 	protected void setupUniformLocations() {

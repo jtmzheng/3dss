@@ -15,6 +15,7 @@ import renderer.Camera;
 import renderer.Fog;
 import renderer.Renderer;
 import renderer.model.Model;
+import renderer.util.Ground;
 import util.Primitives;
 import world.World;
 import characters.Player;
@@ -29,31 +30,12 @@ import com.bulletphysics.collision.dispatch.CollisionFlags;
  * @author Max
  */
 public class MainPrimitives {
-	
-	/**
-	 * The world object
-	 */
-	static World gameWorld;
 
-	/**
-	 * The renderer the game uses.
-	 */
-	static Renderer gameRenderer;
-	
-	/**
-	 * The player.
-	 */
-	static Player player;
-	
-	/**
-	 * The camera object.
-	 */
-	static Camera gameCam;
-	
-	/**
-	 * The inputs used in this game.
-	 */
-	static ArrayList<Input> rawInputs = new ArrayList<Input>();
+	private static World gameWorld;
+	private static Renderer gameRenderer;
+	private static Player player;
+	private static Camera gameCam;
+	private static ArrayList<Input> rawInputs = new ArrayList<Input>();
 	
 	public static void main(String [] args){
 		setupWorld();
@@ -103,16 +85,8 @@ public class MainPrimitives {
 		gameRenderer = new Renderer(600, 600, gameCam, 60, worldFog, "Primitives Test");
 		gameWorld = new World(gameRenderer);
 
-		PhysicsModelProperties groundProps = new PhysicsModelProperties();
-		groundProps.setProperty("mass", 0f);
-		groundProps.setProperty("restitution", 0.9f);
-		groundProps.setProperty("damping", 0.9f);
-		groundProps.setProperty("collisionFlags", CollisionFlags.STATIC_OBJECT);
-		
-		//@TODO: Use a plane when we figure out why some objects are falling through the plane.
-		//Model ground = Primitives.getPlane(50, 50, groundProps);
-		Model ground = Primitives.getCube(50, groundProps);
-		ground.translate(new Vector3f(-25, -55, -25));
+		Ground ground = new Ground(1000, 1000);
+		ground.translate(new Vector3f(-500, 0, -500));
 
 		List<Model> modelsToMerge = new ArrayList<Model>();
 		Model current = Primitives.getCube(2);

@@ -30,6 +30,7 @@ import system.Settings;
 import texture.Material;
 import texture.Texture;
 import texture.TextureManager;
+import util.ColourUtils;
 
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.shapes.CollisionShape;
@@ -96,6 +97,9 @@ public class Model {
 
 	// If the model is set up yet.
 	private boolean isGLsetup = false;
+
+	// Instance of the shared settings object.
+	private Settings settings = Settings.getInstance();
 
 	/**
 	 * Merges the meshes of two models and returns the merged model.
@@ -204,8 +208,8 @@ public class Model {
 		mLightHandle = new LightHandle(this, new Light(pos, ls, ld, la, null));
 
 		// Set the ID to the hash code
-		uniqueIdColour = encodeColour(hashCode());
-		uniqueId = decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
+		uniqueIdColour = ColourUtils.encodeColour(hashCode());
+		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
 		
 		// Set up the physics model.
 		setupPhysicsModel();
@@ -232,8 +236,8 @@ public class Model {
 		initialPos = pos;
 
 		// Set the ID to the hash code
-		uniqueIdColour = encodeColour(hashCode());
-		uniqueId = decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
+		uniqueIdColour = ColourUtils.encodeColour(hashCode());
+		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
 
 		setupPhysicsModel();
 	}
@@ -256,8 +260,8 @@ public class Model {
 		initialPos = DEFAULT_INITIAL_POSITION;
 
 		// Set the ID to the hash code
-		uniqueIdColour = encodeColour(hashCode());
-		uniqueId = decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
+		uniqueIdColour = ColourUtils.encodeColour(hashCode());
+		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
 		
 		setupPhysicsModel();
 	}
@@ -278,8 +282,8 @@ public class Model {
 		initialPos = DEFAULT_INITIAL_POSITION;
 
 		// Set the UID to the hash code
-		uniqueIdColour = encodeColour(hashCode());
-		uniqueId = decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
+		uniqueIdColour = ColourUtils.encodeColour(hashCode());
+		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
 		
 		setupPhysicsModel();
 	}
@@ -308,8 +312,8 @@ public class Model {
 		initialPos = position;
 
 		// Set the UID to the hash code
-		uniqueIdColour = encodeColour(hashCode());
-		uniqueId = decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
+		uniqueIdColour = ColourUtils.encodeColour(hashCode());
+		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
 		
 		setupPhysicsModel();
 	}
@@ -633,23 +637,6 @@ public class Model {
 		Matrix4f.scale(scale, modelMatrix, modelMatrix);
 	}
 
-	/**
-	 * Scale the model by a scalar.
-	 * @param scale The scalar to scale by.
-	 * @deprecated
-	 */
-	public void scale(float scale){
-		Matrix4f.scale(new Vector3f(scale, scale, scale), modelMatrix, modelMatrix);
-	}
-
-	/**
-	 * Get the model matrix associated with this model.
-	 * @return the model matrix
-	 */
-	public Matrix4f getModelMatrix() {
-		return modelMatrix;
-	}
-
 	public float[] getModelMatrixBuffer() {
 		return physicsModel.getOpenGLTransformMatrix();
 	}
@@ -806,11 +793,11 @@ public class Model {
 		RigidBodyConstructionInfo modelConstructionInfo = new RigidBodyConstructionInfo(1.0f, modelMotionState, modelShape, modelInertia);
 
 		// Retrieve the properties from the PhysicsModelProperties
-		modelConstructionInfo.restitution = physicsProps.getProperty("restitution") == null ? Settings.getFloat("defaultRestitution") : (Float)physicsProps.getProperty("restitution");
-		modelConstructionInfo.mass = physicsProps.getProperty("mass") == null ? Settings.getFloat("defaultMass") : (Float)physicsProps.getProperty("mass");
-		modelConstructionInfo.angularDamping = physicsProps.getProperty("angularDamping") == null ? Settings.getFloat("defaultAngularDamping") : (Float)physicsProps.getProperty("angularDamping");
-		modelConstructionInfo.linearDamping = physicsProps.getProperty("linearDamping") == null ? Settings.getFloat("defaultLinearDamping") : (Float)physicsProps.getProperty("linearDamping");
-		modelConstructionInfo.friction = physicsProps.getProperty("friction") == null ? Settings.getFloat("defaultFriction") : (Float)physicsProps.getProperty("friction");
+		modelConstructionInfo.restitution = physicsProps.getProperty("restitution") == null ? settings.get("physics", "defaultRestitution", float.class) : (Float)physicsProps.getProperty("restitution");
+		modelConstructionInfo.mass = physicsProps.getProperty("mass") == null ? settings.get("physics", "defaultMass", float.class) : (Float)physicsProps.getProperty("mass");
+		modelConstructionInfo.angularDamping = physicsProps.getProperty("angularDamping") == null ? settings.get("physics", "defaultAngularDamping", float.class) : (Float)physicsProps.getProperty("angularDamping");
+		modelConstructionInfo.linearDamping = physicsProps.getProperty("linearDamping") == null ? settings.get("physics", "defaultLinearDamping", float.class) : (Float)physicsProps.getProperty("linearDamping");
+		modelConstructionInfo.friction = physicsProps.getProperty("friction") == null ? settings.get("physics", "defaultFriction", float.class) : (Float)physicsProps.getProperty("friction");
 
 		RigidBody modelRigidBody = new RigidBody(modelConstructionInfo);
 		modelRigidBody.setCollisionFlags((Integer) (physicsProps.getProperty("collisionFlags") == null ? modelRigidBody.getCollisionFlags() :
@@ -819,34 +806,4 @@ public class Model {
 
 		physicsModel = new PhysicsModel(modelShape, modelRigidBody);
 	}
-
-	/**
-	 * Encode a number into a colour
-	 * @param num Number to encode (int)
-	 * @return 
-	 */
-	private Vector3f encodeColour(int num) {
-		int r = (num >> 16) & 0xFF;
-		int g = (num >> 8) & 0xFF;
-		int b = num & 0xFF;
-		
-		return new Vector3f((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f);
-	}
-	
-	/**
-	 * Decode a colour into a number
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @return
-	 */
-	private int decodeColour(float x, float y, float z) {
-		int red = (int)Math.ceil(x * 255);
-		int green = (int)Math.ceil(y * 255);
-		int blue = (int)Math.ceil(z * 255);
-		
-		int rgb = ((red & 0x0FF) << 16) | ((green & 0x0FF) << 8) | (blue & 0x0FF);
-		return rgb;
-	}
-
 }
