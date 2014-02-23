@@ -393,7 +393,7 @@ public class Renderer {
 			if (!m.isBound()) {
 				m.bind();
 			} 
-			m.render(m.equals(pickedModel));
+			m.render(m.equals(pickedModel), viewMatrix);
 		}
         		
 		// Deselect

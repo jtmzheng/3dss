@@ -66,6 +66,10 @@ public class ShaderController {
 		return uniformLocations.containsKey("viewMatrix") ? uniformLocations.get("viewMatrix") : -1;
 	}
 	
+	public static int getNormalMatrixLocation(){
+		return uniformLocations.containsKey("normMatrix") ? uniformLocations.get("normMatrix") : -1;
+	}
+	
 	public static int getAmbientLocation(){
 		return uniformLocations.containsKey("La") ? uniformLocations.get("La") : -1;
 	}

@@ -38,7 +38,7 @@ public class MainTerrain {
 		BlockTerrain bt = btg.generateTerrain();
 
 		Camera gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
-		Fog fog = new Fog(true);
+		Fog fog = new Fog(false);
 		Renderer gameRenderer = new Renderer(512, 512, gameCam, 60, fog, "Terrain Test");
 		World gameWorld = new World(gameRenderer);
 		List<String> files = new ArrayList<>();

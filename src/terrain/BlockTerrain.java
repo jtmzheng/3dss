@@ -3,6 +3,7 @@ package terrain;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
 import physics.PhysicsModelProperties;
@@ -19,8 +20,8 @@ public class BlockTerrain {
 		setup();
 	}
 	
-	public void render() {
-		blockModel.render(false);
+	public void render(Matrix4f viewMatrix) {
+		blockModel.render(false, viewMatrix);
 	}
 	
 	private void setup() {

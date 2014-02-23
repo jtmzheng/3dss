@@ -37,6 +37,7 @@ uniform int selectedModel = 0;
 in vec3 sKs, sKd, sKa;
 in vec2 pass_texture;
 in vec3 position_eye, normal_eye;
+in vec3 diffuseColour;
 
 out vec4 out_Color;
 
@@ -107,6 +108,7 @@ void main(void) {
 	    } 
 	    
 	}
+	
 	if(selectedModel == 0) {
 		// Get the textured color
 		vec4 texel = texture(textureSampler, pass_texture);
@@ -116,7 +118,7 @@ void main(void) {
 			float fogFactor = getFogFactor(length(position_eye));
 			out_Color = mix(vec4(lightTotal, 1.0) + texel, vec4(fogColor, 1.0), fogFactor);
 		} else {
-			out_Color = vec4(lightTotal, 1.0) + texel;
+			out_Color = vec4(lightTotal, 1.0) + texel + vec4(diffuseColour, 1.0);
 		}
 	} else { 
 		// Color red if selected (picked)

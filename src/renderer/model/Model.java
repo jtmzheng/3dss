@@ -550,14 +550,20 @@ public class Model {
 	 * Render a model that has already been set up
 	 * @TODO: Make a class for the HashMaps (a struct) - will keep it cleaner
 	 */
-	public void render(boolean isPicked) {		
+	public void render(boolean isPicked, Matrix4f viewMatrix) {		
 		if(renderFlag) {					
-			FloatBuffer modelMatrixBuffer = BufferUtils.createFloatBuffer(16);
+			FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
 			modelMatrix = physicsModel.getTransformMatrix();
-			modelMatrix.store(modelMatrixBuffer);
-			modelMatrixBuffer.flip();
+			modelMatrix.store(buffer);
+			buffer.flip();
 
-			GL20.glUniformMatrix4(ShaderController.getModelMatrixLocation(), false, modelMatrixBuffer);
+			GL20.glUniformMatrix4(ShaderController.getModelMatrixLocation(), false, buffer);
+			
+			Matrix4f normMatrix = Matrix4f.transpose(Matrix4f.invert(Matrix4f.mul(viewMatrix, modelMatrix, null), null), null);
+			normMatrix.store(buffer);
+			buffer.flip();
+			
+			GL20.glUniformMatrix4(ShaderController.getNormalMatrixLocation(), false, buffer);
 			
 			// If model is picked change the colour
 			if(isPicked) {
