@@ -91,6 +91,8 @@ public abstract class ShaderProgram {
 		return shaderAttributes.get(name);
 	}
 	
+	public abstract ShaderTypes getShaderType();
+	
 	protected void setupAttributes() {
 		this.shaderAttributes = new HashMap<>();
 	}

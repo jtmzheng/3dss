@@ -6,6 +6,7 @@ import java.util.Map;
 import org.lwjgl.opengl.GL20;
 
 import renderer.shader.types.Attributes;
+import renderer.shader.types.ShaderTypes;
 import system.Settings;
 
 /**
@@ -63,5 +64,10 @@ public class DefaultShaderProgram extends ShaderProgram {
 		
 		// Color picking locations
 		shaderUniformLocations.put("selectedModel", GL20.glGetUniformLocation(getProgram(), "selectedModel"));
+	}
+
+	@Override
+	public ShaderTypes getShaderType() {
+		return ShaderTypes.RENDERING_SHADER;
 	}
 }

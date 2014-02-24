@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.lwjgl.opengl.GL20;
 
+import renderer.shader.types.ShaderTypes;
+
 public class SkyboxShaderProgram extends ShaderProgram {
 
 	public SkyboxShaderProgram(Map<String, Integer> shaders) {
@@ -26,5 +28,10 @@ public class SkyboxShaderProgram extends ShaderProgram {
 		shaderUniformLocations.put("projectionMatrix", GL20.glGetUniformLocation(getProgram(), "projectionMatrix"));
 		shaderUniformLocations.put("cubeTexture", GL20.glGetUniformLocation(getProgram(), "cubeTexture"));
 		System.out.println(shaderUniformLocations.values());
+	}
+
+	@Override
+	public ShaderTypes getShaderType() {
+		return ShaderTypes.SKYBOX_SHADER;
 	}
 }

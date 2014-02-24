@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.lwjgl.opengl.GL20;
 
+import renderer.shader.types.ShaderTypes;
+
 
 /**
  * This is the shader program used to render a texture to screen 
@@ -30,5 +32,10 @@ public class PixelShaderProgram extends ShaderProgram {
 		shaderUniformLocations.put("fbTex", GL20.glGetUniformLocation(getProgram(), "fbTex"));
 		shaderUniformLocations.put("projectionMatrix", GL20.glGetUniformLocation(getProgram(), "projectionMatrix"));
  	}
+
+	@Override
+	public ShaderTypes getShaderType() {
+		return ShaderTypes.POST_PROCESS_SHADER;
+	}
 
 }
