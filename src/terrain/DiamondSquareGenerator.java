@@ -2,6 +2,11 @@ package terrain;
 
 import java.util.Random;
 
+/**
+ * Generates a random 2D grid using diamond square
+ * @author Max
+ *
+ */
 public class DiamondSquareGenerator extends TerrainGenerator {
 
 	public DiamondSquareGenerator(int size, int minHeight, int maxHeight, double roughness) {

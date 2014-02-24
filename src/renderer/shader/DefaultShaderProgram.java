@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.lwjgl.opengl.GL20;
 
+import renderer.shader.types.Attributes;
 import system.Settings;
 
 /**
@@ -21,6 +22,7 @@ public class DefaultShaderProgram extends ShaderProgram {
 		shaderAttributes = new HashMap<>();
 		Settings settings = Settings.getInstance();
 
+		// Define attributes
 		shaderAttributes.put("in_Position", settings.get("attributes", "in_Position", int.class));
 		shaderAttributes.put("in_Color", settings.get("attributes", "in_Color", int.class));
 		shaderAttributes.put("in_TextureCoord", settings.get("attributes", "in_TextureCoord", int.class));
@@ -28,7 +30,10 @@ public class DefaultShaderProgram extends ShaderProgram {
 		shaderAttributes.put("Ks", settings.get("attributes", "Ks", int.class));
 		shaderAttributes.put("Ka", settings.get("attributes", "Ka", int.class));
 		shaderAttributes.put("specExp", settings.get("attributes", "specExp", int.class));
-		shaderAttributes.put("texture", settings.get("attributes", "texture", int.class));	
+		shaderAttributes.put("texture", settings.get("attributes", "texture", int.class));
+		
+		// Add attributes to definition
+		// @TODO
 	}
 	
 	protected void setupUniformLocations() {

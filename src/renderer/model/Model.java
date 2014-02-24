@@ -415,7 +415,7 @@ public class Model {
 			}
 
 			IntBuffer indicesBuffer = BufferUtils.createIntBuffer(vboIndex.size());
-			indicesBuffer.put( indices );
+			indicesBuffer.put(indices);
 			indicesBuffer.flip();
 
 			// Create a new Vertex Array Object in memory and select it (bind)

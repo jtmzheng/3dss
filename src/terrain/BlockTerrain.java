@@ -12,6 +12,11 @@ import util.Primitives;
 
 import com.bulletphysics.collision.dispatch.CollisionFlags;
 
+/**
+ * A 3D block terrain class
+ * @author Max
+ *
+ */
 public class BlockTerrain {
 	
 	public BlockTerrain(int [][][] data, int cubeSize) {

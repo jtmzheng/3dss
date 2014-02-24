@@ -9,6 +9,10 @@ import java.util.Map;
 
 import org.lwjgl.opengl.GL20;
 
+import renderer.shader.types.Attributes;
+import renderer.shader.types.ShaderTypes;
+import renderer.shader.types.Uniforms;
+
 /**
  * The class is a wrapper for the OpenGL commands necessary to load/set shader programs
  * @author Max
@@ -17,10 +21,14 @@ import org.lwjgl.opengl.GL20;
 public abstract class ShaderProgram {
 	protected Map<String, Integer> shaderAttributes;
 	protected Map<String, Integer> shaderUniformLocations;
+	protected Map<Attributes, String> attributeDefinitions;
+	protected Map<Uniforms, String> uniformDefinitions;
+	protected Map<ShaderTypes, String> shaderDefinitions;
+	
+	protected int programId;
 	
 	private Map<String, Integer> shaderNameToId;
 	private Map<Integer, Integer> shaderIdToType;	
-	protected int programId;
 	
 	/**
 	 * Constructor for the shader program
@@ -30,6 +38,9 @@ public abstract class ShaderProgram {
 		programId = GL20.glCreateProgram();
 		shaderNameToId = new HashMap<>();
 		shaderIdToType = new HashMap<>();
+		attributeDefinitions = new HashMap<>();
+		uniformDefinitions = new HashMap<>();
+		shaderDefinitions = new HashMap<>();
 		
 		for(String file : shaders.keySet()) {
 			int shaderId = loadShader(file, shaders.get(file));
