@@ -11,7 +11,7 @@ import util.Primitives;
  * 
  * @author Adi
  */
-public class Ground extends Model{
+public class Ground extends Model {
 	private static PhysicsModelProperties groundProps;
 	static {
 		groundProps = new PhysicsModelProperties();

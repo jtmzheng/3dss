@@ -23,6 +23,7 @@ import org.lwjgl.util.vector.Vector4f;
 
 import physics.PhysicsModel;
 import physics.PhysicsModelProperties;
+import renderer.Renderable;
 import renderer.light.Light;
 import renderer.light.LightHandle;
 import renderer.shader.ShaderController;
@@ -33,8 +34,9 @@ import texture.TextureManager;
 import util.ColourUtils;
 
 import com.bulletphysics.collision.dispatch.CollisionObject;
-import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.ConvexHullShape;
+import com.bulletphysics.collision.shapes.ConvexShape;
+import com.bulletphysics.collision.shapes.ShapeHull;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
 import com.bulletphysics.linearmath.DefaultMotionState;
@@ -52,7 +54,7 @@ import com.bulletphysics.util.ObjectArrayList;
  * @author Max
  * @author Adi
  */
-public class Model {
+public class Model implements Renderable {
 	// Defaults
 	private static final Vector3f DEFAULT_INITIAL_POSITION = new Vector3f(0, 0, 0);
 	
@@ -94,7 +96,12 @@ public class Model {
 
 	// Instance of the shared settings object.
 	private Settings settings = Settings.getInstance();
+	
+	// If the model has been bound yet.
 	private boolean isBound = false;
+	
+	// If the model is currently being picked.
+	private boolean isPicked = false;
 
 	/**
 	 * Merges the meshes of two models and returns the merged model.
@@ -544,7 +551,7 @@ public class Model {
 	 * Render a model that has already been set up
 	 * @TODO: Make a class for the HashMaps (a struct) - will keep it cleaner
 	 */
-	public void render(boolean isPicked, Matrix4f viewMatrix) {		
+	public void render(Matrix4f viewMatrix) {		
 		if(renderFlag) {					
 			FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
 			modelMatrix = physicsModel.getTransformMatrix();
@@ -775,7 +782,7 @@ public class Model {
 	/**
 	 * Setup the model
 	 */
-	private void setup() {
+	public void setup() {
 		isBound = false;
 
 		// Strip any quads / polygons. 
@@ -783,6 +790,13 @@ public class Model {
 		
 		// Setup the physics model
 		setupPhysicsModel();
+	}
+	
+	/**
+	 * Sets the flag for if the model is currently picked or not.
+	 */
+	public void setPickedFlag(boolean picked) {
+		isPicked = picked;
 	}
 	 
 	/**
@@ -802,8 +816,15 @@ public class Model {
 			}
 		}
 		
-		// Create and initialize the physics model
-		CollisionShape modelShape = new ConvexHullShape(modelShapePoints);
+		// Create and initialize the physics model.
+		ConvexShape modelShape = new ConvexHullShape(modelShapePoints);
+		
+		// Optimize convex hull shape by removing unnecessary vertices.
+		// See http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility.
+		ShapeHull hull = new ShapeHull(modelShape);
+		float shapeMargin = modelShape.getMargin();
+		hull.buildHull(shapeMargin);
+		modelShape = new ConvexHullShape(hull.getVertexPointer());
 
 		// Set up the model in the initial position
 		MotionState modelMotionState = new DefaultMotionState(new Transform(new javax.vecmath.Matrix4f(new Quat4f(0, 0, 0, 1), 

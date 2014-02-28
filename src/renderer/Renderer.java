@@ -283,7 +283,10 @@ public class Renderer {
 			if (!m.isBound()) {
 				m.bind();
 			} 
-			m.render(m.equals(pickedModel), viewMatrix);
+			if (isInView(m)) {
+				m.setPickedFlag(m.equals(pickedModel));
+				m.render(viewMatrix);
+			}
 		}
         		
 		// Deselect
@@ -449,6 +452,14 @@ public class Renderer {
 		postProcessConversions = new HashSet<>();
 	}
 	
+	/**
+	 * Returns true if the model is currently in view, and false otherwise.
+	 * This is used for frustrum culling to only render models whose bounding boxes are in view.
+	 */
+	private boolean isInView (Model m) {
+		return true;
+	}
+
 	/**
 	 * Initializes the renderer
 	 */
