@@ -58,6 +58,9 @@ public class Model implements Renderable {
 	// Defaults
 	private static final Vector3f DEFAULT_INITIAL_POSITION = new Vector3f(0, 0, 0);
 
+	// Enable culling for this model or not.
+	protected boolean enableCulling = true;
+
 	// Unique ID for the model (used for picking)
 	private final int uniqueId;
 	private final Vector3f uniqueIdColour;
@@ -715,6 +718,13 @@ public class Model implements Renderable {
 	}
 
 	/**
+	 * Gets if the model should be culled or not.
+	 */
+	public boolean shouldCull() {
+		return enableCulling;
+	}
+
+	/**
 	 * Set flag for whether this model should be rendered
 	 * @param renderFlag
 	 */
@@ -805,6 +815,13 @@ public class Model implements Renderable {
 	 */
 	public void setPickedFlag(boolean picked) {
 		isPicked = picked;
+	}
+	
+	/**
+	 * Sets the flag for frustrum culling for this model.
+	 */
+	public void setFrustrumCulling(boolean cull) {
+		enableCulling = cull;
 	}
 	 
 	/**

@@ -27,6 +27,7 @@ public class Ground extends Model {
 	 */
 	public Ground(float x, float y) {
 		super(Primitives.getPlane(x,  y).getFaceList(), groundProps);
+		setFrustrumCulling(false);
 	}
 	
 	/**

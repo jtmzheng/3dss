@@ -37,6 +37,7 @@ import renderer.shader.SkyboxShaderProgram;
 import renderer.util.Skybox;
 import system.Settings;
 import texture.TextureManager;
+import util.MathUtils;
 import util.Plane;
 
 /**
@@ -66,7 +67,10 @@ public class Renderer {
 	private FloatBuffer matrix44Buffer = null;
 	
 	// Planes that make up the frustrum.
-	Plane[] frustrumPlanes = new Plane[6];
+	Plane[] frustrumPlanes = {
+			new Plane(),
+			new Plane()
+	};
 
 	// The view matrix will be calculated based off this camera
 	private Camera camera = null;    
@@ -291,7 +295,7 @@ public class Renderer {
 			if (!m.isBound()) {
 				m.bind();
 			} 
-			if (isInView(m)) {
+			if (!m.shouldCull() || isInView(m, projectionMatrix)) {
 				m.setPickedFlag(m.equals(pickedModel));
 				m.render(viewMatrix);
 			}
@@ -464,59 +468,68 @@ public class Renderer {
 	 * Returns true if the model is currently in view, and false otherwise.
 	 * This is used for frustrum culling to only render models whose bounding boxes are in view.
 	 */
-	private boolean isInView (Model m) {
+	private boolean isInView (Model m, Matrix4f projectionMatrix) {
 		float[] pts = m.getBoundingBox().getVertexList();
 		Matrix4f tMat = m.getPhysicsModel().getTransformMatrix();
-
 
 		for (int i = 0; i < pts.length; i+=4) {
 			Vector4f mPt = new Vector4f(pts[i], pts[i+1], pts[i+2], pts[i+3]);
 			Matrix4f.transform(tMat, mPt, mPt);
+			Matrix4f.transform(viewMatrix, mPt, mPt);
+
+			if (!MathUtils.isPointInPlanes(mPt, frustrumPlanes))
+				return false;
 		}
-		System.out.println();
 
 		return true;
 	}
 
+	/**
+	 * Computes the frustrum planes using the projection matrix (see http://graphics.cs.ucf.edu/cap4720/fall2008/plane_extraction.pdf).
+	 * This algorithm gives the planes in view space (camera space).
+	 */
 	private void recomputeFrustrumPlanes() {
-		Matrix4f viewProj = new Matrix4f();
-		Matrix4f.mul(viewMatrix, projectionMatrix, viewProj);
-		
+		// Compute the minimum z distance in the frustrum.
+		/*
 		// Near plane.
-		frustrumPlanes[0].a = viewProj.m03 + viewProj.m02;
-		frustrumPlanes[0].b = viewProj.m13 + viewProj.m12;
-		frustrumPlanes[0].c = viewProj.m23 + viewProj.m22;
-		frustrumPlanes[0].d = viewProj.m33 + viewProj.m32;
+		frustrumPlanes[0].a = projectionMatrix.m03 + projectionMatrix.m02;
+		frustrumPlanes[0].b = projectionMatrix.m13 + projectionMatrix.m12;
+		frustrumPlanes[0].c = projectionMatrix.m23 + projectionMatrix.m22;
+		frustrumPlanes[0].d = projectionMatrix.m33 + projectionMatrix.m32;
 
 		// Far plane.
-		frustrumPlanes[1].a = viewProj.m03 - viewProj.m02; 
-		frustrumPlanes[1].b = viewProj.m13 - viewProj.m12;
-		frustrumPlanes[1].c = viewProj.m23 - viewProj.m22;
-		frustrumPlanes[1].d = viewProj.m33 - viewProj.m32;
+		frustrumPlanes[1].a = projectionMatrix.m03 - projectionMatrix.m02; 
+		frustrumPlanes[1].b = projectionMatrix.m13 - projectionMatrix.m12;
+		frustrumPlanes[1].c = projectionMatrix.m23 - projectionMatrix.m22;
+		frustrumPlanes[1].d = projectionMatrix.m33 - projectionMatrix.m32;*/
 
 		// Left plane.
-		frustrumPlanes[2].a = viewProj.m03 + viewProj.m00; 
-		frustrumPlanes[2].b = viewProj.m13 + viewProj.m10;
-		frustrumPlanes[2].c = viewProj.m23 + viewProj.m20;
-		frustrumPlanes[2].d = viewProj.m33 + viewProj.m30;
+		frustrumPlanes[0].a = projectionMatrix.m03 + projectionMatrix.m00; 
+		frustrumPlanes[0].b = projectionMatrix.m13 + projectionMatrix.m10;
+		frustrumPlanes[0].c = projectionMatrix.m23 + projectionMatrix.m20;
+		frustrumPlanes[0].d = projectionMatrix.m33 + projectionMatrix.m30;
 
 		// Right plane.
-		frustrumPlanes[3].a = viewProj.m03 - viewProj.m00; 
-		frustrumPlanes[3].b = viewProj.m13 - viewProj.m10;
-		frustrumPlanes[3].c = viewProj.m23 - viewProj.m20;
-		frustrumPlanes[3].d = viewProj.m33 - viewProj.m30;
-
+		frustrumPlanes[1].a = projectionMatrix.m03 - projectionMatrix.m00; 
+		frustrumPlanes[1].b = projectionMatrix.m13 - projectionMatrix.m10;
+		frustrumPlanes[1].c = projectionMatrix.m23 - projectionMatrix.m20;
+		frustrumPlanes[1].d = projectionMatrix.m33 - projectionMatrix.m30;
+/*
 		// Top plane.
-		frustrumPlanes[4].a = viewProj.m03 - viewProj.m01; 
-		frustrumPlanes[4].b = viewProj.m13 - viewProj.m11;
-		frustrumPlanes[4].c = viewProj.m23 - viewProj.m21;
-		frustrumPlanes[4].d = viewProj.m33 - viewProj.m31;
+		frustrumPlanes[4].a = projectionMatrix.m03 - projectionMatrix.m01; 
+		frustrumPlanes[4].b = projectionMatrix.m13 - projectionMatrix.m11;
+		frustrumPlanes[4].c = projectionMatrix.m23 - projectionMatrix.m21;
+		frustrumPlanes[4].d = projectionMatrix.m33 - projectionMatrix.m31;
 
 		// Bottom plane.
-		frustrumPlanes[5].a = viewProj.m03 + viewProj.m01;
-		frustrumPlanes[5].b = viewProj.m13 + viewProj.m11;
-		frustrumPlanes[5].c = viewProj.m23 + viewProj.m21;
-		frustrumPlanes[5].d = viewProj.m33 + viewProj.m31;
+		frustrumPlanes[5].a = projectionMatrix.m03 + projectionMatrix.m01;
+		frustrumPlanes[5].b = projectionMatrix.m13 + projectionMatrix.m11;
+		frustrumPlanes[5].c = projectionMatrix.m23 + projectionMatrix.m21;
+		frustrumPlanes[5].d = projectionMatrix.m33 + projectionMatrix.m31;
+		*/
+		for (int i = 0; i < frustrumPlanes.length; i++) {
+			MathUtils.normalizePlane(frustrumPlanes[i]);
+		}
 	}
 
 	/**
