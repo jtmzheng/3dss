@@ -2,13 +2,14 @@ package renderer.model;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL31;
 import org.lwjgl.util.vector.Vector3f;
 
 public class BoundingBox {
@@ -79,7 +80,30 @@ public class BoundingBox {
 		
 		GL30.glBindVertexArray(0);
 	}
-	
+
+	/**
+	 * Computes all vertices of this bounding box given the lower left front and
+	 * upper right back. This is used for frustrum culling.
+	 */
+	public void computeVertices() {
+		if (lowerLeftFront != null && upperRightBack != null) {
+			vertexList = new ArrayList<Vector3f>();		
+			float height = upperRightBack.y - lowerLeftFront.y;
+			float width = upperRightBack.z - lowerLeftFront.z;
+			float length = upperRightBack.x - lowerLeftFront.x;
+			
+			vertexList.add(lowerLeftFront);
+			vertexList.add(new Vector3f(lowerLeftFront.x, lowerLeftFront.y + height, lowerLeftFront.z));
+			vertexList.add(new Vector3f(lowerLeftFront.x, lowerLeftFront.y, lowerLeftFront.z + width));
+			vertexList.add(new Vector3f(lowerLeftFront.x, lowerLeftFront.y + height, lowerLeftFront.z + width));
+
+			vertexList.add(upperRightBack);
+			vertexList.add(new Vector3f(lowerLeftFront.x + length, lowerLeftFront.y, lowerLeftFront.z));
+			vertexList.add(new Vector3f(lowerLeftFront.x + length, lowerLeftFront.y + height, lowerLeftFront.z));
+			vertexList.add(new Vector3f(upperRightBack.x, upperRightBack.y + height, upperRightBack.z));
+		}
+	}
+
 	public boolean isBound() {
 		return isBound;
 	}
@@ -113,5 +137,6 @@ public class BoundingBox {
 	private Integer vaoId;
 	private Integer vboIndId;
 	private boolean isBound;
+	private List<Vector3f> vertexList;
 	
 }

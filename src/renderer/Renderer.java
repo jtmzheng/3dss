@@ -27,6 +27,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import renderer.framebuffer.FBTarget;
 import renderer.framebuffer.FrameBuffer;
 import renderer.framebuffer.ScreenQuad;
+import renderer.model.BoundingBox;
 import renderer.model.Model;
 import renderer.shader.ColorPickingShaderProgram;
 import renderer.shader.DefaultShaderProgram;
@@ -457,6 +458,8 @@ public class Renderer {
 	 * This is used for frustrum culling to only render models whose bounding boxes are in view.
 	 */
 	private boolean isInView (Model m) {
+		BoundingBox enclosingCube = m.getBoundingBox();
+		System.out.println(enclosingCube);
 		return true;
 	}
 

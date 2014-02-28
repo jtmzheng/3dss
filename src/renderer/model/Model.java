@@ -411,6 +411,8 @@ public class Model implements Renderable {
 				}			
 			}
 
+			boundBox.computeVertices();
+
 			// Create VBO Index buffer
 			verticesFloatBuffer.flip();
 			int [] indices = new int[vboIndex.size()];
@@ -664,6 +666,14 @@ public class Model implements Renderable {
 	 */
 	public PhysicsModel getPhysicsModel() {
 		return physicsModel;
+	}
+
+	/**
+	 * Gets the bounding box for this model.
+	 * @return boundBox
+	 */
+	public BoundingBox getBoundingBox() {
+		return boundBox;
 	}
 
 	/**
