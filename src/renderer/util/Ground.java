@@ -13,6 +13,7 @@ import util.Primitives;
  */
 public class Ground extends Model {
 	private static PhysicsModelProperties groundProps;
+
 	static {
 		groundProps = new PhysicsModelProperties();
 		groundProps.setProperty("mass", 0f);

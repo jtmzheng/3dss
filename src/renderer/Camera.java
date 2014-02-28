@@ -3,6 +3,8 @@ package renderer;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
+import util.Plane;
+
 /**
  * This class takes care of the view matrix.
  *
