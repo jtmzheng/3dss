@@ -38,7 +38,6 @@ import renderer.shader.SkyboxShaderProgram;
 import renderer.util.Skybox;
 import system.Settings;
 import texture.TextureManager;
-import util.MathUtils;
 
 /**
  * The renderer class should set up OpenGL.

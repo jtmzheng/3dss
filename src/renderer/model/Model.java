@@ -827,12 +827,9 @@ public class Model implements Renderable {
 		// Create and initialize the physics model.
 		ConvexShape modelShape = new ConvexHullShape(modelShapePoints);
 		
-		// Optimize convex hull shape by removing unnecessary vertices.
+		// TODO: Optimize convex hull shape by removing unnecessary vertices.
 		// See http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility.
-		ShapeHull hull = new ShapeHull(modelShape);
-		float shapeMargin = modelShape.getMargin();
-		hull.buildHull(shapeMargin);
-		modelShape = new ConvexHullShape(hull.getVertexPointer());
+		// The issue is that this simplification takes quite a while.
 
 		// Set up the model in the initial position
 		MotionState modelMotionState = new DefaultMotionState(new Transform(new javax.vecmath.Matrix4f(new Quat4f(0, 0, 0, 1), 
