@@ -64,9 +64,6 @@ public class Model implements Renderable {
 	// Unique ID for the model (used for picking)
 	private final int uniqueId;
 	private final Vector3f uniqueIdColour;
-	
-	// Name of the model
-	private String name = "";
 
 	// Map of VBOs and indices for each material in the model
 	private Map<Material, Integer> mapVBOIndexIds;
@@ -875,7 +872,4 @@ public class Model implements Renderable {
 
 		physicsModel = new PhysicsModel(modelShape, modelRigidBody);
 	}
-	
-	public String getName() { return name; }
-	public void setName(String n) { name = n; }
 }

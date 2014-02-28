@@ -293,20 +293,20 @@ public class Renderer {
 		
 		// Recompute the frustum planes for culling.
 		recomputeFrustumPlanes();
-		boolean renderedBall = false;
+
 		// Render each model
+		int modelsRendered = 0;
 		for(Model m: models){
 			if (!m.isBound()) {
 				m.bind();
-			} 
-			if (!m.shouldCull() || isInView(m, projectionMatrix)) {
+			}
+			if (!m.shouldCull() || isInView(m)) {
 				m.setPickedFlag(m.equals(pickedModel));
 				m.render(viewMatrix);
-				if (m.getName().equals("ball")) renderedBall = true;
+				modelsRendered++;
 			}
 		}
-		if (renderedBall) System.out.println("RENDERED SPHERE");
-		else System.out.println("DIDN'T RENDER");
+		System.out.println("Rendered " + modelsRendered + " models");
         		
 		// Deselect
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -475,20 +475,28 @@ public class Renderer {
 	 * Returns true if the model is currently in view, and false otherwise.
 	 * This is used for frustum culling to only render models whose bounding boxes are in view.
 	 */
-	private boolean isInView (Model m, Matrix4f projectionMatrix) {
+	private boolean isInView (Model m) {
 		float[] pts = m.getBoundingBox().getVertexList();
+		Vector4f[] transformedPts = new Vector4f[8];
 		Matrix4f tMat = m.getPhysicsModel().getTransformMatrix();
 
 		for (int i = 0; i < pts.length; i+=4) {
 			Vector4f mPt = new Vector4f(pts[i], pts[i+1], pts[i+2], pts[i+3]);
 			Matrix4f.transform(tMat, mPt, mPt);
 			Matrix4f.transform(viewMatrix, mPt, mPt);
-
-			if (MathUtils.isPointInPlanes(mPt, frustrumPlanes))
-				return true;
+			transformedPts[i/4] = mPt;
 		}
-
-		return false;
+		
+		boolean outsideFrustrum = true;
+		for (int i = 0; i < frustrumPlanes.length; i++) {
+			for (int j = 0; j < transformedPts.length; j++) {
+				float dP = MathUtils.dotPlaneWithVector(frustrumPlanes[i], transformedPts[j]);
+				outsideFrustrum &= dP < 0f;
+			}
+			if (outsideFrustrum == true) return false;
+			outsideFrustrum = true;
+		}
+		return true;
 	}
 
 	/**
@@ -532,6 +540,7 @@ public class Renderer {
 		frustrumPlanes[5].c = projectionMatrix.m23 + projectionMatrix.m21;
 		frustrumPlanes[5].d = projectionMatrix.m33 + projectionMatrix.m31;
 
+		// Normalize plane normals.
 		for (int i = 0; i < frustrumPlanes.length; i++) {
 			MathUtils.normalizePlane(frustrumPlanes[i]);
 		}

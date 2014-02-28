@@ -31,7 +31,7 @@ public class MathUtils {
 	 */
 	public static boolean isPointInPlanes (Vector4f pt, Plane... planes) {
 		for (int i = 0; i < planes.length; i++) {
-			if (dotPlaneWithVector(planes[i], pt) < 0.0f) return false;
+			if (dotPlaneWithVector(planes[i], pt) < 0f) return false;
 		}
 
 		return true;
