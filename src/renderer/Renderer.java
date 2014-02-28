@@ -51,6 +51,8 @@ public class Renderer {
 	private static final int MAX_MODELS = 100; // Max models on the temp buffer
 	private static final Integer DEFAULT_FRAME_BUFFER = 0;
 	private static final float FOV = 45f;
+	private static final float FAR_PLANE = 100f;
+	private static final float NEAR_PLANE = 0.1f;
 
 	// List of the models that will be rendered
 	private Set<Model> models;
@@ -290,9 +292,6 @@ public class Renderer {
 		matrix44Buffer.flip();
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixFragLocation(), false, matrix44Buffer);
-		
-		// Recompute the frustum planes for culling.
-		recomputeFrustumPlanes();
 
 		// Render each model
 		int modelsRendered = 0;
@@ -503,19 +502,7 @@ public class Renderer {
 	 * Computes the frustum planes using the projection matrix (see http://graphics.cs.ucf.edu/cap4720/fall2008/plane_extraction.pdf).
 	 * This algorithm gives the planes in view space (camera space).
 	 */
-	private void recomputeFrustumPlanes() {
-		// Near plane.
-		frustrumPlanes[0].a = projectionMatrix.m03 + projectionMatrix.m02;
-		frustrumPlanes[0].b = projectionMatrix.m13 + projectionMatrix.m12;
-		frustrumPlanes[0].c = projectionMatrix.m23 + projectionMatrix.m22;
-		frustrumPlanes[0].d = projectionMatrix.m33 + projectionMatrix.m32;
-
-		// Far plane.
-		frustrumPlanes[1].a = projectionMatrix.m03 - projectionMatrix.m02; 
-		frustrumPlanes[1].b = projectionMatrix.m13 - projectionMatrix.m12;
-		frustrumPlanes[1].c = projectionMatrix.m23 - projectionMatrix.m22;
-		frustrumPlanes[1].d = projectionMatrix.m33 - projectionMatrix.m32;
-
+	private void computeFrustumPlanes() {
 		// Left plane.
 		frustrumPlanes[0].a = projectionMatrix.m03 + projectionMatrix.m00; 
 		frustrumPlanes[0].b = projectionMatrix.m13 + projectionMatrix.m10;
@@ -529,16 +516,28 @@ public class Renderer {
 		frustrumPlanes[1].d = projectionMatrix.m33 - projectionMatrix.m30;
 
 		// Top plane.
-		frustrumPlanes[4].a = projectionMatrix.m03 - projectionMatrix.m01; 
-		frustrumPlanes[4].b = projectionMatrix.m13 - projectionMatrix.m11;
-		frustrumPlanes[4].c = projectionMatrix.m23 - projectionMatrix.m21;
-		frustrumPlanes[4].d = projectionMatrix.m33 - projectionMatrix.m31;
+		frustrumPlanes[2].a = projectionMatrix.m03 - projectionMatrix.m01; 
+		frustrumPlanes[2].b = projectionMatrix.m13 - projectionMatrix.m11;
+		frustrumPlanes[2].c = projectionMatrix.m23 - projectionMatrix.m21;
+		frustrumPlanes[2].d = projectionMatrix.m33 - projectionMatrix.m31;
 
 		// Bottom plane.
-		frustrumPlanes[5].a = projectionMatrix.m03 + projectionMatrix.m01;
-		frustrumPlanes[5].b = projectionMatrix.m13 + projectionMatrix.m11;
-		frustrumPlanes[5].c = projectionMatrix.m23 + projectionMatrix.m21;
-		frustrumPlanes[5].d = projectionMatrix.m33 + projectionMatrix.m31;
+		frustrumPlanes[3].a = projectionMatrix.m03 + projectionMatrix.m01;
+		frustrumPlanes[3].b = projectionMatrix.m13 + projectionMatrix.m11;
+		frustrumPlanes[3].c = projectionMatrix.m23 + projectionMatrix.m21;
+		frustrumPlanes[3].d = projectionMatrix.m33 + projectionMatrix.m31;
+
+		// Near plane.
+		frustrumPlanes[4].a = projectionMatrix.m30 + projectionMatrix.m20;
+		frustrumPlanes[4].b = projectionMatrix.m31 + projectionMatrix.m21;
+		frustrumPlanes[4].c = projectionMatrix.m32 + projectionMatrix.m22;
+		frustrumPlanes[4].d = NEAR_PLANE;
+		
+		// Far plane.
+		frustrumPlanes[5].a = projectionMatrix.m30 - projectionMatrix.m20;
+		frustrumPlanes[5].b = projectionMatrix.m31 - projectionMatrix.m21;
+		frustrumPlanes[5].c = projectionMatrix.m32 - projectionMatrix.m22;
+		frustrumPlanes[5].d = FAR_PLANE;
 
 		// Normalize plane normals.
 		for (int i = 0; i < frustrumPlanes.length; i++) {
@@ -559,8 +558,8 @@ public class Renderer {
 		projectionMatrix = new Matrix4f();
 		float fieldOfView = FOV;
 		float aspectRatio = (float)context.width / (float)context.height;
-		float near_plane = 0.1f;
-		float far_plane = 100f;
+		float near_plane = NEAR_PLANE;
+		float far_plane = FAR_PLANE;
 
 		float y_scale = (float)(1 / Math.tan((Math.toRadians(fieldOfView / 2f))));
 		float x_scale = y_scale / aspectRatio;
@@ -572,6 +571,8 @@ public class Renderer {
 		projectionMatrix.m23 = -1;
 		projectionMatrix.m32 = -((2 * near_plane * far_plane) / frustum_length);
 		projectionMatrix.m33 = 0;
+		
+		computeFrustumPlanes();
 
 		viewMatrix = new Matrix4f();
 
@@ -579,7 +580,7 @@ public class Renderer {
 		matrix44Buffer = BufferUtils.createFloatBuffer(16);
 		viewMatrix.store(matrix44Buffer);
 		matrix44Buffer.flip();
-		
+
 		// Initialize the uniform variables
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
