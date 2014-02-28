@@ -126,7 +126,7 @@ public class MainCulling {
 			bProperties.setProperty("restitution", 0.2f);
 			
 			Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), new Vector3f(-5, 0, -5), bProperties);
-			
+			b.setName("ball");
 			Ground ground = new Ground(1000, 1000);
 			ground.translate(new Vector3f(-500, 0, -500));
 

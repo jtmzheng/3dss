@@ -69,6 +69,10 @@ public class Renderer {
 	// Planes that make up the frustrum.
 	Plane[] frustrumPlanes = {
 			new Plane(),
+			new Plane(),
+			new Plane(),
+			new Plane(),
+			new Plane(),
 			new Plane()
 	};
 
@@ -287,9 +291,9 @@ public class Renderer {
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixFragLocation(), false, matrix44Buffer);
 		
-		// Recompute the frustrum planes for culling.
-		recomputeFrustrumPlanes();
-
+		// Recompute the frustum planes for culling.
+		recomputeFrustumPlanes();
+		boolean renderedBall = false;
 		// Render each model
 		for(Model m: models){
 			if (!m.isBound()) {
@@ -298,8 +302,11 @@ public class Renderer {
 			if (!m.shouldCull() || isInView(m, projectionMatrix)) {
 				m.setPickedFlag(m.equals(pickedModel));
 				m.render(viewMatrix);
+				if (m.getName().equals("ball")) renderedBall = true;
 			}
 		}
+		if (renderedBall) System.out.println("RENDERED SPHERE");
+		else System.out.println("DIDN'T RENDER");
         		
 		// Deselect
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -466,7 +473,7 @@ public class Renderer {
 	
 	/**
 	 * Returns true if the model is currently in view, and false otherwise.
-	 * This is used for frustrum culling to only render models whose bounding boxes are in view.
+	 * This is used for frustum culling to only render models whose bounding boxes are in view.
 	 */
 	private boolean isInView (Model m, Matrix4f projectionMatrix) {
 		float[] pts = m.getBoundingBox().getVertexList();
@@ -477,20 +484,18 @@ public class Renderer {
 			Matrix4f.transform(tMat, mPt, mPt);
 			Matrix4f.transform(viewMatrix, mPt, mPt);
 
-			if (!MathUtils.isPointInPlanes(mPt, frustrumPlanes))
-				return false;
+			if (MathUtils.isPointInPlanes(mPt, frustrumPlanes))
+				return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	/**
-	 * Computes the frustrum planes using the projection matrix (see http://graphics.cs.ucf.edu/cap4720/fall2008/plane_extraction.pdf).
+	 * Computes the frustum planes using the projection matrix (see http://graphics.cs.ucf.edu/cap4720/fall2008/plane_extraction.pdf).
 	 * This algorithm gives the planes in view space (camera space).
 	 */
-	private void recomputeFrustrumPlanes() {
-		// Compute the minimum z distance in the frustrum.
-		/*
+	private void recomputeFrustumPlanes() {
 		// Near plane.
 		frustrumPlanes[0].a = projectionMatrix.m03 + projectionMatrix.m02;
 		frustrumPlanes[0].b = projectionMatrix.m13 + projectionMatrix.m12;
@@ -501,7 +506,7 @@ public class Renderer {
 		frustrumPlanes[1].a = projectionMatrix.m03 - projectionMatrix.m02; 
 		frustrumPlanes[1].b = projectionMatrix.m13 - projectionMatrix.m12;
 		frustrumPlanes[1].c = projectionMatrix.m23 - projectionMatrix.m22;
-		frustrumPlanes[1].d = projectionMatrix.m33 - projectionMatrix.m32;*/
+		frustrumPlanes[1].d = projectionMatrix.m33 - projectionMatrix.m32;
 
 		// Left plane.
 		frustrumPlanes[0].a = projectionMatrix.m03 + projectionMatrix.m00; 
@@ -514,7 +519,7 @@ public class Renderer {
 		frustrumPlanes[1].b = projectionMatrix.m13 - projectionMatrix.m10;
 		frustrumPlanes[1].c = projectionMatrix.m23 - projectionMatrix.m20;
 		frustrumPlanes[1].d = projectionMatrix.m33 - projectionMatrix.m30;
-/*
+
 		// Top plane.
 		frustrumPlanes[4].a = projectionMatrix.m03 - projectionMatrix.m01; 
 		frustrumPlanes[4].b = projectionMatrix.m13 - projectionMatrix.m11;
@@ -526,7 +531,7 @@ public class Renderer {
 		frustrumPlanes[5].b = projectionMatrix.m13 + projectionMatrix.m11;
 		frustrumPlanes[5].c = projectionMatrix.m23 + projectionMatrix.m21;
 		frustrumPlanes[5].d = projectionMatrix.m33 + projectionMatrix.m31;
-		*/
+
 		for (int i = 0; i < frustrumPlanes.length; i++) {
 			MathUtils.normalizePlane(frustrumPlanes[i]);
 		}
