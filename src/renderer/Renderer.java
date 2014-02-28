@@ -23,11 +23,11 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
 import renderer.framebuffer.FBTarget;
 import renderer.framebuffer.FrameBuffer;
 import renderer.framebuffer.ScreenQuad;
-import renderer.model.BoundingBox;
 import renderer.model.Model;
 import renderer.shader.ColorPickingShaderProgram;
 import renderer.shader.DefaultShaderProgram;
@@ -38,6 +38,7 @@ import renderer.shader.SkyboxShaderProgram;
 import renderer.util.Skybox;
 import system.Settings;
 import texture.TextureManager;
+import util.MathUtils;
 
 /**
  * The renderer class should set up OpenGL.
@@ -458,8 +459,8 @@ public class Renderer {
 	 * This is used for frustrum culling to only render models whose bounding boxes are in view.
 	 */
 	private boolean isInView (Model m) {
-		BoundingBox enclosingCube = m.getBoundingBox();
-		System.out.println(enclosingCube);
+		float[] enclosingPoints = m.getBoundingBox().getVertexList();
+		System.out.println(enclosingPoints);
 		return true;
 	}
 

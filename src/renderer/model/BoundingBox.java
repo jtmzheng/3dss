@@ -12,6 +12,13 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Vector3f;
 
+/**
+ * A bounding box used to wrap objects to optimize things such as
+ * object picking and frustrum culling.
+ * 
+ * @author Max
+ * @author Adi
+ */
 public class BoundingBox {
 
 	public BoundingBox() {
@@ -60,7 +67,8 @@ public class BoundingBox {
 			   lowerLeftFront.x, upperRightBack.y, upperRightBack.z, 1.0f,
 			   upperRightBack.x, upperRightBack.y, upperRightBack.z, 1.0f
 			};  
-		
+		vertexList = boxVertices;
+
 		int posVboId = GL15.glGenBuffers();
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, posVboId);
 		FloatBuffer buffer = BufferUtils.createFloatBuffer(boxVertices.length);
@@ -81,29 +89,6 @@ public class BoundingBox {
 		GL30.glBindVertexArray(0);
 	}
 
-	/**
-	 * Computes all vertices of this bounding box given the lower left front and
-	 * upper right back. This is used for frustrum culling.
-	 */
-	public void computeVertices() {
-		if (lowerLeftFront != null && upperRightBack != null) {
-			vertexList = new ArrayList<Vector3f>();		
-			float height = upperRightBack.y - lowerLeftFront.y;
-			float width = upperRightBack.z - lowerLeftFront.z;
-			float length = upperRightBack.x - lowerLeftFront.x;
-			
-			vertexList.add(lowerLeftFront);
-			vertexList.add(new Vector3f(lowerLeftFront.x, lowerLeftFront.y + height, lowerLeftFront.z));
-			vertexList.add(new Vector3f(lowerLeftFront.x, lowerLeftFront.y, lowerLeftFront.z + width));
-			vertexList.add(new Vector3f(lowerLeftFront.x, lowerLeftFront.y + height, lowerLeftFront.z + width));
-
-			vertexList.add(upperRightBack);
-			vertexList.add(new Vector3f(lowerLeftFront.x + length, lowerLeftFront.y, lowerLeftFront.z));
-			vertexList.add(new Vector3f(lowerLeftFront.x + length, lowerLeftFront.y + height, lowerLeftFront.z));
-			vertexList.add(new Vector3f(upperRightBack.x, upperRightBack.y + height, upperRightBack.z));
-		}
-	}
-
 	public boolean isBound() {
 		return isBound;
 	}
@@ -116,6 +101,10 @@ public class BoundingBox {
 		return vboIndId;
 	}
 	
+	public float[] getVertexList() {
+		return vertexList;
+	}
+
 	@Override
 	public String toString() {
 		return "Upper right back: "  + upperRightBack + "\nLower left front: " + lowerLeftFront;
@@ -137,6 +126,6 @@ public class BoundingBox {
 	private Integer vaoId;
 	private Integer vboIndId;
 	private boolean isBound;
-	private List<Vector3f> vertexList;
+	private float[] vertexList = {};
 	
 }

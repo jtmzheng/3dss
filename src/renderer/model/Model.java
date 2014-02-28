@@ -57,7 +57,7 @@ import com.bulletphysics.util.ObjectArrayList;
 public class Model implements Renderable {
 	// Defaults
 	private static final Vector3f DEFAULT_INITIAL_POSITION = new Vector3f(0, 0, 0);
-	
+
 	// Unique ID for the model (used for picking)
 	private final int uniqueId;
 	private final Vector3f uniqueIdColour;
@@ -410,8 +410,6 @@ public class Model implements Renderable {
 					vboIndex.add(vboIndexMap.get(tempVertexData));
 				}			
 			}
-
-			boundBox.computeVertices();
 
 			// Create VBO Index buffer
 			verticesFloatBuffer.flip();

@@ -11,8 +11,8 @@ import physics.PhysicsModelProperties;
 import util.Parser;
 
 /**
- * Static utility class to load in .obj files (and eventually other stuff).
- * Remember, vertex index starts at 1 for obj files, not 0.
+ * Static utility class to load in .obj files.
+ * 
  * @author Max
  * @author Adi
  */
