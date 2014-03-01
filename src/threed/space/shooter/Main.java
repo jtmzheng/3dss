@@ -139,7 +139,6 @@ public class Main {
 			gameWorld.addModel(ground);
 
 			ParticleEmitter p = new ParticleEmitter(gameWorld, new Vector3f(0, 2, 0));
-			gameWorld.addDynamicWorldObject(p);
 			p.start();
 		} catch(IOException e){
 			e.printStackTrace();

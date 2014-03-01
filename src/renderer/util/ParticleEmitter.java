@@ -65,6 +65,7 @@ public class ParticleEmitter implements DynamicWorldObject {
 		gameWorld = world;
 		initialPosition = initialPos;
 		
+		gameWorld.addDynamicWorldObject(this);
 		setupRunnable();
 	}
 
@@ -80,6 +81,7 @@ public class ParticleEmitter implements DynamicWorldObject {
 		initialPosition = initialPos;
 		speedModifier = velocityScale;
 
+		gameWorld.addDynamicWorldObject(this);
 		setupRunnable();
 	}
 
@@ -98,6 +100,7 @@ public class ParticleEmitter implements DynamicWorldObject {
 		speedModifier = velocityScale;
 		particleLifetime = particleLife;
 
+		gameWorld.addDynamicWorldObject(this);
 		setupRunnable();
 	}
 
@@ -118,6 +121,7 @@ public class ParticleEmitter implements DynamicWorldObject {
 		particleLifetime = particleLife;
 		spawnRate = particleSpawnRate;
 
+		gameWorld.addDynamicWorldObject(this);
 		setupRunnable();
 	}
 
@@ -140,6 +144,7 @@ public class ParticleEmitter implements DynamicWorldObject {
 		spawnRate = particleSpawnRate;
 		this.particleSizeScale = particleSizeScale;
 
+		gameWorld.addDynamicWorldObject(this);
 		setupRunnable();
 	}
 	
