@@ -3,7 +3,12 @@ package renderer.framebuffer;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL20;
@@ -15,52 +20,37 @@ import org.lwjgl.opengl.GL30;
  *
  */
 public class FrameBuffer {
-	private static final int DEFAULT_FRAME_BUFFER = 0;
 	
-	private final int bufferId;
-	private final int bufferTextureId;
-	private final int renderBufferId;
-	
-	/**
-	 * Create a new frame buffer
-	 * @param width width of the viewport
-	 * @param height height of the viewport
-	 */
-	public FrameBuffer(int width, int height) {
+	public FrameBuffer(int width, int height, List<FBTarget> fbTargets) {
+		this.width = width;
+		this.height = height;
+		this.fbTargets = new HashMap<>();
+		
 		bufferId = GL30.glGenFramebuffers();
-		bufferTextureId = GL11.glGenTextures();
-
-		// Generate and allocate the frame buffer texture 
-		GL11.glBindTexture (GL11.GL_TEXTURE_2D, bufferTextureId);
-		GL11.glTexImage2D (
-				GL11.GL_TEXTURE_2D,
-				0,
-				GL11.GL_RGBA,
-				width,
-				height,
-				0,
-				GL11.GL_RGBA,
-				GL11.GL_UNSIGNED_BYTE,
-				(ByteBuffer)null
-				);
-		
-		// Set texture parameters
-		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
-		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);			
-		GL11.glBindTexture (GL11.GL_TEXTURE_2D, 0);
-
-		// Bind the new frame buffer and attach the texture
 		GL30.glBindFramebuffer (GL30.GL_FRAMEBUFFER, bufferId);
-		GL30.glFramebufferTexture2D (
-				GL30.GL_FRAMEBUFFER, 
-				GL30.GL_COLOR_ATTACHMENT0, 
-				GL11.GL_TEXTURE_2D, 
-				bufferTextureId, 
-				0
-				);
+
+		IntBuffer buffer = BufferUtils.createIntBuffer(fbTargets.size());
 		
+		for(FBTarget target : fbTargets) {
+			int texId = generateTexture(target);
+			if(texId != -1) {
+				// Bind the new frame buffer and attach the texture
+				GL30.glFramebufferTexture2D (
+						GL30.GL_FRAMEBUFFER, 
+						target.getTarget(), 
+						GL11.GL_TEXTURE_2D, 
+						texId, 
+						0
+						);
+				
+				buffer.put(target.getTarget());
+				
+				this.fbTargets.put(target, texId);
+			}
+		}
+		
+		buffer.flip();
+
 		// Generate and set up the render buffer
 		renderBufferId = GL30.glGenRenderbuffers();
 		GL30.glBindRenderbuffer (GL30.GL_RENDERBUFFER, renderBufferId);
@@ -70,7 +60,7 @@ public class FrameBuffer {
 				width, 
 				height
 				);
-		
+
 		GL30.glFramebufferRenderbuffer (
 				GL30.GL_FRAMEBUFFER, 
 				GL30.GL_DEPTH_ATTACHMENT, 
@@ -78,24 +68,62 @@ public class FrameBuffer {
 				renderBufferId
 				);
 		
-		GL20.glDrawBuffers(GL30.GL_COLOR_ATTACHMENT0);		
+		GL20.glDrawBuffers(buffer);		
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
+
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * Get the frame buffer handle 
+	 * @return bufferId
 	 */
 	public int getFrameBuffer() {
 		return bufferId;
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * Get the texture handle
+	 * @return textureId
 	 */
-	public int getFrameBufferTexture() {
+	public int getFrameBufferTexture(FBTarget target) {
+		System.out.println("Test 1: " + fbTargets.keySet());
+		System.out.println("Test 2: " + fbTargets.values());
+		return fbTargets.get(target);
+	}
+	
+	private int generateTexture(FBTarget target) {
+		int bufferTextureId = GL11.glGenTextures();
+
+		// Generate and allocate the frame buffer texture 
+		GL11.glBindTexture (GL11.GL_TEXTURE_2D, bufferTextureId);
+		GL11.glTexImage2D (
+				GL11.GL_TEXTURE_2D,
+				0,
+				target.getInternalFormat(),
+				width,
+				height,
+				0,
+				target.getFormat(),
+				GL11.GL_UNSIGNED_BYTE,
+				(ByteBuffer)null
+				);
+
+		// Set texture parameters
+		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);			
+		GL11.glBindTexture (GL11.GL_TEXTURE_2D, 0);
+
 		return bufferTextureId;
 	}
 	
+	private static final int DEFAULT_FRAME_BUFFER = 0;
+	
+	private int width;
+	private int height;
+	
+	private int bufferId;
+	private int renderBufferId;
+	private Map<FBTarget, Integer> fbTargets; 
 }

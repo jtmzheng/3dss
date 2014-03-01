@@ -1,6 +1,7 @@
 package renderer;
 
 import java.nio.FloatBuffer;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -21,6 +22,7 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.vector.Matrix4f;
 
+import renderer.framebuffer.FBTarget;
 import renderer.framebuffer.FrameBuffer;
 import renderer.framebuffer.ScreenQuad;
 import renderer.model.Model;
@@ -121,8 +123,8 @@ public class Renderer {
 		
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
-		postProcessFb = new FrameBuffer(context.width, context.height);
-		colourPickingFb = new FrameBuffer(context.width, context.height);
+		postProcessFb = new FrameBuffer(context.width, context.height, Collections.singletonList(FBTarget.GL_COLOR_ATTACHMENT));
+		colourPickingFb = new FrameBuffer(context.width, context.height, Collections.singletonList(FBTarget.GL_COLOR_ATTACHMENT));
 		
 		init();
 	}
@@ -162,8 +164,8 @@ public class Renderer {
 		
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
-		postProcessFb = new FrameBuffer(context.width, context.height);
-		colourPickingFb = new FrameBuffer(context.width, context.height);
+		postProcessFb = new FrameBuffer(context.width, context.height, Collections.singletonList(FBTarget.GL_COLOR_ATTACHMENT));
+		colourPickingFb = new FrameBuffer(context.width, context.height, Collections.singletonList(FBTarget.GL_COLOR_ATTACHMENT));
 		
 		// Initialize the texture manager
 		TextureManager tm = TextureManager.getInstance();
@@ -302,7 +304,7 @@ public class Renderer {
 
 				GL13.glActiveTexture(fbTexUnitId);
 				GL20.glUniform1i(ShaderController.getFBTexLocation(), fbTexUnitId - GL13.GL_TEXTURE0);
-				GL11.glBindTexture(GL11.GL_TEXTURE_2D, postProcessFb.getFrameBufferTexture());
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, postProcessFb.getFrameBufferTexture(FBTarget.GL_COLOR_ATTACHMENT));
 
 				// Regenerate the mip map
 				GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
