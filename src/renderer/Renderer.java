@@ -1,9 +1,11 @@
 package renderer;
 
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -80,9 +82,6 @@ public class Renderer {
 	private FrameBuffer colourPickingFb;
 	private Set<Conversion> postProcessConversions;
 	
-	// The frame buffer has its own unit id (for safety)
-	private int fbTexUnitId;
-	
 	// Instance of the shared settings object.
 	private Settings settings = Settings.getInstance();
 
@@ -118,12 +117,13 @@ public class Renderer {
 		sh.put(settings.get("paths", "skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
 		
-		TextureManager tm = TextureManager.getInstance();
-		fbTexUnitId = tm.getTextureSlot();
-		
 		// Initialize the ScreenQuad
-		screen = new ScreenQuad();
-		postProcessFb = new FrameBuffer(context.width, context.height, Collections.singletonList(FBTarget.GL_COLOR_ATTACHMENT));
+		screen = new ScreenQuad(); 
+		List<FBTarget> targets = new ArrayList<>();
+		targets.add(FBTarget.GL_COLOR_ATTACHMENT);
+		targets.add(FBTarget.GL_DEPTH_ATTACHMENT);
+		
+		postProcessFb = new FrameBuffer(context.width, context.height, targets);
 		colourPickingFb = new FrameBuffer(context.width, context.height, Collections.singletonList(FBTarget.GL_COLOR_ATTACHMENT));
 		
 		init();
@@ -164,12 +164,12 @@ public class Renderer {
 		
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
-		postProcessFb = new FrameBuffer(context.width, context.height, Collections.singletonList(FBTarget.GL_COLOR_ATTACHMENT));
-		colourPickingFb = new FrameBuffer(context.width, context.height, Collections.singletonList(FBTarget.GL_COLOR_ATTACHMENT));
+		List<FBTarget> targets = new ArrayList<>();
+		targets.add(FBTarget.GL_COLOR_ATTACHMENT);
+		targets.add(FBTarget.GL_DEPTH_ATTACHMENT);
 		
-		// Initialize the texture manager
-		TextureManager tm = TextureManager.getInstance();
-		fbTexUnitId = tm.getTextureSlot();
+		postProcessFb = new FrameBuffer(context.width, context.height, targets);
+		colourPickingFb = new FrameBuffer(context.width, context.height, Collections.singletonList(FBTarget.GL_COLOR_ATTACHMENT));
 		
 		init();
 	}	
@@ -302,12 +302,20 @@ public class Renderer {
 				ShaderController.setProgram(POST_PROCESS_SHADER_PROGRAM);
 				GL20.glUseProgram(ShaderController.getCurrentProgram());
 
-				GL13.glActiveTexture(fbTexUnitId);
-				GL20.glUniform1i(ShaderController.getFBTexLocation(), fbTexUnitId - GL13.GL_TEXTURE0);
+				TextureManager tm = TextureManager.getInstance();
+				Integer unitIdColour = tm.getTextureSlot();
+				Integer unitIdDepth = tm.getTextureSlot();
+				
+				GL13.glActiveTexture(unitIdColour);
+				GL20.glUniform1i(ShaderController.getFBTexLocation(), unitIdColour - GL13.GL_TEXTURE0);
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, postProcessFb.getFrameBufferTexture(FBTarget.GL_COLOR_ATTACHMENT));
 
 				// Regenerate the mip map
 				GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+				
+				GL13.glActiveTexture(unitIdDepth);
+				GL20.glUniform1i(ShaderController.getDepthTextureLocation(), unitIdDepth - GL13.GL_TEXTURE0);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, postProcessFb.getFrameBufferTexture(FBTarget.GL_DEPTH_ATTACHMENT));
 
 				// Bind the VAO for the Screen Quad
 				GL30.glBindVertexArray(screen.getVAOId());
@@ -320,6 +328,8 @@ public class Renderer {
 				GL30.glBindVertexArray(0);
 				
 				ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
+				tm.returnTextureSlot(unitIdColour);
+				tm.returnTextureSlot(unitIdDepth);
 			} else {
 				System.out.println("Error: " + testVal);
 			}
@@ -498,6 +508,11 @@ public class Renderer {
 		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
 		ShaderController.setProgram(SKY_BOX_SHADER_PROGRAM);
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
+		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
+		ShaderController.setProgram(POST_PROCESS_SHADER_PROGRAM);
+		GL20.glUseProgram(ShaderController.getCurrentProgram());
+		System.out.println("Current Program = " + ShaderController.getCurrentProgram());
+		System.out.println("Proj = " + ShaderController.getProjectionMatrixLocation());
 		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
 		
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);

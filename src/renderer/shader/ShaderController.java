@@ -114,6 +114,10 @@ public class ShaderController {
 		return uniformLocations.containsKey("fbTex") ? uniformLocations.get("fbTex") : -1;
 	}
 	
+	public static int getDepthTextureLocation(){
+		return uniformLocations.containsKey("depthBuffTex") ? uniformLocations.get("depthBuffTex") : -1;
+	}
+	
 	public static int getUniqueIdLocation(){
 		return uniformLocations.containsKey("uniqueId") ? uniformLocations.get("uniqueId") : -1;
 	}

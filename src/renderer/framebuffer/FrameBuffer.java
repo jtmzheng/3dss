@@ -11,6 +11,7 @@ import java.util.Map;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
@@ -27,7 +28,7 @@ public class FrameBuffer {
 		this.fbTargets = new HashMap<>();
 		
 		bufferId = GL30.glGenFramebuffers();
-		GL30.glBindFramebuffer (GL30.GL_FRAMEBUFFER, bufferId);
+		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, bufferId);
 
 		IntBuffer buffer = BufferUtils.createIntBuffer(fbTargets.size());
 		
@@ -50,7 +51,7 @@ public class FrameBuffer {
 		}
 		
 		buffer.flip();
-
+		
 		// Generate and set up the render buffer
 		renderBufferId = GL30.glGenRenderbuffers();
 		GL30.glBindRenderbuffer (GL30.GL_RENDERBUFFER, renderBufferId);
@@ -68,7 +69,7 @@ public class FrameBuffer {
 				renderBufferId
 				);
 		
-		GL20.glDrawBuffers(buffer);		
+		GL20.glDrawBuffers(buffer);
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
 
 	}
@@ -86,8 +87,6 @@ public class FrameBuffer {
 	 * @return textureId
 	 */
 	public int getFrameBufferTexture(FBTarget target) {
-		System.out.println("Test 1: " + fbTargets.keySet());
-		System.out.println("Test 2: " + fbTargets.values());
 		return fbTargets.get(target);
 	}
 	
@@ -109,10 +108,26 @@ public class FrameBuffer {
 				);
 
 		// Set texture parameters
-		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
-		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-		GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);			
+		switch(target.getTarget()) {
+		case GL30.GL_COLOR_ATTACHMENT0 : {
+			GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+			GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+			GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+			GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+			break;
+		}
+		case GL30.GL_DEPTH_ATTACHMENT : {
+			GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+			GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+			GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+			GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+			GL11.glTexParameteri(GL_TEXTURE_2D, GL14.GL_DEPTH_TEXTURE_MODE, GL11.GL_INTENSITY);
+			GL11.glTexParameteri(GL_TEXTURE_2D, GL14.GL_TEXTURE_COMPARE_MODE, GL14.GL_COMPARE_R_TO_TEXTURE);
+			GL11.glTexParameteri(GL_TEXTURE_2D, GL14.GL_TEXTURE_COMPARE_FUNC, GL11.GL_LEQUAL);
+			break;
+		}
+		}
+					
 		GL11.glBindTexture (GL11.GL_TEXTURE_2D, 0);
 
 		return bufferTextureId;

@@ -16,7 +16,7 @@ import renderer.shader.types.ShaderTypes;
 public class PixelShaderProgram extends ShaderProgram {
 
 	public PixelShaderProgram(Map<String, Integer> shaders) {
-		super(shaders);
+		super(shaders, true);
 	}
 	
 	protected void setupAttributes() {
@@ -30,6 +30,7 @@ public class PixelShaderProgram extends ShaderProgram {
 		
 		// Sampler for the FB texture
 		shaderUniformLocations.put("fbTex", GL20.glGetUniformLocation(getProgram(), "fbTex"));
+		shaderUniformLocations.put("depthBuffTex", GL20.glGetUniformLocation(getProgram(), "depthBuffTex"));
 		shaderUniformLocations.put("projectionMatrix", GL20.glGetUniformLocation(getProgram(), "projectionMatrix"));
  	}
 
