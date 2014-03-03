@@ -29,14 +29,14 @@ public class ModelFactory {
 	 * @throws IOException
 	 */
 	public static Model loadObjModel(File file) throws InterruptedException, IOException {
-		List<Face> faces;
+		List<Group> groups;
 
 		Parser parseFile = new Parser();
 		parseFile.parseOBJFile(file);
 		
-		faces = parseFile.getFaces();
-		
-		Model m = new Model(faces, new PhysicsModelProperties());
+		groups = parseFile.getGroups();
+
+		Model m = new Model(groups, new PhysicsModelProperties());
 		return m;
 	}
 	
@@ -49,14 +49,14 @@ public class ModelFactory {
 	 * @throws IOException
 	 */
 	public static Model loadObjModel(File file, Vector3f pos) throws InterruptedException, IOException {
-		List<Face> faces;
+		List<Group> groups;
 
 		Parser parseFile = new Parser();
 		parseFile.parseOBJFile(file);
 		
-		faces = parseFile.getFaces();
+		groups = parseFile.getGroups();
 		
-		Model m = new Model(faces, pos, new PhysicsModelProperties());
+		Model m = new Model(groups, pos, new PhysicsModelProperties());
 		return m;
 	}
 	
@@ -69,14 +69,14 @@ public class ModelFactory {
 	 * @throws IOException
 	 */
 	public static Model loadObjModel(File file, PhysicsModelProperties rigidBodyProp) throws InterruptedException, IOException {
-		List<Face> faces;
+		List<Group> groups;
 
 		Parser parseFile = new Parser();
 		parseFile.parseOBJFile(file);
 		
-		faces = parseFile.getFaces();
+		groups = parseFile.getGroups();
 		
-		Model m = new Model(faces, rigidBodyProp);
+		Model m = new Model(groups, rigidBodyProp);
 		return m;
 	}
 
@@ -90,14 +90,14 @@ public class ModelFactory {
 	 * @throws IOException
 	 */
 	public static Model loadObjModel(File file, Vector3f pos, PhysicsModelProperties rigidBodyProp) throws InterruptedException, IOException {
-		List<Face> faces;
+		List<Group> groups;
 
 		Parser parseFile = new Parser();
 		parseFile.parseOBJFile(file);
 		
-		faces = parseFile.getFaces();
+		groups = parseFile.getGroups();
 		
-		Model m = new Model(faces, pos, rigidBodyProp);
+		Model m = new Model(groups, pos, rigidBodyProp);
 		return m;
 	}
 }

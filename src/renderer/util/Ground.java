@@ -26,7 +26,7 @@ public class Ground extends Model {
 	 * @param y Length of the ground.
 	 */
 	public Ground(float x, float y) {
-		super(Primitives.getPlane(x,  y).getFaceList(), groundProps);
+		super(Primitives.getPlane(x,  y).getFaceGroups(), groundProps);
 		setFrustrumCulling(false);
 	}
 	
@@ -36,6 +36,6 @@ public class Ground extends Model {
 	 * @param gm
 	 */
 	public Ground(Model gm) {
-		super(gm.getFaceList(), groundProps);
+		super(gm.getFaceGroups(), groundProps);
 	}
 }

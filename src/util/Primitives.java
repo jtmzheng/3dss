@@ -1,6 +1,7 @@
 package util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.lwjgl.util.vector.Vector2f;
@@ -8,6 +9,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import physics.PhysicsModelProperties;
 import renderer.model.Face;
+import renderer.model.Group;
 import renderer.model.Model;
 import renderer.model.VertexData;
 import texture.Material;
@@ -68,21 +70,21 @@ public class Primitives {
         };
         
         // Create the list of twelve faces.
-        List<Face> faceList = new ArrayList<Face>();
-        faceList.add(new Face(new VertexData(v[0], vt[3], vn[1]), new VertexData(v[6], vt[0], vn[1]), new VertexData(v[4], vt[1], vn[1]), mat));
-        faceList.add(new Face(new VertexData(v[0], vt[3], vn[1]), new VertexData(v[2], vt[2], vn[1]), new VertexData(v[6], vt[0], vn[1]), mat));
-        faceList.add(new Face(new VertexData(v[0], vt[1], vn[5]), new VertexData(v[3], vt[2], vn[5]), new VertexData(v[2], vt[0], vn[5]), mat));
-        faceList.add(new Face(new VertexData(v[0], vt[1], vn[5]), new VertexData(v[1], vt[3], vn[5]), new VertexData(v[3], vt[2], vn[5]), mat));
-        faceList.add(new Face(new VertexData(v[2], vt[0], vn[2]), new VertexData(v[7], vt[3], vn[2]), new VertexData(v[6], vt[2], vn[2]), mat));
-        faceList.add(new Face(new VertexData(v[2], vt[0], vn[2]), new VertexData(v[3], vt[1], vn[2]), new VertexData(v[7], vt[3], vn[2]), mat));
-        faceList.add(new Face(new VertexData(v[4], vt[3], vn[4]), new VertexData(v[6], vt[2], vn[4]), new VertexData(v[7], vt[0], vn[4]), mat));
-        faceList.add(new Face(new VertexData(v[4], vt[3], vn[4]), new VertexData(v[7], vt[0], vn[4]), new VertexData(v[5], vt[1], vn[4]), mat));
-        faceList.add(new Face(new VertexData(v[0], vt[1], vn[3]), new VertexData(v[4], vt[3], vn[3]), new VertexData(v[5], vt[2], vn[3]), mat));
-        faceList.add(new Face(new VertexData(v[0], vt[1], vn[3]), new VertexData(v[5], vt[2], vn[3]), new VertexData(v[1], vt[0], vn[3]), mat));
-        faceList.add(new Face(new VertexData(v[1], vt[1], vn[0]), new VertexData(v[5], vt[3], vn[0]), new VertexData(v[7], vt[2], vn[0]), mat));
-        faceList.add(new Face(new VertexData(v[1], vt[1], vn[0]), new VertexData(v[7], vt[2], vn[0]), new VertexData(v[3], vt[0], vn[0]), mat));
-        
-        return new Model(faceList, props);
+        Group primitiveGroup = new Group("primitive");
+        primitiveGroup.addFace(new Face(new VertexData(v[0], vt[3], vn[1]), new VertexData(v[6], vt[0], vn[1]), new VertexData(v[4], vt[1], vn[1]), mat));
+        primitiveGroup.addFace(new Face(new VertexData(v[0], vt[3], vn[1]), new VertexData(v[2], vt[2], vn[1]), new VertexData(v[6], vt[0], vn[1]), mat));
+        primitiveGroup.addFace(new Face(new VertexData(v[0], vt[1], vn[5]), new VertexData(v[3], vt[2], vn[5]), new VertexData(v[2], vt[0], vn[5]), mat));
+        primitiveGroup.addFace(new Face(new VertexData(v[0], vt[1], vn[5]), new VertexData(v[1], vt[3], vn[5]), new VertexData(v[3], vt[2], vn[5]), mat));
+        primitiveGroup.addFace(new Face(new VertexData(v[2], vt[0], vn[2]), new VertexData(v[7], vt[3], vn[2]), new VertexData(v[6], vt[2], vn[2]), mat));
+        primitiveGroup.addFace(new Face(new VertexData(v[2], vt[0], vn[2]), new VertexData(v[3], vt[1], vn[2]), new VertexData(v[7], vt[3], vn[2]), mat));
+        primitiveGroup.addFace(new Face(new VertexData(v[4], vt[3], vn[4]), new VertexData(v[6], vt[2], vn[4]), new VertexData(v[7], vt[0], vn[4]), mat));
+        primitiveGroup.addFace(new Face(new VertexData(v[4], vt[3], vn[4]), new VertexData(v[7], vt[0], vn[4]), new VertexData(v[5], vt[1], vn[4]), mat));
+        primitiveGroup.addFace(new Face(new VertexData(v[0], vt[1], vn[3]), new VertexData(v[4], vt[3], vn[3]), new VertexData(v[5], vt[2], vn[3]), mat));
+        primitiveGroup.addFace(new Face(new VertexData(v[0], vt[1], vn[3]), new VertexData(v[5], vt[2], vn[3]), new VertexData(v[1], vt[0], vn[3]), mat));
+        primitiveGroup.addFace(new Face(new VertexData(v[1], vt[1], vn[0]), new VertexData(v[5], vt[3], vn[0]), new VertexData(v[7], vt[2], vn[0]), mat));
+        primitiveGroup.addFace(new Face(new VertexData(v[1], vt[1], vn[0]), new VertexData(v[7], vt[2], vn[0]), new VertexData(v[3], vt[0], vn[0]), mat));
+
+        return new Model(Collections.singletonList(primitiveGroup), props);
     }
 
     /**

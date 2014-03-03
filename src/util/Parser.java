@@ -15,6 +15,7 @@ import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
 import renderer.model.Face;
+import renderer.model.Group;
 import texture.Material;
 
 /**
@@ -35,6 +36,7 @@ public class Parser {
     private final static String OBJ_VERTEX_NORMAL = "vn";
     private final static String OBJ_VERTEX = "v";
     private final static String OBJ_FACE = "f";
+    private final static String OBJ_GROUP = "g";
     private final static String OBJ_USEMTL = "usemtl";
     private final static String OBJ_MTLLIB = "mtllib";
     private final static String MTL_NEWMTL = "newmtl";
@@ -54,14 +56,17 @@ public class Parser {
     // Current material being parsed. Initialize with default material.
     private Material currentMaterial = new Material();
     
+    // Current group  of faces being parsed. Initialize with default group.
+    private Group currentGroup = new Group(Group.DEFAULT_GROUP_NAME);
+
     // List of obj properties that are used.
     private List<Vector3f> vertices;
     private List<Vector2f> textures;
     private List<Vector3f> normals;
     
-    // List of faces.
-    private static List<Face> faces;
-    
+    // List of groups.
+    private static List<Group> groups;
+
     // DataParser is used to slightly improve performance (does actual parsing).
     private ArrayBlockingQueue<String> parsedData;
     private volatile boolean isDone;
@@ -75,7 +80,7 @@ public class Parser {
     	vertices = new ArrayList<Vector3f>();
     	textures = new ArrayList<Vector2f>();
     	normals = new ArrayList<Vector3f>();
-    	faces = new ArrayList<Face>();
+    	groups = new ArrayList<Group>();
     	parsedData = new ArrayBlockingQueue<String>(10000);
     }
     
@@ -105,6 +110,7 @@ public class Parser {
     		else if (line.startsWith(OBJ_FACE)) parseFace(line);
     		else if (line.startsWith(OBJ_MTLLIB)) parseMTLLib(line);
     		else if (line.startsWith(OBJ_USEMTL)) parseUseMTL(line);
+    		else if (line.startsWith(OBJ_GROUP)) parseGroup(line);
     	}    	
     	
     	parserThread.join();
@@ -124,7 +130,15 @@ public class Parser {
     }
 
     private void parseFace (String line) {
-    	faces.add(ParseUtils.parseFace(line, vertices, normals, textures, currentMaterial));
+    	Face currentFace = ParseUtils.parseFace(line, vertices, normals, textures, currentMaterial);
+    	currentGroup.addFace(currentFace);
+    }
+    
+    private void parseGroup (String line) {
+    	String groupName = line.substring(OBJ_GROUP.length()).trim();
+    	if (currentGroup.getFaces().size() > 0)
+    		groups.add(currentGroup);
+		currentGroup = new Group(groupName);
     }
     
     private void parseUseMTL (String line) {
@@ -244,7 +258,7 @@ public class Parser {
     public List<Vector3f> getVertices () { return vertices; }
     public List<Vector2f> getTextures () { return textures; }
     public List<Vector3f> getNormals () { return normals; }
-    public List<Face> getFaces () { return faces; }
+    public List<Group> getGroups () { return groups; }
     
     private class DataParser implements Runnable {
     	
@@ -266,6 +280,9 @@ public class Parser {
 			
 					parsedData.put(line);
 				}
+				
+				// Add the last parsed group.
+				groups.add(currentGroup);
 				bin.close();
 			} catch (IOException e) {
 				e.printStackTrace();

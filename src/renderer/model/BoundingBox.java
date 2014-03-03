@@ -52,7 +52,6 @@ public class BoundingBox {
 	 */
 	public void bind() {
 		this.vaoId = GL30.glGenVertexArrays();
-		
 		GL30.glBindVertexArray(vaoId);
 		GL20.glEnableVertexAttribArray(0); 
 		

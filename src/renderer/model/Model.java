@@ -34,6 +34,7 @@ import texture.TextureManager;
 import util.ColourUtils;
 
 import com.bulletphysics.collision.dispatch.CollisionObject;
+import com.bulletphysics.collision.shapes.CompoundShape;
 import com.bulletphysics.collision.shapes.ConvexHullShape;
 import com.bulletphysics.collision.shapes.ConvexShape;
 import com.bulletphysics.collision.shapes.ShapeHull;
@@ -76,7 +77,7 @@ public class Model implements Renderable {
 	private Matrix4f modelMatrix;
 
 	// Faces that make up this model.
-	private List<Face> faces;
+	private List<Group> faceGroups;
 	private Map<Material, List<Face>> mapMaterialToFaces;
 
 	// LightHandle of the model
@@ -133,38 +134,47 @@ public class Model implements Renderable {
 	 * @return the merged model
 	 */
 	public static Model merge (Model a, Model b, PhysicsModelProperties props, boolean transform) {
-		List<Face> mergedList = new ArrayList<Face>();
-		
+		List<Group> mergedGroups = new ArrayList<Group>();
+
 		if(transform) {
 			Matrix4f mMatrixA = a.getPhysicsModel().getTransformMatrix();
 			Matrix4f mMatrixB = b.getPhysicsModel().getTransformMatrix();
 			
-			for (Face face : a.getFaceList()) {
-				List<VertexData> transformedVertices = new ArrayList<>();
-				for (VertexData v : face.getVertices()) {
-					float[] pos = v.getXYZW();
-					Vector4f position = new Vector4f(pos[0], pos[1], pos[2], pos[3]);
-					Matrix4f.transform(mMatrixA, position, position);
-					transformedVertices.add(new VertexData(v, position));
+			for (Group group : a.getFaceGroups()) {
+				Group currentGroup = new Group(group.getName());
+				for (Face face : group.getFaces()) {
+					List<VertexData> transformedVertices = new ArrayList<>();
+					for (VertexData v : face.getVertices()) {
+						float[] pos = v.getXYZW();
+						Vector4f position = new Vector4f(pos[0], pos[1], pos[2], pos[3]);
+						Matrix4f.transform(mMatrixA, position, position);
+						transformedVertices.add(new VertexData(v, position));
+					}
+					currentGroup.addFace(new Face(transformedVertices, face.getMaterial()));
 				}
-				mergedList.add(new Face(transformedVertices, face.getMaterial()));
+				mergedGroups.add(currentGroup);
 			}
-			for (Face face : b.getFaceList()) {
-				List<VertexData> transformedVertices = new ArrayList<>();
-				for (VertexData v : face.getVertices()) {
-					float[] pos = v.getXYZW();
-					Vector4f position = new Vector4f(pos[0], pos[1], pos[2], pos[3]);
-					Matrix4f.transform(mMatrixB, position, position);
-					transformedVertices.add(new VertexData(v, position));
+			
+			for (Group group : b.getFaceGroups()) {
+				Group currentGroup = new Group(group.getName());
+				for (Face face : group.getFaces()) {
+					List<VertexData> transformedVertices = new ArrayList<>();
+					for (VertexData v : face.getVertices()) {
+						float[] pos = v.getXYZW();
+						Vector4f position = new Vector4f(pos[0], pos[1], pos[2], pos[3]);
+						Matrix4f.transform(mMatrixB, position, position);
+						transformedVertices.add(new VertexData(v, position));
+					}
+					currentGroup.addFace(new Face(transformedVertices, face.getMaterial()));
 				}
-				mergedList.add(new Face(transformedVertices, face.getMaterial()));
+				mergedGroups.add(currentGroup);
 			}
 		} else {
-			mergedList.addAll(a.getFaceList());
-			mergedList.addAll(b.getFaceList());
+			mergedGroups.addAll(a.getFaceGroups());
+			mergedGroups.addAll(b.getFaceGroups());
 		}
 		
-		return new Model(mergedList, props);
+		return new Model(mergedGroups, props);
 	}
 
 	/**
@@ -221,14 +231,14 @@ public class Model implements Renderable {
 	 * @param la The ambient light intensity.
 	 * @param rigidBodyProp Custom physics properties this model should have.
 	 */
-	public Model(List<Face> f, 
+	public Model(List<Group> g, 
 			Vector3f pos, 
 			Vector3f ld, 
 			Vector3f ls, 
 			Vector3f la, 
 			PhysicsModelProperties rigidBodyProp){
 
-		this.faces = f;
+		this.faceGroups = g;
 		this.physicsProps = rigidBodyProp;
 
 		initialPos = pos;
@@ -249,11 +259,11 @@ public class Model implements Renderable {
 	 * @param pos The initial position of the model.
 	 * @param rigidBodyProp Custom physics properties this model should have.
 	 */
-	public Model(List<Face> f,
+	public Model(List<Group> g,
 			Vector3f pos,
 			PhysicsModelProperties rigidBodyProp){
 
-		this.faces = f;
+		this.faceGroups = g;
 		this.physicsProps = rigidBodyProp;
 
 		// Setup the model 
@@ -271,9 +281,9 @@ public class Model implements Renderable {
 	 * @param f The list of faces that make up the model.
 	 * @param rigidBodyProp Custom physics properties this model should have.
 	 */
-	public Model(List<Face> f, PhysicsModelProperties rigidBodyProp){
+	public Model(List<Group> g, PhysicsModelProperties rigidBodyProp){
 
-		this.faces = f;
+		this.faceGroups = g;
 		this.physicsProps = rigidBodyProp;
 
 		initialPos = DEFAULT_INITIAL_POSITION;
@@ -290,8 +300,8 @@ public class Model implements Renderable {
 	 * uses default physicsmodel properties.
 	 * @param f
 	 */
-	public Model(List<Face> f) {
-		this.faces = f;
+	public Model(List<Group> g) {
+		this.faceGroups = g;
 		this.physicsProps = new PhysicsModelProperties();
 		
 		initialPos = DEFAULT_INITIAL_POSITION;
@@ -310,13 +320,16 @@ public class Model implements Renderable {
 	public Model(Model model, Vector3f position) {
 
 		// Copy the model faces
-		List<Face> faceList = new ArrayList<>();
-		for (Face face : model.getFaceList()) {
-			faceList.add(new Face(face));
+		List<Group> faceGroups = new ArrayList<>();
+		for (Group group : model.getFaceGroups()) {
+			Group currentGroup = new Group(group.getName());
+			for (Face face : group.getFaces()) {
+				currentGroup.addFace(new Face(face));
+			}
 		}
 
 		// Set member variables
-		this.faces = faceList;
+		this.faceGroups = faceGroups;
 		this.physicsProps = new PhysicsModelProperties(model.getPhysicsProperties());
 
 		initialPos = position;
@@ -347,17 +360,19 @@ public class Model implements Renderable {
 		boundBox = new BoundingBox();
 
 		// Split the faces up by material
-		for(Face face : this.faces) {
-			currentMaterial = face.getMaterial();
+		for (Group group : this.faceGroups) {
+			for(Face face : group.getFaces()) {
+				currentMaterial = face.getMaterial();
 
-			// If already in the map append to the list (else make new entry)
-			if(mapMaterialToFaces.containsKey(currentMaterial)) {
-				List<Face> faceList = mapMaterialToFaces.get(currentMaterial);
-				faceList.add(face);
-			} else {
-				List<Face> faceList = new ArrayList<>();
-				faceList.add(face);
-				mapMaterialToFaces.put(currentMaterial, faceList);
+				// If already in the map append to the list (else make new entry)
+				if(mapMaterialToFaces.containsKey(currentMaterial)) {
+					List<Face> faceList = mapMaterialToFaces.get(currentMaterial);
+					faceList.add(face);
+				} else {
+					List<Face> faceList = new ArrayList<>();
+					faceList.add(face);
+					mapMaterialToFaces.put(currentMaterial, faceList);
+				}
 			}
 		}
 
@@ -379,9 +394,10 @@ public class Model implements Renderable {
 			 *  For each face in the list, process the data and add to 
 			 *  the byte buffer.
 			 */
-			for(Face face: materialFaces){			
+			for(Face face: materialFaces){	
 				//Add first vertex of the face			
 				tempVertexData = face.faceData.get(0);
+
 				if(!vboIndexMap.containsKey(tempVertexData)){
 					vboIndexMap.put(tempVertexData, index);
 					verticesFloatBuffer.put(tempVertexData.getElements());
@@ -689,8 +705,8 @@ public class Model implements Renderable {
 	 * Returns the list of faces that make up this model.
 	 * @return the list of faces
 	 */
-	public List<Face> getFaceList () {
-		return faces;
+	public List<Group> getFaceGroups () {
+		return faceGroups;
 	}
 
 	/**
@@ -781,20 +797,21 @@ public class Model implements Renderable {
 	 * @param List to remove non-triangles from
 	 */
 	private void triangulate() {
-		List<Face> removeFaces = new ArrayList<Face>();
-		List<Face> addFaces = new ArrayList<Face>();
-		for (Face face : this.faces) {
-			if (face.faceData.size() == 4) {
-				removeFaces.add(face);
-				addFaces.add(new Face(face.getVertex(0) , face.getVertex(1) , face.getVertex(2), face.getMaterial()));
-				addFaces.add(new Face(face.getVertex(0) , face.getVertex(2) , face.getVertex(3), face.getMaterial()));
-			} else if (face.faceData.size() > 4){
-				removeFaces.add(face);
+		for (Group group : this.faceGroups) {
+			List<Face> removeFaces = new ArrayList<Face>();
+			List<Face> addFaces = new ArrayList<Face>();
+			for (Face face : group.getFaces()) {
+				if (face.faceData.size() == 4) {
+					removeFaces.add(face);
+					addFaces.add(new Face(face.getVertex(0) , face.getVertex(1) , face.getVertex(2), face.getMaterial()));
+					addFaces.add(new Face(face.getVertex(0) , face.getVertex(2) , face.getVertex(3), face.getMaterial()));
+				} else if (face.faceData.size() > 4){
+					removeFaces.add(face);
+				}
 			}
+			group.getFaces().removeAll(removeFaces);
+			group.getFaces().addAll(addFaces);
 		}
-
-		this.faces.removeAll(removeFaces);
-		this.faces.addAll(addFaces); 
 	}
 	
 	/**
@@ -832,21 +849,29 @@ public class Model implements Renderable {
 	 * @return
 	 */
 	private void setupPhysicsModel() {
-		// Setup the physics object (@TODO: Support for other collision shapes)
-		ObjectArrayList<javax.vecmath.Vector3f> modelShapePoints = new ObjectArrayList<>();
-		
-		for (Face face : faces) {
-			for (VertexData vertex : face.getVertices()) {
-				modelShapePoints.add(new javax.vecmath.Vector3f(vertex.getXYZ()));
+		ObjectArrayList<javax.vecmath.Vector3f> modelShapePoints;
+		CompoundShape modelShape = new CompoundShape();
+
+		Transform transform = new Transform();
+		transform.setIdentity();
+
+		for (Group group : this.faceGroups) {
+			modelShapePoints = new ObjectArrayList<>();
+
+			for (Face face : group.getFaces()) {
+				for (VertexData vertex : face.getVertices()) {
+					modelShapePoints.add(new javax.vecmath.Vector3f(vertex.getXYZ()));
+				}
 			}
+			
+			ConvexShape hullShape = new ConvexHullShape(modelShapePoints);
+			
+			ShapeHull hull = new ShapeHull(hullShape);
+			float margin = hullShape.getMargin();
+			hull.buildHull(margin);
+			hullShape = new ConvexHullShape(hull.getVertexPointer());
+			modelShape.addChildShape(transform, hullShape);
 		}
-		
-		// Create and initialize the physics model.
-		ConvexShape modelShape = new ConvexHullShape(modelShapePoints);
-		
-		// TODO: Optimize convex hull shape by removing unnecessary vertices.
-		// See http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility.
-		// The issue is that this simplification takes quite a while.
 
 		// Set up the model in the initial position
 		MotionState modelMotionState = new DefaultMotionState(new Transform(new javax.vecmath.Matrix4f(new Quat4f(0, 0, 0, 1), 
