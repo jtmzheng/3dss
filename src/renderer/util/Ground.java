@@ -11,8 +11,9 @@ import util.Primitives;
  * 
  * @author Adi
  */
-public class Ground extends Model{
+public class Ground extends Model {
 	private static PhysicsModelProperties groundProps;
+
 	static {
 		groundProps = new PhysicsModelProperties();
 		groundProps.setProperty("mass", 0f);
@@ -26,6 +27,7 @@ public class Ground extends Model{
 	 */
 	public Ground(float x, float y) {
 		super(Primitives.getPlane(x,  y).getFaceList(), groundProps);
+		setFrustrumCulling(false);
 	}
 	
 	/**

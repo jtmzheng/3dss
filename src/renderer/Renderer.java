@@ -23,6 +23,7 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector4f;
 
 import renderer.framebuffer.FBTarget;
 import renderer.framebuffer.FrameBuffer;
@@ -37,6 +38,8 @@ import renderer.shader.SkyboxShaderProgram;
 import renderer.util.Skybox;
 import system.Settings;
 import texture.TextureManager;
+import util.MathUtils;
+import util.Plane;
 
 /**
  * The renderer class should set up OpenGL.
@@ -48,7 +51,10 @@ import texture.TextureManager;
 public class Renderer {
 	private static final int MAX_MODELS = 100; // Max models on the temp buffer
 	private static final Integer DEFAULT_FRAME_BUFFER = 0;
-	
+	private static final float FOV = 45f;
+	private static final float FAR_PLANE = 100f;
+	private static final float NEAR_PLANE = 0.1f;
+
 	// List of the models that will be rendered
 	private Set<Model> models;
 	private BlockingQueue<Model> modelBuffer;
@@ -63,6 +69,16 @@ public class Renderer {
 	private Matrix4f viewMatrix = null;
 	private FloatBuffer matrix44Buffer = null;
 	
+	// Planes that make up the frustrum.
+	Plane[] frustrumPlanes = {
+			new Plane(),
+			new Plane(),
+			new Plane(),
+			new Plane(),
+			new Plane(),
+			new Plane()
+	};
+
 	// The view matrix will be calculated based off this camera
 	private Camera camera = null;    
 	
@@ -223,7 +239,7 @@ public class Renderer {
 		viewMatrix.store(matrix44Buffer); 
 		matrix44Buffer.flip();
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
-		
+
 		// Render each model
 		for(Model m: models) {
 			if (!m.isBound()) {
@@ -277,14 +293,20 @@ public class Renderer {
 		matrix44Buffer.flip();
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixFragLocation(), false, matrix44Buffer);
-		
+
 		// Render each model
+		int modelsRendered = 0;
 		for(Model m: models){
 			if (!m.isBound()) {
 				m.bind();
-			} 
-			m.render(m.equals(pickedModel), viewMatrix);
+			}
+			if (!m.shouldCull() || isInView(m)) {
+				m.setPickedFlag(m.equals(pickedModel));
+				m.render(viewMatrix);
+				modelsRendered++;
+			}
 		}
+		System.out.println("Rendered " + modelsRendered + " models");
         		
 		// Deselect
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -450,6 +472,81 @@ public class Renderer {
 	}
 	
 	/**
+	 * Returns true if the model is currently in view, and false otherwise.
+	 * This is used for frustum culling to only render models whose bounding boxes are in view.
+	 */
+	private boolean isInView (Model m) {
+		float[] pts = m.getBoundingBox().getVertexList();
+		Vector4f[] transformedPts = new Vector4f[8];
+		Matrix4f tMat = m.getPhysicsModel().getTransformMatrix();
+
+		for (int i = 0; i < pts.length; i+=4) {
+			Vector4f mPt = new Vector4f(pts[i], pts[i+1], pts[i+2], pts[i+3]);
+			Matrix4f.transform(tMat, mPt, mPt);
+			Matrix4f.transform(viewMatrix, mPt, mPt);
+			transformedPts[i/4] = mPt;
+		}
+		
+		boolean outsideFrustrum = true;
+		for (int i = 0; i < frustrumPlanes.length; i++) {
+			for (int j = 0; j < transformedPts.length; j++) {
+				float dP = MathUtils.dotPlaneWithVector(frustrumPlanes[i], transformedPts[j]);
+				outsideFrustrum &= dP < 0f;
+			}
+			if (outsideFrustrum == true) return false;
+			outsideFrustrum = true;
+		}
+		return true;
+	}
+
+	/**
+	 * Computes the frustum planes using the projection matrix (see http://graphics.cs.ucf.edu/cap4720/fall2008/plane_extraction.pdf).
+	 * This algorithm gives the planes in view space (camera space).
+	 */
+	private void computeFrustumPlanes() {
+		// Left plane.
+		frustrumPlanes[0].a = projectionMatrix.m03 + projectionMatrix.m00; 
+		frustrumPlanes[0].b = projectionMatrix.m13 + projectionMatrix.m10;
+		frustrumPlanes[0].c = projectionMatrix.m23 + projectionMatrix.m20;
+		frustrumPlanes[0].d = projectionMatrix.m33 + projectionMatrix.m30;
+
+		// Right plane.
+		frustrumPlanes[1].a = projectionMatrix.m03 - projectionMatrix.m00; 
+		frustrumPlanes[1].b = projectionMatrix.m13 - projectionMatrix.m10;
+		frustrumPlanes[1].c = projectionMatrix.m23 - projectionMatrix.m20;
+		frustrumPlanes[1].d = projectionMatrix.m33 - projectionMatrix.m30;
+
+		// Top plane.
+		frustrumPlanes[2].a = projectionMatrix.m03 - projectionMatrix.m01; 
+		frustrumPlanes[2].b = projectionMatrix.m13 - projectionMatrix.m11;
+		frustrumPlanes[2].c = projectionMatrix.m23 - projectionMatrix.m21;
+		frustrumPlanes[2].d = projectionMatrix.m33 - projectionMatrix.m31;
+
+		// Bottom plane.
+		frustrumPlanes[3].a = projectionMatrix.m03 + projectionMatrix.m01;
+		frustrumPlanes[3].b = projectionMatrix.m13 + projectionMatrix.m11;
+		frustrumPlanes[3].c = projectionMatrix.m23 + projectionMatrix.m21;
+		frustrumPlanes[3].d = projectionMatrix.m33 + projectionMatrix.m31;
+
+		// Near plane.
+		frustrumPlanes[4].a = projectionMatrix.m30 + projectionMatrix.m20;
+		frustrumPlanes[4].b = projectionMatrix.m31 + projectionMatrix.m21;
+		frustrumPlanes[4].c = projectionMatrix.m32 + projectionMatrix.m22;
+		frustrumPlanes[4].d = NEAR_PLANE;
+		
+		// Far plane.
+		frustrumPlanes[5].a = projectionMatrix.m30 - projectionMatrix.m20;
+		frustrumPlanes[5].b = projectionMatrix.m31 - projectionMatrix.m21;
+		frustrumPlanes[5].c = projectionMatrix.m32 - projectionMatrix.m22;
+		frustrumPlanes[5].d = FAR_PLANE;
+
+		// Normalize plane normals.
+		for (int i = 0; i < frustrumPlanes.length; i++) {
+			MathUtils.normalizePlane(frustrumPlanes[i]);
+		}
+	}
+
+	/**
 	 * Initializes the renderer
 	 */
 	private void init() {		
@@ -460,10 +557,10 @@ public class Renderer {
 		
 		// Set up view and projection matrices
 		projectionMatrix = new Matrix4f();
-		float fieldOfView = 45f;
+		float fieldOfView = FOV;
 		float aspectRatio = (float)context.width / (float)context.height;
-		float near_plane = 0.1f;
-		float far_plane = 100f;
+		float near_plane = NEAR_PLANE;
+		float far_plane = FAR_PLANE;
 
 		float y_scale = (float)(1 / Math.tan((Math.toRadians(fieldOfView / 2f))));
 		float x_scale = y_scale / aspectRatio;
@@ -475,6 +572,8 @@ public class Renderer {
 		projectionMatrix.m23 = -1;
 		projectionMatrix.m32 = -((2 * near_plane * far_plane) / frustum_length);
 		projectionMatrix.m33 = 0;
+		
+		computeFrustumPlanes();
 
 		viewMatrix = new Matrix4f();
 
@@ -482,7 +581,7 @@ public class Renderer {
 		matrix44Buffer = BufferUtils.createFloatBuffer(16);
 		viewMatrix.store(matrix44Buffer);
 		matrix44Buffer.flip();
-		
+
 		// Initialize the uniform variables
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		GL20.glUseProgram(ShaderController.getCurrentProgram());

@@ -26,7 +26,7 @@ public class BlockTerrain {
 	}
 	
 	public void render(Matrix4f viewMatrix) {
-		blockModel.render(false, viewMatrix);
+		blockModel.render(viewMatrix);
 	}
 	
 	private void setup() {

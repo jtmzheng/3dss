@@ -2,15 +2,23 @@ package renderer.model;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL31;
 import org.lwjgl.util.vector.Vector3f;
 
+/**
+ * A bounding box used to wrap objects to optimize things such as
+ * object picking and frustrum culling.
+ * 
+ * @author Max
+ * @author Adi
+ */
 public class BoundingBox {
 
 	public BoundingBox() {
@@ -59,7 +67,8 @@ public class BoundingBox {
 			   lowerLeftFront.x, upperRightBack.y, upperRightBack.z, 1.0f,
 			   upperRightBack.x, upperRightBack.y, upperRightBack.z, 1.0f
 			};  
-		
+		vertexList = boxVertices;
+
 		int posVboId = GL15.glGenBuffers();
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, posVboId);
 		FloatBuffer buffer = BufferUtils.createFloatBuffer(boxVertices.length);
@@ -79,7 +88,7 @@ public class BoundingBox {
 		
 		GL30.glBindVertexArray(0);
 	}
-	
+
 	public boolean isBound() {
 		return isBound;
 	}
@@ -92,6 +101,10 @@ public class BoundingBox {
 		return vboIndId;
 	}
 	
+	public float[] getVertexList() {
+		return vertexList;
+	}
+
 	@Override
 	public String toString() {
 		return "Upper right back: "  + upperRightBack + "\nLower left front: " + lowerLeftFront;
@@ -113,5 +126,6 @@ public class BoundingBox {
 	private Integer vaoId;
 	private Integer vboIndId;
 	private boolean isBound;
+	private float[] vertexList = {};
 	
 }
