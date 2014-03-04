@@ -87,7 +87,7 @@ public class Model implements Renderable {
 	private PhysicsModel physicsModel;
 
 	// Flag for whether this model should be rendered
-	private boolean renderFlag;	
+	private boolean renderFlag = true;	
 
 	// Physics properties of the model.
 	private PhysicsModelProperties physicsProps;
@@ -518,7 +518,6 @@ public class Model implements Renderable {
 
 		//Initialize model matrix (Initialized to the identity in the constructor)
 		modelMatrix = new Matrix4f(); 
-		renderFlag = true;
 		isBound = true;
 		
 		return isBound;
@@ -866,6 +865,7 @@ public class Model implements Renderable {
 			
 			ConvexShape hullShape = new ConvexHullShape(modelShapePoints);
 			
+			// TODO: Check performance implications for the ShapeHull simplification.
 			ShapeHull hull = new ShapeHull(hullShape);
 			float margin = hullShape.getMargin();
 			hull.buildHull(margin);
