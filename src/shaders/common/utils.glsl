@@ -1,7 +1,7 @@
 #version 330
 
 /*----------------------------------------------------------------------------*/
-float linearizeDepth(float depth, mat4 projMatrix) {
-	return projMatrix[3][2] / (depth - projMatrix[2][2]);
+float linearizeDepth(float depth, float n, float f) {
+	return (2.0 * n) / (f + n - depth * (f - n));
 }
 

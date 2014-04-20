@@ -129,4 +129,12 @@ public class ShaderController {
 	public static int getCubeTextureLocation(){
 		return uniformLocations.containsKey("cubeTexture") ? uniformLocations.get("cubeTexture") : -1;
 	}
+	
+	public static int getNearPlaneLocation() {
+		return uniformLocations.containsKey("nearPlane") ? uniformLocations.get("nearPlane") : -1;
+	}
+	
+	public static int getFarPlaneLocation() {
+		return uniformLocations.containsKey("farPlane") ? uniformLocations.get("farPlane") : -1;
+	}
 }

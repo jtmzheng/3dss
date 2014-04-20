@@ -51,9 +51,9 @@ import util.Plane;
 public class Renderer {
 	private static final int MAX_MODELS = 100; // Max models on the temp buffer
 	private static final Integer DEFAULT_FRAME_BUFFER = 0;
-	private static final float FOV = 45f;
-	private static final float FAR_PLANE = 100f;
-	private static final float NEAR_PLANE = 0.1f;
+	private static final float DEFAULT_FOV = 45f;
+	private static final float DEFAULT_FAR_PLANE = 100f;
+	private static final float DEFAULT_NEAR_PLANE = 0.1f;
 
 	// List of the models that will be rendered
 	private Set<Model> models;
@@ -266,10 +266,10 @@ public class Renderer {
 			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, postProcessFb.getFrameBuffer());
 		}
 		
-		GL11.glViewport(0, 0, context.width, context.height);
-		
 		// Clear the color and depth buffers
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+		
+		GL11.glViewport(0, 0, context.width, context.height);
 
 		// Render the skybox first 
 		if(skybox != null) {
@@ -295,7 +295,6 @@ public class Renderer {
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixFragLocation(), false, matrix44Buffer);
 
 		// Render each model
-		int modelsRendered = 0;
 		for(Model m: models){
 			if (!m.isBound()) {
 				m.bind();
@@ -303,10 +302,8 @@ public class Renderer {
 			if (!m.shouldCull() || isInView(m)) {
 				m.setPickedFlag(m.equals(pickedModel));
 				m.render(viewMatrix);
-				modelsRendered++;
 			}
 		}
-		System.out.println("Rendered " + modelsRendered + " models");
         		
 		// Deselect
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -331,7 +328,7 @@ public class Renderer {
 				GL13.glActiveTexture(unitIdColour);
 				GL20.glUniform1i(ShaderController.getFBTexLocation(), unitIdColour - GL13.GL_TEXTURE0);
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, postProcessFb.getFrameBufferTexture(FBTarget.GL_COLOR_ATTACHMENT));
-
+				
 				// Regenerate the mip map
 				GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
 				
@@ -532,13 +529,13 @@ public class Renderer {
 		frustrumPlanes[4].a = projectionMatrix.m30 + projectionMatrix.m20;
 		frustrumPlanes[4].b = projectionMatrix.m31 + projectionMatrix.m21;
 		frustrumPlanes[4].c = projectionMatrix.m32 + projectionMatrix.m22;
-		frustrumPlanes[4].d = NEAR_PLANE;
+		frustrumPlanes[4].d = DEFAULT_NEAR_PLANE;
 		
 		// Far plane.
 		frustrumPlanes[5].a = projectionMatrix.m30 - projectionMatrix.m20;
 		frustrumPlanes[5].b = projectionMatrix.m31 - projectionMatrix.m21;
 		frustrumPlanes[5].c = projectionMatrix.m32 - projectionMatrix.m22;
-		frustrumPlanes[5].d = FAR_PLANE;
+		frustrumPlanes[5].d = DEFAULT_FAR_PLANE;
 
 		// Normalize plane normals.
 		for (int i = 0; i < frustrumPlanes.length; i++) {
@@ -557,10 +554,10 @@ public class Renderer {
 		
 		// Set up view and projection matrices
 		projectionMatrix = new Matrix4f();
-		float fieldOfView = FOV;
+		float fieldOfView = DEFAULT_FOV; //@TODO: Setting FOV, near, far planes
 		float aspectRatio = (float)context.width / (float)context.height;
-		float near_plane = NEAR_PLANE;
-		float far_plane = FAR_PLANE;
+		float near_plane = DEFAULT_NEAR_PLANE;
+		float far_plane = DEFAULT_FAR_PLANE;
 
 		float y_scale = (float)(1 / Math.tan((Math.toRadians(fieldOfView / 2f))));
 		float x_scale = y_scale / aspectRatio;
@@ -608,11 +605,12 @@ public class Renderer {
 		ShaderController.setProgram(SKY_BOX_SHADER_PROGRAM);
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
 		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
+		
+		// Set the near and far planes for the post processing shader
 		ShaderController.setProgram(POST_PROCESS_SHADER_PROGRAM);
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
-		System.out.println("Current Program = " + ShaderController.getCurrentProgram());
-		System.out.println("Proj = " + ShaderController.getProjectionMatrixLocation());
-		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
+		GL20.glUniform1f(ShaderController.getNearPlaneLocation(), near_plane);
+		GL20.glUniform1f(ShaderController.getFarPlaneLocation(), far_plane);
 		
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		GL20.glUseProgram(0);

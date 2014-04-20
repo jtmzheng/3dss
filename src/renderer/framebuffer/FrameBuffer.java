@@ -43,7 +43,7 @@ public class FrameBuffer {
 						texId, 
 						0
 						);
-				
+				System.out.println("Target: " + target.toString());
 				buffer.put(target.getTarget());
 				
 				this.fbTargets.put(target, texId);
@@ -52,6 +52,7 @@ public class FrameBuffer {
 		
 		buffer.flip();
 		
+		/*
 		// Generate and set up the render buffer
 		renderBufferId = GL30.glGenRenderbuffers();
 		GL30.glBindRenderbuffer (GL30.GL_RENDERBUFFER, renderBufferId);
@@ -68,7 +69,8 @@ public class FrameBuffer {
 				GL30.GL_RENDERBUFFER, 
 				renderBufferId
 				);
-		
+				*/
+
 		GL20.glDrawBuffers(buffer);
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
 

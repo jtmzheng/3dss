@@ -29,9 +29,12 @@ public class PixelShaderProgram extends ShaderProgram {
 		shaderUniformLocations = new HashMap<>();
 		
 		// Sampler for the FB texture
+		shaderUniformLocations.put("nearPlane", GL20.glGetUniformLocation(getProgram(), "near_plane"));
+		shaderUniformLocations.put("farPlane", GL20.glGetUniformLocation(getProgram(), "far_plane"));
 		shaderUniformLocations.put("fbTex", GL20.glGetUniformLocation(getProgram(), "fbTex"));
 		shaderUniformLocations.put("depthBuffTex", GL20.glGetUniformLocation(getProgram(), "depthBuffTex"));
-		shaderUniformLocations.put("projectionMatrix", GL20.glGetUniformLocation(getProgram(), "projectionMatrix"));
+		
+
  	}
 
 	@Override

@@ -124,5 +124,5 @@ void main(void) {
 		// Color red if selected (picked)
 		out_Color = vec4(1.0, 0.0, 0.0, 1.0);
 	}
-	
+		
 }
