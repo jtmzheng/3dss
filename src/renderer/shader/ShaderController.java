@@ -137,4 +137,8 @@ public class ShaderController {
 	public static int getFarPlaneLocation() {
 		return uniformLocations.containsKey("farPlane") ? uniformLocations.get("farPlane") : -1;
 	}
+
+	public static int getNormalTextureLocation() {
+		return uniformLocations.containsKey("normalTex") ? uniformLocations.get("normalTex") : -1;
+	}
 }

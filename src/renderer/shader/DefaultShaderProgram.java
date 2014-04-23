@@ -16,7 +16,7 @@ import system.Settings;
  */
 public class DefaultShaderProgram extends ShaderProgram {
 	public DefaultShaderProgram(Map<String, Integer> shaders) {
-		super(shaders);
+		super(shaders, true);
 	}
 	
 	protected void setupAttributes() {

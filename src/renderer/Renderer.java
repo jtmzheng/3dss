@@ -138,6 +138,7 @@ public class Renderer {
 		List<FBTarget> targets = new ArrayList<>();
 		targets.add(FBTarget.GL_COLOR_ATTACHMENT);
 		targets.add(FBTarget.GL_DEPTH_ATTACHMENT);
+		targets.add(FBTarget.GL_NORMAL_ATTACHMENT);
 		
 		postProcessFb = new FrameBuffer(context.width, context.height, targets);
 		colourPickingFb = new FrameBuffer(context.width, context.height, Collections.singletonList(FBTarget.GL_COLOR_ATTACHMENT));
@@ -180,9 +181,12 @@ public class Renderer {
 		
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
+		
+		// Shader outputs (order must match output of fragment shader)
 		List<FBTarget> targets = new ArrayList<>();
 		targets.add(FBTarget.GL_COLOR_ATTACHMENT);
 		targets.add(FBTarget.GL_DEPTH_ATTACHMENT);
+		targets.add(FBTarget.GL_NORMAL_ATTACHMENT);
 		
 		postProcessFb = new FrameBuffer(context.width, context.height, targets);
 		colourPickingFb = new FrameBuffer(context.width, context.height, Collections.singletonList(FBTarget.GL_COLOR_ATTACHMENT));
@@ -324,17 +328,21 @@ public class Renderer {
 				TextureManager tm = TextureManager.getInstance();
 				Integer unitIdColour = tm.getTextureSlot();
 				Integer unitIdDepth = tm.getTextureSlot();
+				Integer unitIdNormal = tm.getTextureSlot();
 				
 				GL13.glActiveTexture(unitIdColour);
 				GL20.glUniform1i(ShaderController.getFBTexLocation(), unitIdColour - GL13.GL_TEXTURE0);
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, postProcessFb.getFrameBufferTexture(FBTarget.GL_COLOR_ATTACHMENT));
 				
-				// Regenerate the mip map
-				GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
-				
 				GL13.glActiveTexture(unitIdDepth);
 				GL20.glUniform1i(ShaderController.getDepthTextureLocation(), unitIdDepth - GL13.GL_TEXTURE0);
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, postProcessFb.getFrameBufferTexture(FBTarget.GL_DEPTH_ATTACHMENT));
+				
+				GL13.glActiveTexture(unitIdNormal);
+				GL20.glUniform1i(ShaderController.getNormalTextureLocation(), unitIdNormal - GL13.GL_TEXTURE0);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, postProcessFb.getFrameBufferTexture(FBTarget.GL_NORMAL_ATTACHMENT));
+				
+				GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D); //@TODO: Where should this be done?
 
 				// Bind the VAO for the Screen Quad
 				GL30.glBindVertexArray(screen.getVAOId());
@@ -349,6 +357,7 @@ public class Renderer {
 				ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 				tm.returnTextureSlot(unitIdColour);
 				tm.returnTextureSlot(unitIdDepth);
+				tm.returnTextureSlot(unitIdNormal);
 			} else {
 				System.out.println("Error: " + testVal);
 			}

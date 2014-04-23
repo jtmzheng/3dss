@@ -43,8 +43,12 @@ public class FrameBuffer {
 						texId, 
 						0
 						);
-				System.out.println("Target: " + target.toString());
-				buffer.put(target.getTarget());
+			
+				// Do not draw to the depth attachment
+				if(target != FBTarget.GL_DEPTH_ATTACHMENT) {
+					buffer.put(target.getTarget());
+					System.out.println(target.toString());
+				}
 				
 				this.fbTargets.put(target, texId);
 			}
@@ -53,7 +57,7 @@ public class FrameBuffer {
 		buffer.flip();
 		
 		/*
-		// Generate and set up the render buffer
+		// Generate and set up the render buffer (For depth attachment, taken out because now rendering depth to texture)
 		renderBufferId = GL30.glGenRenderbuffers();
 		GL30.glBindRenderbuffer (GL30.GL_RENDERBUFFER, renderBufferId);
 		GL30.glRenderbufferStorage (
@@ -89,6 +93,7 @@ public class FrameBuffer {
 	 * @return textureId
 	 */
 	public int getFrameBufferTexture(FBTarget target) {
+		System.out.println("Target: " + target.toString() + " fbTargets: " + fbTargets.get(target) + " Target.target: " + target.getTarget());
 		return fbTargets.get(target);
 	}
 	
@@ -127,6 +132,12 @@ public class FrameBuffer {
 			GL11.glTexParameteri(GL_TEXTURE_2D, GL14.GL_TEXTURE_COMPARE_MODE, GL14.GL_COMPARE_R_TO_TEXTURE);
 			GL11.glTexParameteri(GL_TEXTURE_2D, GL14.GL_TEXTURE_COMPARE_FUNC, GL11.GL_LEQUAL);
 			break;
+		}
+		case GL30.GL_COLOR_ATTACHMENT1: {
+			GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+			GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+			GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+			GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 		}
 		}
 					

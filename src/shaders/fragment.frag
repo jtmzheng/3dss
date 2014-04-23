@@ -1,20 +1,9 @@
 #version 330
 
+//@TODO: This needs cleanup and consistent style
+
 const float SPOT_ARC = cos(13.66 / 90.0);
 const int MAX_NUM_LIGHTS = 30;
-
-uniform vec3 La = vec3(0.2, 0.2, 0.2); // grey ambient
-uniform mat4 viewMatrixFrag;
-
-// Fog variables
-uniform vec3 fogColor = vec3(0.2, 0.2, 0.2); // grey
-uniform float fogMinDistance = 2.0;
-uniform float fogMaxDistance = 10.0;
-uniform int fogOn = 0;
-
-// Texturing
-uniform sampler2D textureSampler;
-// uniform sampler2D textures [3];
 
 // Fields set to default value by OpenGL
 struct lightSrc 
@@ -31,6 +20,19 @@ struct lightSrc
 	vec3 attenuation;
 };
 
+uniform vec3 La = vec3(0.2, 0.2, 0.2); // grey ambient
+uniform mat4 viewMatrixFrag;
+
+// Fog variables
+uniform vec3 fogColor = vec3(0.2, 0.2, 0.2); // grey
+uniform float fogMinDistance = 2.0;
+uniform float fogMaxDistance = 10.0;
+uniform int fogOn = 0;
+
+// Texturing
+uniform sampler2D textureSampler;
+// uniform sampler2D textures [3];
+
 uniform lightSrc lights[MAX_NUM_LIGHTS];
 uniform int selectedModel = 0;
 
@@ -39,7 +41,10 @@ in vec2 pass_texture;
 in vec3 position_eye, normal_eye;
 in vec3 diffuseColour;
 
-out vec4 out_Color;
+layout(location = 0) out vec4 out_Color;
+layout(location = 1) out vec4 out_Normal;
+
+vec3 encodeNormal(in vec3 raw);
 
 float getFogFactor(float dist) {
 	// Calculate the fog factor
@@ -124,5 +129,8 @@ void main(void) {
 		// Color red if selected (picked)
 		out_Color = vec4(1.0, 0.0, 0.0, 1.0);
 	}
+	
+	// Output the normal to texture
+	out_Normal = vec4(encodeNormal(normal_eye), 0.0f);
 		
 }
