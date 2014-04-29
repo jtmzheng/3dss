@@ -106,7 +106,7 @@ public abstract class Texture {
 	 * Binds this texture to the target.
 	 * @param unitId - an OpenGL texture unit index
 	 */
-	public abstract void bind (int unitId);
+	public abstract void bind (int unitId, int uniformLocation);
 
 	/**
 	 *  Unbinds this texture. It's up to the driver's implementation to free the actual memory.

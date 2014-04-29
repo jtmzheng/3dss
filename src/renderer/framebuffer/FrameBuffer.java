@@ -152,6 +152,6 @@ public class FrameBuffer {
 	private int height;
 	
 	private int bufferId;
-	private int renderBufferId;
+	// private int renderBufferId;
 	private Map<FBTarget, Integer> fbTargets; 
 }

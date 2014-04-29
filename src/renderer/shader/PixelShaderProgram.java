@@ -34,7 +34,7 @@ public class PixelShaderProgram extends ShaderProgram {
 		shaderUniformLocations.put("fbTex", GL20.glGetUniformLocation(getProgram(), "fbTex"));
 		shaderUniformLocations.put("depthBuffTex", GL20.glGetUniformLocation(getProgram(), "depthBuffTex"));
 		shaderUniformLocations.put("normalTex", GL20.glGetUniformLocation(getProgram(), "normalTex"));
-
+		shaderUniformLocations.put("noiseTex", GL20.glGetUniformLocation(getProgram(), "noiseTex"));
  	}
 
 	@Override

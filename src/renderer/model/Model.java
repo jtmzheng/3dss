@@ -493,7 +493,7 @@ public class Model implements Renderable {
 			TextureManager tm = TextureManager.getInstance();
 			Texture tex = material.mapKdTexture;
 			int unitId = tm.getTextureSlot();
-			tex.bind(unitId);
+			tex.bind(unitId, ShaderController.getTexSamplerLocation());
 			tm.returnTextureSlot(unitId);
 		}
 

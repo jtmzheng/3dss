@@ -141,4 +141,8 @@ public class ShaderController {
 	public static int getNormalTextureLocation() {
 		return uniformLocations.containsKey("normalTex") ? uniformLocations.get("normalTex") : -1;
 	}
+	
+	public static int getNoiseTextureLocation() {
+		return uniformLocations.containsKey("noiseTex") ? uniformLocations.get("noiseTex") : -1;
+	}
 }

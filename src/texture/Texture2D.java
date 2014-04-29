@@ -19,7 +19,7 @@ public class Texture2D extends Texture {
 		this.buffer = buffer;
 	}
 
-	public void bind(int unitId) {
+	public void bind(int unitId, int uniformLocation) {
 		// If not already bound and valid unit Id
 		if(!isBound && unitId > 0) {		    
 			texId = GL11.glGenTextures();
@@ -28,7 +28,7 @@ public class Texture2D extends Texture {
 			GL13.glActiveTexture(unitId);
 			// Set uniform variable of texture slot
 			GL20.glUseProgram(ShaderController.getCurrentProgram());
-			GL20.glUniform1i(ShaderController.getTexSamplerLocation(), unitId - GL13.GL_TEXTURE0);
+			GL20.glUniform1i(uniformLocation, unitId - GL13.GL_TEXTURE0);
 			GL20.glUseProgram(0);
 			GL11.glBindTexture(GL_TEXTURE_2D, texId);
 			GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);

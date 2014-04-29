@@ -37,6 +37,8 @@ import renderer.shader.ShaderProgram;
 import renderer.shader.SkyboxShaderProgram;
 import renderer.util.Skybox;
 import system.Settings;
+import texture.Texture;
+import texture.TextureLoader;
 import texture.TextureManager;
 import util.MathUtils;
 import util.Plane;
@@ -100,6 +102,9 @@ public class Renderer {
 	
 	// Instance of the shared settings object.
 	private Settings settings = Settings.getInstance();
+	
+	// Noise texture
+	private Texture noiseTex;
 
 	/**
 	 * Default constructor
@@ -329,6 +334,7 @@ public class Renderer {
 				Integer unitIdColour = tm.getTextureSlot();
 				Integer unitIdDepth = tm.getTextureSlot();
 				Integer unitIdNormal = tm.getTextureSlot();
+				Integer unitIdNoise = tm.getTextureSlot();
 				
 				GL13.glActiveTexture(unitIdColour);
 				GL20.glUniform1i(ShaderController.getFBTexLocation(), unitIdColour - GL13.GL_TEXTURE0);
@@ -341,6 +347,10 @@ public class Renderer {
 				GL13.glActiveTexture(unitIdNormal);
 				GL20.glUniform1i(ShaderController.getNormalTextureLocation(), unitIdNormal - GL13.GL_TEXTURE0);
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, postProcessFb.getFrameBufferTexture(FBTarget.GL_NORMAL_ATTACHMENT));
+				
+				GL13.glActiveTexture(unitIdNoise);
+				GL20.glUniform1i(ShaderController.getNoiseTextureLocation(), unitIdNoise - GL13.GL_TEXTURE0);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, noiseTex.getID());
 				
 				GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D); //@TODO: Where should this be done?
 
@@ -358,6 +368,7 @@ public class Renderer {
 				tm.returnTextureSlot(unitIdColour);
 				tm.returnTextureSlot(unitIdDepth);
 				tm.returnTextureSlot(unitIdNormal);
+				tm.returnTextureSlot(unitIdNoise);
 			} else {
 				System.out.println("Error: " + testVal);
 			}
@@ -620,6 +631,13 @@ public class Renderer {
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
 		GL20.glUniform1f(ShaderController.getNearPlaneLocation(), near_plane);
 		GL20.glUniform1f(ShaderController.getFarPlaneLocation(), far_plane);
+		
+		// Set up the noise texture
+		TextureManager tm = TextureManager.getInstance();
+		Integer unitIdNoise = tm.getTextureSlot();
+		noiseTex = TextureLoader.loadRandomTexture2D(this.getWidth(), this.getHeight(), "noiseTex", 4);
+		noiseTex.bind(unitIdNoise, ShaderController.getNoiseTextureLocation());
+		tm.returnTextureSlot(unitIdNoise);
 		
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		GL20.glUseProgram(0);

@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.lwjgl.opengl.GL20;
 
-import renderer.shader.types.Attributes;
 import renderer.shader.types.ShaderTypes;
 import system.Settings;
 
