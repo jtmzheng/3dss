@@ -50,7 +50,7 @@ float getFogFactor(float dist) {
 	// Calculate the fog factor
 	float fogFactor = (dist - fogMinDistance) / (fogMaxDistance - fogMinDistance);
 	// Clamp the fog factor between 0 and 1
-	return clamp (fogFactor, 0.0, 1.0);
+	return clamp(fogFactor, 0.0, 1.0);
 } 
 
 void main(void) {

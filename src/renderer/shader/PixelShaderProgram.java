@@ -23,18 +23,22 @@ public class PixelShaderProgram extends ShaderProgram {
 		shaderAttributes = new HashMap<>();
 		shaderAttributes.put("vp", 0);
 		shaderAttributes.put("vt", 1);
+		shaderAttributes.put("iFrustum", 2);
 	}
 	
 	protected void setupUniformLocations() {
 		shaderUniformLocations = new HashMap<>();
 		
-		// Sampler for the FB texture
+		shaderUniformLocations.put("gFrustumCorners", GL20.glGetUniformLocation(getProgram(), "gFrustumCorners"));
+		shaderUniformLocations.put("viewMatrix", GL20.glGetUniformLocation(getProgram(), "viewMatrix"));
 		shaderUniformLocations.put("nearPlane", GL20.glGetUniformLocation(getProgram(), "near_plane"));
 		shaderUniformLocations.put("farPlane", GL20.glGetUniformLocation(getProgram(), "far_plane"));
 		shaderUniformLocations.put("fbTex", GL20.glGetUniformLocation(getProgram(), "fbTex"));
 		shaderUniformLocations.put("depthBuffTex", GL20.glGetUniformLocation(getProgram(), "depthBuffTex"));
 		shaderUniformLocations.put("normalTex", GL20.glGetUniformLocation(getProgram(), "normalTex"));
 		shaderUniformLocations.put("noiseTex", GL20.glGetUniformLocation(getProgram(), "noiseTex"));
+		
+		System.out.println("gFrustumCorners: " + shaderUniformLocations.get("gFrustumCorners"));
  	}
 
 	@Override

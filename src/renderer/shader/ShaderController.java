@@ -6,7 +6,8 @@ import java.util.Map;
 
 /**
  * ShaderController will manage the current shader program
- * @TODO: Refactor (For real this time)
+ * @TODO(MZ): Refactor (For real this time)
+ * @TODO(MZ): Add in methods to get properties of program (name, shaders, etc)
  * @author Max 
  */
 public class ShaderController {	
@@ -40,6 +41,24 @@ public class ShaderController {
 	 */
 	public static int getCurrentProgram(){
 		return currentProgram;
+	}
+	
+	/**
+	 * True if uniform exists in current program
+	 * @param strName
+	 * @return true if uniform exists in current program
+	 */
+	public static boolean hasUniform(String strName) {
+		return uniformLocations.containsKey(strName);
+	}
+	
+	/**
+	 * Get the uniform location from a uniform name (no guarentee on type)
+	 * @param strName
+	 * @return location if it exists or -1
+	 */
+	public static int getUniformFromName(String strName) {
+		return uniformLocations.containsKey(strName) ? uniformLocations.get(strName) : -1;
 	}
 	
 	/**

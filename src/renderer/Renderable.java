@@ -8,5 +8,8 @@ public interface Renderable {
 	public void setup();
 	public void render(Matrix4f viewMatrix);
 	public boolean bind(); 
-		
+	
+	// @TODO: Possible extensions
+	// public void setUniforms();
+	
 }

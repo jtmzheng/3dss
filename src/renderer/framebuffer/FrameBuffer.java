@@ -47,7 +47,6 @@ public class FrameBuffer {
 				// Do not draw to the depth attachment
 				if(target != FBTarget.GL_DEPTH_ATTACHMENT) {
 					buffer.put(target.getTarget());
-					System.out.println(target.toString());
 				}
 				
 				this.fbTargets.put(target, texId);
@@ -93,7 +92,6 @@ public class FrameBuffer {
 	 * @return textureId
 	 */
 	public int getFrameBufferTexture(FBTarget target) {
-		System.out.println("Target: " + target.toString() + " fbTargets: " + fbTargets.get(target) + " Target.target: " + target.getTarget());
 		return fbTargets.get(target);
 	}
 	
@@ -138,6 +136,7 @@ public class FrameBuffer {
 			GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
 			GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 			GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+			break;
 		}
 		}
 					

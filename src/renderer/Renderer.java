@@ -45,22 +45,27 @@ import util.Plane;
 
 /**
  * The renderer class should set up OpenGL.
- * @TODO Move context setting to the client
- * @ADD Setting a client defined default shader
+ * @TODO(MZ): Move context setting to the client
+ * @TODO(MZ): Setting a client defined default shader
  * @author Adi
  * @author Max
  */
 public class Renderer {
-	private static final int MAX_MODELS = 100; // Max models on the temp buffer
-	private static final Integer DEFAULT_FRAME_BUFFER = 0;
-	private static final float DEFAULT_FOV = 45f;
-	private static final float DEFAULT_FAR_PLANE = 100f;
-	private static final float DEFAULT_NEAR_PLANE = 0.1f;
+	public static final int MAX_MODELS = 100; // Max models on the temp buffer
+	public static final Integer DEFAULT_FRAME_BUFFER = 0; 
+	public static final float DEFAULT_FOV = 45f;
+	public static final float DEFAULT_FAR_PLANE = 100f;
+	public static final float DEFAULT_NEAR_PLANE = 0.1f;
+	
+	private float mAspectRatio = 1080f / 920f; //@TODO(MZ): Setting FOV, near, far planes
+	private float mFov = DEFAULT_FOV;
+	private float mNear = DEFAULT_NEAR_PLANE;
+	private float mFar = DEFAULT_FAR_PLANE;
 
 	// List of the models that will be rendered
-	private Set<Model> models;
-	private BlockingQueue<Model> modelBuffer;
-	private Map<Integer, Model> mapIdToModel;
+	private Set<Model> mModels;
+	private BlockingQueue<Model> mModelBuffer;
+	private Map<Integer, Model> mMpIdModel;
 	private Model pickedModel = null;
 	private Skybox skybox = null;
 	
@@ -71,8 +76,8 @@ public class Renderer {
 	private Matrix4f viewMatrix = null;
 	private FloatBuffer matrix44Buffer = null;
 	
-	// Planes that make up the frustrum.
-	Plane[] frustrumPlanes = {
+	// Planes that make up the frustum.
+	Plane[] frustumPlanes = {
 			new Plane(),
 			new Plane(),
 			new Plane(),
@@ -139,7 +144,6 @@ public class Renderer {
 		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
 		
 		// Initialize the ScreenQuad
-		screen = new ScreenQuad(); 
 		List<FBTarget> targets = new ArrayList<>();
 		targets.add(FBTarget.GL_COLOR_ATTACHMENT);
 		targets.add(FBTarget.GL_DEPTH_ATTACHMENT);
@@ -184,9 +188,6 @@ public class Renderer {
 		sh.put(settings.get("paths", "skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
 		
-		// Initialize the ScreenQuad
-		screen = new ScreenQuad();
-		
 		// Shader outputs (order must match output of fragment shader)
 		List<FBTarget> targets = new ArrayList<>();
 		targets.add(FBTarget.GL_COLOR_ATTACHMENT);
@@ -204,8 +205,8 @@ public class Renderer {
 	 * @see Model
 	 */
 	public void addModel(Model model) throws IllegalStateException {
-		modelBuffer.add(model);
-		mapIdToModel.put(model.getUID(), model);
+		mModelBuffer.add(model);
+		mMpIdModel.put(model.getUID(), model);
 	}
 	
 	/**
@@ -221,8 +222,8 @@ public class Renderer {
 	 * @see Model
 	 */
 	public void removeModel(Model model) {
-		models.remove(model);	
-		mapIdToModel.remove(model.getUID());
+		mModels.remove(model);	
+		mMpIdModel.remove(model.getUID());
 	}
 	
 	/**
@@ -250,7 +251,7 @@ public class Renderer {
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
 
 		// Render each model
-		for(Model m: models) {
+		for(Model m: mModels) {
 			if (!m.isBound()) {
 				m.bind();
 			} 
@@ -304,7 +305,7 @@ public class Renderer {
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixFragLocation(), false, matrix44Buffer);
 
 		// Render each model
-		for(Model m: models){
+		for(Model m: mModels){
 			if (!m.isBound()) {
 				m.bind();
 			}
@@ -329,7 +330,11 @@ public class Renderer {
 
 				ShaderController.setProgram(POST_PROCESS_SHADER_PROGRAM);
 				GL20.glUseProgram(ShaderController.getCurrentProgram());
-
+				
+				viewMatrix.store(matrix44Buffer); 
+				matrix44Buffer.flip();
+				GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
+				
 				TextureManager tm = TextureManager.getInstance();
 				Integer unitIdColour = tm.getTextureSlot();
 				Integer unitIdDepth = tm.getTextureSlot();
@@ -352,7 +357,7 @@ public class Renderer {
 				GL20.glUniform1i(ShaderController.getNoiseTextureLocation(), unitIdNoise - GL13.GL_TEXTURE0);
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, noiseTex.getID());
 				
-				GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D); //@TODO: Where should this be done?
+				GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D); //@TODO(MZ): Where should this be done?
 
 				// Bind the VAO for the Screen Quad
 				GL30.glBindVertexArray(screen.getVAOId());
@@ -363,7 +368,6 @@ public class Renderer {
 				// Unbind 
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 				GL30.glBindVertexArray(0);
-				
 				ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 				tm.returnTextureSlot(unitIdColour);
 				tm.returnTextureSlot(unitIdDepth);
@@ -383,7 +387,7 @@ public class Renderer {
 	 * Takes model buffer and places it in the main set
 	 */
 	public void updateModels() {
-		modelBuffer.drainTo(models);
+		mModelBuffer.drainTo(mModels);
 	}
 	
 	/**
@@ -428,7 +432,7 @@ public class Renderer {
 	 * @return model
 	 */
 	public Model getModel(int id) {
-		return mapIdToModel.get(id);
+		return mMpIdModel.get(id);
 	}
 	
 	/**
@@ -461,10 +465,10 @@ public class Renderer {
 		int modelId = getModelId(pixel.get(0), pixel.get(1), pixel.get(2));
 		
 		// Check if the model is valid
-		if(mapIdToModel.containsKey(modelId)) {
+		if(mMpIdModel.containsKey(modelId)) {
 			// Select if not picked
-			if(!mapIdToModel.get(modelId).equals(pickedModel)) {
-				pickedModel = mapIdToModel.get(modelId);
+			if(!mMpIdModel.get(modelId).equals(pickedModel)) {
+				pickedModel = mMpIdModel.get(modelId);
 			} else {
 				pickedModel = null;
 			}
@@ -504,14 +508,14 @@ public class Renderer {
 			transformedPts[i/4] = mPt;
 		}
 		
-		boolean outsideFrustrum = true;
-		for (int i = 0; i < frustrumPlanes.length; i++) {
+		boolean outsidefrustum = true;
+		for (int i = 0; i < frustumPlanes.length; i++) {
 			for (int j = 0; j < transformedPts.length; j++) {
-				float dP = MathUtils.dotPlaneWithVector(frustrumPlanes[i], transformedPts[j]);
-				outsideFrustrum &= dP < 0f;
+				float dP = MathUtils.dotPlaneWithVector(frustumPlanes[i], transformedPts[j]);
+				outsidefrustum &= dP < 0f;
 			}
-			if (outsideFrustrum == true) return false;
-			outsideFrustrum = true;
+			if (outsidefrustum == true) return false;
+			outsidefrustum = true;
 		}
 		return true;
 	}
@@ -522,44 +526,44 @@ public class Renderer {
 	 */
 	private void computeFrustumPlanes() {
 		// Left plane.
-		frustrumPlanes[0].a = projectionMatrix.m03 + projectionMatrix.m00; 
-		frustrumPlanes[0].b = projectionMatrix.m13 + projectionMatrix.m10;
-		frustrumPlanes[0].c = projectionMatrix.m23 + projectionMatrix.m20;
-		frustrumPlanes[0].d = projectionMatrix.m33 + projectionMatrix.m30;
+		frustumPlanes[0].a = projectionMatrix.m03 + projectionMatrix.m00; 
+		frustumPlanes[0].b = projectionMatrix.m13 + projectionMatrix.m10;
+		frustumPlanes[0].c = projectionMatrix.m23 + projectionMatrix.m20;
+		frustumPlanes[0].d = projectionMatrix.m33 + projectionMatrix.m30;
 
 		// Right plane.
-		frustrumPlanes[1].a = projectionMatrix.m03 - projectionMatrix.m00; 
-		frustrumPlanes[1].b = projectionMatrix.m13 - projectionMatrix.m10;
-		frustrumPlanes[1].c = projectionMatrix.m23 - projectionMatrix.m20;
-		frustrumPlanes[1].d = projectionMatrix.m33 - projectionMatrix.m30;
+		frustumPlanes[1].a = projectionMatrix.m03 - projectionMatrix.m00; 
+		frustumPlanes[1].b = projectionMatrix.m13 - projectionMatrix.m10;
+		frustumPlanes[1].c = projectionMatrix.m23 - projectionMatrix.m20;
+		frustumPlanes[1].d = projectionMatrix.m33 - projectionMatrix.m30;
 
 		// Top plane.
-		frustrumPlanes[2].a = projectionMatrix.m03 - projectionMatrix.m01; 
-		frustrumPlanes[2].b = projectionMatrix.m13 - projectionMatrix.m11;
-		frustrumPlanes[2].c = projectionMatrix.m23 - projectionMatrix.m21;
-		frustrumPlanes[2].d = projectionMatrix.m33 - projectionMatrix.m31;
+		frustumPlanes[2].a = projectionMatrix.m03 - projectionMatrix.m01; 
+		frustumPlanes[2].b = projectionMatrix.m13 - projectionMatrix.m11;
+		frustumPlanes[2].c = projectionMatrix.m23 - projectionMatrix.m21;
+		frustumPlanes[2].d = projectionMatrix.m33 - projectionMatrix.m31;
 
 		// Bottom plane.
-		frustrumPlanes[3].a = projectionMatrix.m03 + projectionMatrix.m01;
-		frustrumPlanes[3].b = projectionMatrix.m13 + projectionMatrix.m11;
-		frustrumPlanes[3].c = projectionMatrix.m23 + projectionMatrix.m21;
-		frustrumPlanes[3].d = projectionMatrix.m33 + projectionMatrix.m31;
+		frustumPlanes[3].a = projectionMatrix.m03 + projectionMatrix.m01;
+		frustumPlanes[3].b = projectionMatrix.m13 + projectionMatrix.m11;
+		frustumPlanes[3].c = projectionMatrix.m23 + projectionMatrix.m21;
+		frustumPlanes[3].d = projectionMatrix.m33 + projectionMatrix.m31;
 
 		// Near plane.
-		frustrumPlanes[4].a = projectionMatrix.m30 + projectionMatrix.m20;
-		frustrumPlanes[4].b = projectionMatrix.m31 + projectionMatrix.m21;
-		frustrumPlanes[4].c = projectionMatrix.m32 + projectionMatrix.m22;
-		frustrumPlanes[4].d = DEFAULT_NEAR_PLANE;
+		frustumPlanes[4].a = projectionMatrix.m30 + projectionMatrix.m20;
+		frustumPlanes[4].b = projectionMatrix.m31 + projectionMatrix.m21;
+		frustumPlanes[4].c = projectionMatrix.m32 + projectionMatrix.m22;
+		frustumPlanes[4].d = DEFAULT_NEAR_PLANE;
 		
 		// Far plane.
-		frustrumPlanes[5].a = projectionMatrix.m30 - projectionMatrix.m20;
-		frustrumPlanes[5].b = projectionMatrix.m31 - projectionMatrix.m21;
-		frustrumPlanes[5].c = projectionMatrix.m32 - projectionMatrix.m22;
-		frustrumPlanes[5].d = DEFAULT_FAR_PLANE;
+		frustumPlanes[5].a = projectionMatrix.m30 - projectionMatrix.m20;
+		frustumPlanes[5].b = projectionMatrix.m31 - projectionMatrix.m21;
+		frustumPlanes[5].c = projectionMatrix.m32 - projectionMatrix.m22;
+		frustumPlanes[5].d = DEFAULT_FAR_PLANE;
 
 		// Normalize plane normals.
-		for (int i = 0; i < frustrumPlanes.length; i++) {
-			MathUtils.normalizePlane(frustrumPlanes[i]);
+		for (int i = 0; i < frustumPlanes.length; i++) {
+			MathUtils.normalizePlane(frustumPlanes[i]);
 		}
 	}
 
@@ -567,27 +571,24 @@ public class Renderer {
 	 * Initializes the renderer
 	 */
 	private void init() {		
-		modelBuffer = new ArrayBlockingQueue<>(MAX_MODELS);
-		models = new HashSet<>();
-		mapIdToModel = new HashMap<>();
+		mModelBuffer = new ArrayBlockingQueue<>(MAX_MODELS);
+		mModels = new HashSet<>();
+		mMpIdModel = new HashMap<>();
 		postProcessConversions = new HashSet<>();
 		
 		// Set up view and projection matrices
 		projectionMatrix = new Matrix4f();
-		float fieldOfView = DEFAULT_FOV; //@TODO: Setting FOV, near, far planes
-		float aspectRatio = (float)context.width / (float)context.height;
-		float near_plane = DEFAULT_NEAR_PLANE;
-		float far_plane = DEFAULT_FAR_PLANE;
+		mAspectRatio = (float)context.width / (float)context.height; //@TODO(MZ): Setting FOV, near, far planes
 
-		float y_scale = (float)(1 / Math.tan((Math.toRadians(fieldOfView / 2f))));
-		float x_scale = y_scale / aspectRatio;
-		float frustum_length = far_plane - near_plane;
+		float ySfl = (float)(1 / Math.tan((Math.toRadians(mFov / 2f))));
+		float xSfl = ySfl / mAspectRatio;
+		float dulFrustum = mFar - mNear;
 
-		projectionMatrix.m00 = x_scale;
-		projectionMatrix.m11 = y_scale;
-		projectionMatrix.m22 = -((far_plane + near_plane) / frustum_length);
+		projectionMatrix.m00 = xSfl;
+		projectionMatrix.m11 = ySfl;
+		projectionMatrix.m22 = -((mFar + mNear) / dulFrustum);
 		projectionMatrix.m23 = -1;
-		projectionMatrix.m32 = -((2 * near_plane * far_plane) / frustum_length);
+		projectionMatrix.m32 = -((2 * mNear * mFar) / dulFrustum);
 		projectionMatrix.m33 = 0;
 		
 		computeFrustumPlanes();
@@ -628,9 +629,13 @@ public class Renderer {
 		
 		// Set the near and far planes for the post processing shader
 		ShaderController.setProgram(POST_PROCESS_SHADER_PROGRAM);
+		// region: @TODO: Move setting uniforms to Renderable 
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
-		GL20.glUniform1f(ShaderController.getNearPlaneLocation(), near_plane);
-		GL20.glUniform1f(ShaderController.getFarPlaneLocation(), far_plane);
+		GL20.glUniform1f(ShaderController.getNearPlaneLocation(), mNear);
+		GL20.glUniform1f(ShaderController.getFarPlaneLocation(), mFar);
+		screen = new ScreenQuad(mFov, mFar, mAspectRatio); 
+		screen.setUniforms();	
+		// endregion
 		
 		// Set up the noise texture
 		TextureManager tm = TextureManager.getInstance();
