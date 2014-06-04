@@ -40,7 +40,6 @@ public class ScreenQuad {
 		0.0f, 0.0f
 	};
 	
-	private Matrix4f mFrustrumCorner;
 	private FloatBuffer mFloatBuffer;
 	private int mVaoId;
 	
@@ -110,29 +109,29 @@ public class ScreenQuad {
 		float halfWidth = aspect * halfHeight;
 		
 		// Encode the frustum corners in a Matrix4f
-		Matrix4f mFrustrumCorner = new Matrix4f();
-		mFrustrumCorner.m00 = -halfWidth;
-		mFrustrumCorner.m01 = -halfHeight;
-		mFrustrumCorner.m02 = farZ;
-		mFrustrumCorner.m03 = 0;
+		Matrix4f lFrustrumCorner = new Matrix4f();
+		lFrustrumCorner.m00 = -halfWidth;
+		lFrustrumCorner.m01 = -halfHeight;
+		lFrustrumCorner.m02 = farZ;
+		lFrustrumCorner.m03 = 0;
 		
-		mFrustrumCorner.m10 = -halfWidth;
-		mFrustrumCorner.m11 = halfHeight;
-		mFrustrumCorner.m12 = farZ;
-		mFrustrumCorner.m13 = 0;
+		lFrustrumCorner.m10 = -halfWidth;
+		lFrustrumCorner.m11 = halfHeight;
+		lFrustrumCorner.m12 = farZ;
+		lFrustrumCorner.m13 = 0;
 		
-		mFrustrumCorner.m20 = halfWidth;
-		mFrustrumCorner.m21 = halfHeight;
-		mFrustrumCorner.m22 = farZ;
-		mFrustrumCorner.m23 = 0;
+		lFrustrumCorner.m20 = halfWidth;
+		lFrustrumCorner.m21 = halfHeight;
+		lFrustrumCorner.m22 = farZ;
+		lFrustrumCorner.m23 = 0;
 
-		mFrustrumCorner.m30 = halfWidth;
-		mFrustrumCorner.m31 = -halfHeight;
-		mFrustrumCorner.m32 = farZ;
-		mFrustrumCorner.m33 = 0;
+		lFrustrumCorner.m30 = halfWidth;
+		lFrustrumCorner.m31 = -halfHeight;
+		lFrustrumCorner.m32 = farZ;
+		lFrustrumCorner.m33 = 0;
 
-		// mFrustrumCorner = (Matrix4f) mFrustrumCorner.transpose();
-		mFrustrumCorner.store(mFloatBuffer);
+		lFrustrumCorner = (Matrix4f) lFrustrumCorner.transpose(); // TODO(MZ): Check if taking the transpose is right (is the vec3 a column in the shader?)
+		lFrustrumCorner.store(mFloatBuffer);
 		mFloatBuffer.flip();
 	}
 
