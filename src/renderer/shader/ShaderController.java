@@ -6,7 +6,7 @@ import java.util.Map;
 
 /**
  * ShaderController will manage the current shader program
- * @TODO(MZ): Refactor (For real this time)
+ * @TODO(MZ): Remove deprecated helpers
  * @TODO(MZ): Add in methods to get properties of program (name, shaders, etc)
  * @author Max 
  */

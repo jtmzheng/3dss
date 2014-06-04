@@ -2,8 +2,6 @@ package renderer.model;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -29,7 +27,10 @@ public class BoundingBox {
 		isBound = false;
 	}
 	
-	public void addVertex(float [] point) {		
+	public boolean addVertex(float [] point) {		
+		if(isBound)
+			return false;
+		
 		if(lowerLeftFront == null) {
 			lowerLeftFront = new Vector3f(point[0], point[1], point[2]);
 		} else {
@@ -45,12 +46,18 @@ public class BoundingBox {
 			upperRightBack.y = Math.max(upperRightBack.y, point[1]);
 			upperRightBack.z = Math.min(upperRightBack.z, point[2]);
 		}
+		
+		return true;
 	}
 	
 	/**
 	 * Binds the object (becomes immutable)
+	 * @return false if bound already
 	 */
-	public void bind() {
+	public boolean bind() {
+		if(isBound)
+			return false;
+		
 		this.vaoId = GL30.glGenVertexArrays();
 		
 		GL30.glBindVertexArray(vaoId);
@@ -84,9 +91,11 @@ public class BoundingBox {
 		indicesBuffer.put(INDICES);
 		indicesBuffer.flip();
 		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);	
 		
+		isBound = true;
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);	
 		GL30.glBindVertexArray(0);
+		return isBound;
 	}
 
 	public boolean isBound() {
