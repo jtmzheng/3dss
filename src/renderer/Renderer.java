@@ -302,7 +302,6 @@ public class Renderer {
 		viewMatrix.store(matrix44Buffer); 
 		matrix44Buffer.flip();
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
-		GL20.glUniformMatrix4(ShaderController.getViewMatrixFragLocation(), false, matrix44Buffer);
 
 		// Render each model
 		for(Model m: mModels){

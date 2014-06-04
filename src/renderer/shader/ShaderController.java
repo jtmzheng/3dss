@@ -93,10 +93,6 @@ public class ShaderController {
 		return uniformLocations.containsKey("La") ? uniformLocations.get("La") : -1;
 	}
 	
-	public static int getViewMatrixFragLocation(){
-		return uniformLocations.containsKey("viewMatrixFrag") ? uniformLocations.get("viewMatrixFrag") : -1;
-	}
-	
 	public static int getTexSamplerLocation(){
 		return uniformLocations.containsKey("textureSampler") ? uniformLocations.get("textureSampler") : -1;
 	}

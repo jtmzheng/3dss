@@ -21,7 +21,7 @@ struct lightSrc
 };
 
 uniform vec3 La = vec3(0.2, 0.2, 0.2); // grey ambient
-uniform mat4 viewMatrixFrag;
+uniform mat4 viewMatrix;
 
 // Fog variables
 uniform vec3 fogColor = vec3(0.2, 0.2, 0.2); // grey
@@ -46,10 +46,9 @@ layout(location = 1) out vec4 out_Normal;
 
 vec3 encodeNormal(in vec3 raw);
 
+// Calculate the fog factor
 float getFogFactor(float dist) {
-	// Calculate the fog factor
 	float fogFactor = (dist - fogMinDistance) / (fogMaxDistance - fogMinDistance);
-	// Clamp the fog factor between 0 and 1
 	return clamp(fogFactor, 0.0, 1.0);
 } 
 
@@ -63,7 +62,7 @@ void main(void) {
 	    	float fAttTotal = 1.0; // total attenuation
 	    	vec3 tId = vec3(0, 0, 0), tIs = vec3(0, 0, 0); // diffuse and specular component of this light
 	    	
-			vec3 light_position_eye = vec3(viewMatrixFrag * vec4(lights[index].position, 1.0));
+			vec3 light_position_eye = vec3(viewMatrix * vec4(lights[index].position, 1.0));
 			vec3 sLightFragmentEye = light_position_eye - position_eye;
 			vec3 dirLightFragmentEye = normalize(sLightFragmentEye); // direction from light to surface 
 	    
@@ -94,7 +93,7 @@ void main(void) {
 			// If directional lighting is enabled
 			if(lights[index].isDirectional > 0.5){
 				vec3 light_look_at = lights[index].position + lights[index].direction;
-				vec3 light_look_at_eye = vec3(viewMatrixFrag * vec4(light_look_at, 1.0));
+				vec3 light_look_at_eye = vec3(viewMatrix * vec4(light_look_at, 1.0));
 				vec3 dir_eye = normalize(light_position_eye - light_look_at_eye);
 				
 				float spot_dot = dot(dir_eye, dirLightFragmentEye);

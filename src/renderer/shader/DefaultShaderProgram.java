@@ -33,7 +33,7 @@ public class DefaultShaderProgram extends ShaderProgram {
 		shaderAttributes.put("texture", settings.get("attributes", "texture", int.class));
 		
 		// Add attributes to definition
-		// @TODO
+		// @TODO(MZ)
 	}
 	
 	protected void setupUniformLocations() {
@@ -42,7 +42,6 @@ public class DefaultShaderProgram extends ShaderProgram {
 		shaderUniformLocations.put("projectionMatrix", GL20.glGetUniformLocation(getProgram(), "projectionMatrix"));
 		shaderUniformLocations.put("modelMatrix", GL20.glGetUniformLocation(getProgram(), "modelMatrix"));
 		shaderUniformLocations.put("viewMatrix", GL20.glGetUniformLocation(getProgram(), "viewMatrix"));
-		shaderUniformLocations.put("viewMatrixFrag", GL20.glGetUniformLocation(getProgram(), "viewMatrixFrag"));
 		shaderUniformLocations.put("mvMatrix", GL20.glGetUniformLocation(getProgram(), "mvMatrix"));
 		shaderUniformLocations.put("normMatrix", GL20.glGetUniformLocation(getProgram(), "normMatrix"));
 		
