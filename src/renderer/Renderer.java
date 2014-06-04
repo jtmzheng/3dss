@@ -278,7 +278,6 @@ public class Renderer {
 		
 		// Clear the color and depth buffers
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-		
 		GL11.glViewport(0, 0, context.width, context.height);
 
 		// Render the skybox first 
@@ -321,7 +320,7 @@ public class Renderer {
 		// Render frame buffer to screen if needed
 		if(!postProcessConversions.isEmpty()) {
 			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
-			GL11.glViewport(-context.width, -context.height, context.width * 2, context.height * 2); // @TODO: Fix hack
+			GL11.glViewport(0, 0, context.width, context.height);
 
 			int testVal = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
 			if(testVal == GL30.GL_FRAMEBUFFER_COMPLETE) {

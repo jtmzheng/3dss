@@ -59,7 +59,7 @@ public class ScreenQuad {
 		int posVboId = GL15.glGenBuffers();
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, posVboId);
 		FloatBuffer dataBuffer = BufferUtils.createFloatBuffer(12);
-		dataBuffer.put(SCREEN_QUAD_TEX_COORDINATES); //TODO(MZ): KLUDGE (Find out why/how to fix)
+		dataBuffer.put(SCREEN_QUAD_COORDINATES);
 		dataBuffer.flip();
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, dataBuffer, GL15.GL_STATIC_DRAW);
 		
