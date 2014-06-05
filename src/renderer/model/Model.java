@@ -93,16 +93,16 @@ public class Model implements Renderable {
 
 	// Initial position of the model.
 	private Vector3f initialPos;
-	
+
 	// Bounding box for the model
 	private BoundingBox boundBox;
 
 	// Instance of the shared settings object.
 	private Settings settings = Settings.getInstance();
-	
+
 	// If the model has been bound yet.
 	private boolean isBound = false;
-	
+
 	// If the model is currently being picked.
 	private boolean isPicked = false;
 
@@ -118,7 +118,7 @@ public class Model implements Renderable {
 	public static Model merge (Model a, Model b, boolean transform) {
 		return Model.merge(a, b, new PhysicsModelProperties(), transform);
 	}
-	
+
 	public static Model merge (Model a, Model b) {
 		return Model.merge(a, b, new PhysicsModelProperties(), true);
 	}
@@ -134,11 +134,11 @@ public class Model implements Renderable {
 	 */
 	public static Model merge (Model a, Model b, PhysicsModelProperties props, boolean transform) {
 		List<Face> mergedList = new ArrayList<Face>();
-		
+
 		if(transform) {
 			Matrix4f mMatrixA = a.getPhysicsModel().getTransformMatrix();
 			Matrix4f mMatrixB = b.getPhysicsModel().getTransformMatrix();
-			
+
 			for (Face face : a.getFaceList()) {
 				List<VertexData> transformedVertices = new ArrayList<>();
 				for (VertexData v : face.getVertices()) {
@@ -163,7 +163,7 @@ public class Model implements Renderable {
 			mergedList.addAll(a.getFaceList());
 			mergedList.addAll(b.getFaceList());
 		}
-		
+
 		return new Model(mergedList, props);
 	}
 
@@ -193,7 +193,7 @@ public class Model implements Renderable {
 
 		return mergedModel;
 	}
-	
+
 	/**
 	 * Divide and conquer the task of merging
 	 * @param modelList
@@ -239,7 +239,7 @@ public class Model implements Renderable {
 		// Set the ID to the hash code
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
-		
+
 		setup();
 	}
 
@@ -281,7 +281,7 @@ public class Model implements Renderable {
 		// Set the ID to the hash code
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
-		
+
 		setup();
 	}
 
@@ -293,13 +293,13 @@ public class Model implements Renderable {
 	public Model(List<Face> f) {
 		this.faces = f;
 		this.physicsProps = new PhysicsModelProperties();
-		
+
 		initialPos = DEFAULT_INITIAL_POSITION;
 
 		// Set the UID to the hash code
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
-		
+
 		setup();
 	}
 	/**
@@ -324,25 +324,26 @@ public class Model implements Renderable {
 		// Set the UID to the hash code
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
-		
+
 		setup();
 	}
-	
+
 	/**
 	 * Bind the model for rendering
 	 * @return
 	 */
 	public boolean bind() {
+		if(isBound)
+			return false;
+
 		// Split face list into a list of face lists, each having their own material.
 		mapMaterialToFaces = new HashMap<>();
-
-		// Set up HashMaps
 		mapVAOIds = new HashMap<>();
 		mapVBOIndexIds = new HashMap<>();
 		mapIndiceCount = new HashMap<>();
 
 		Material currentMaterial = null;
-		
+
 		// Generate bounding box
 		boundBox = new BoundingBox();
 
@@ -364,29 +365,25 @@ public class Model implements Renderable {
 		for(Material material : mapMaterialToFaces.keySet()) {
 			List<Face> materialFaces = mapMaterialToFaces.get(material);
 
-			// Put each 'Vertex' in one FloatBuffer
-			ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(materialFaces.size() *  3 * VertexData.stride); //TODO : Allocating proper amount
+			// Put each 'Vertex' in one FloatBuffer (guarenteed to be triangulated by this point
+			ByteBuffer verticesByteBuffer = BufferUtils.createByteBuffer(materialFaces.size() *  3 * VertexData.stride);
 			FloatBuffer verticesFloatBuffer = verticesByteBuffer.asFloatBuffer();
 
 			Map<VertexData, Integer> vboIndexMap = new HashMap<VertexData, Integer>();
 			List<Integer> vboIndex = new ArrayList<Integer>();
 			VertexData tempVertexData;
 
-			// VBO index
-			int index = 0;
-
-			/** 
-			 *  For each face in the list, process the data and add to 
-			 *  the byte buffer.
-			 */
+			// VBO index (# of unique vertices)
+			int iVertex = 0;
+			// For each face in the list, process the data and add to the byte buffer.
 			for(Face face: materialFaces){			
 				//Add first vertex of the face			
 				tempVertexData = face.faceData.get(0);
 				if(!vboIndexMap.containsKey(tempVertexData)){
-					vboIndexMap.put(tempVertexData, index);
+					vboIndexMap.put(tempVertexData, iVertex);
 					verticesFloatBuffer.put(tempVertexData.getElements());
 					boundBox.addVertex(tempVertexData.getXYZ());
-					vboIndex.add(index++);
+					vboIndex.add(iVertex++);
 				} else {
 					vboIndex.add(vboIndexMap.get(tempVertexData));
 				}
@@ -394,10 +391,10 @@ public class Model implements Renderable {
 				//Add second vertex of the face
 				tempVertexData = face.faceData.get(1);
 				if(!vboIndexMap.containsKey(tempVertexData)){
-					vboIndexMap.put(tempVertexData, index);
+					vboIndexMap.put(tempVertexData, iVertex);
 					verticesFloatBuffer.put(tempVertexData.getElements());
 					boundBox.addVertex(tempVertexData.getXYZ());
-					vboIndex.add(index++);
+					vboIndex.add(iVertex++);
 				} else {
 					vboIndex.add(vboIndexMap.get(tempVertexData));
 				}
@@ -405,10 +402,10 @@ public class Model implements Renderable {
 				//Add third vertex of the face
 				tempVertexData = face.faceData.get(2);
 				if(!vboIndexMap.containsKey(tempVertexData)){
-					vboIndexMap.put(tempVertexData, index);
+					vboIndexMap.put(tempVertexData, iVertex);
 					verticesFloatBuffer.put(tempVertexData.getElements());
 					boundBox.addVertex(tempVertexData.getXYZ());
-					vboIndex.add(index++);
+					vboIndex.add(iVertex++);
 				} else {
 					vboIndex.add(vboIndexMap.get(tempVertexData));
 				}			
@@ -504,7 +501,7 @@ public class Model implements Renderable {
 		modelMatrix = new Matrix4f(); 
 		renderFlag = true;
 		isBound = true;
-		
+
 		return isBound;
 	}
 
@@ -513,7 +510,7 @@ public class Model implements Renderable {
 		if(renderFlag) {		
 			FloatBuffer modelMatrixBuffer = BufferUtils.createFloatBuffer(16);
 			FloatBuffer uniqueIdBuffer = BufferUtils.createFloatBuffer(3);
-			
+
 			modelMatrix = physicsModel.getTransformMatrix();
 			modelMatrix.store(modelMatrixBuffer);
 			modelMatrixBuffer.flip();
@@ -533,20 +530,20 @@ public class Model implements Renderable {
 			/* 
 			 * The code below is more accurate for picking, but slower 
 			 */
-			
+
 			/*
 			// Do bind and draw for each material's faces
 			for(Material material : mapMaterialToFaces.keySet()) {
 				GL30.glBindVertexArray(mapVAOIds.get(material));
-				
+
 				// Bind to the index VBO that has all the information about the order of the vertices
 				GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mapVBOIndexIds.get(material));
 
 				// Draw the vertices
 				GL11.glDrawElements(GL11.GL_TRIANGLES, mapIndiceCount.get(material), GL11.GL_UNSIGNED_INT, 0);
 			}
-			*/
-			
+			 */
+
 		}
 	}
 
@@ -554,54 +551,59 @@ public class Model implements Renderable {
 	 * Render a model that has already been set up
 	 * @TODO: Make a class for the HashMaps (a struct) - will keep it cleaner
 	 */
-	public void render(Matrix4f viewMatrix) {		
-		if(renderFlag) {					
-			FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
-			modelMatrix = physicsModel.getTransformMatrix();
-			modelMatrix.store(buffer);
-			buffer.flip();
+	public void render(Matrix4f viewMatrix) {
+		if(!renderFlag)
+			return;
 
-			GL20.glUniformMatrix4(ShaderController.getModelMatrixLocation(), false, buffer);
-			
-			Matrix4f normMatrix = Matrix4f.transpose(Matrix4f.invert(Matrix4f.mul(viewMatrix, modelMatrix, null), null), null);
-			normMatrix.store(buffer);
-			buffer.flip();
-			
-			GL20.glUniformMatrix4(ShaderController.getNormalMatrixLocation(), false, buffer);
-			
-			// If model is picked change the colour
-			if(isPicked) {
-				GL20.glUniform1i(ShaderController.getSelectedModelLocation(), 1);
-			} else {
-				GL20.glUniform1i(ShaderController.getSelectedModelLocation(), 0);
-			}
+		FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
+		modelMatrix = physicsModel.getTransformMatrix();
+		modelMatrix.store(buffer);
+		buffer.flip();
 
-			// Do bind and draw for each material's faces
-			for(Material material : mapMaterialToFaces.keySet()) {
-				// Loop through all texture Ids for a given material
-				for(Integer tex : material.getActiveTextureIds()) {
-					TextureManager tm = TextureManager.getInstance();
-					Integer unitId = tm.getTextureSlot();
+		GL20.glUniformMatrix4(ShaderController.getModelMatrixLocation(), false, buffer);
+		
+		//TODO(MZ): If not orthogonal (ie, scale) need Matrix4f.transpose(Matrix4f.invert(Matrix4f.mul(viewMatrix, modelMatrix, null), null), null);
+		Matrix4f normMatrix = Matrix4f.mul(viewMatrix, modelMatrix, null); 
+		normMatrix.store(buffer);
+		buffer.flip();
 
-					// If invalid continue
-					if(unitId == null) {
-						continue;
-					}
+		GL20.glUniformMatrix4(ShaderController.getNormalMatrixLocation(), false, buffer);
 
-					// Bind and activate sampler 
-					GL20.glUniform1i(ShaderController.getTexSamplerLocation(), unitId - GL13.GL_TEXTURE0);
-					GL13.glActiveTexture(unitId);
-					GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex);
-					tm.returnTextureSlot(unitId);
+		// If model is picked change the colour
+		if(isPicked) {
+			GL20.glUniform1i(ShaderController.getSelectedModelLocation(), 1);
+		} else {
+			GL20.glUniform1i(ShaderController.getSelectedModelLocation(), 0);
+		}
+
+		TextureManager tm = TextureManager.getInstance();
+
+		// Do bind and draw for each material's faces
+		for(Material material : mapMaterialToFaces.keySet()) {
+			List<Integer> rgiUsedSlots = new ArrayList<>();
+			// Loop through all texture IDs for a given material
+			for(Integer tex : material.getActiveTextureIds()) {
+				Integer unitId = tm.getTextureSlot();
+
+				if(unitId == null) {
+					continue;
 				}
 
-				GL30.glBindVertexArray(mapVAOIds.get(material));
+				// Bind and activate sampler 
+				GL20.glUniform1i(ShaderController.getTexSamplerLocation(), unitId - GL13.GL_TEXTURE0); //TODO(MZ): This should be mapped to a uniform location specified in the material
+				GL13.glActiveTexture(unitId);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex);
+				rgiUsedSlots.add(unitId);
+			}
 
-				// Bind to the index VBO that has all the information about the order of the vertices
-				GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mapVBOIndexIds.get(material));
-
-				// Draw the vertices
-				GL11.glDrawElements(GL11.GL_TRIANGLES, mapIndiceCount.get(material), GL11.GL_UNSIGNED_INT, 0);
+			GL30.glBindVertexArray(mapVAOIds.get(material));
+			// Bind to the index VBO that has all the information about the order of the vertices
+			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mapVBOIndexIds.get(material));
+			// Draw the vertices
+			GL11.glDrawElements(GL11.GL_TRIANGLES, mapIndiceCount.get(material), GL11.GL_UNSIGNED_INT, 0);
+			
+			for(Integer iUsed : rgiUsedSlots) {
+				tm.returnTextureSlot(iUsed);
 			}
 		}
 	}
@@ -789,14 +791,14 @@ public class Model implements Renderable {
 				addFaces.add(new Face(face.getVertex(0) , face.getVertex(1) , face.getVertex(2), face.getMaterial()));
 				addFaces.add(new Face(face.getVertex(0) , face.getVertex(2) , face.getVertex(3), face.getMaterial()));
 			} else if (face.faceData.size() > 4){
-				removeFaces.add(face);
+				removeFaces.add(face); //TODO(MZ): Currently just culls any face > 4 vertices
 			}
 		}
 
 		this.faces.removeAll(removeFaces);
 		this.faces.addAll(addFaces); 
 	}
-	
+
 	/**
 	 * Setup the model
 	 */
@@ -805,25 +807,25 @@ public class Model implements Renderable {
 
 		// Strip any quads / polygons. 
 		triangulate();
-		
+
 		// Setup the physics model
 		setupPhysicsModel();
 	}
-	
+
 	/**
 	 * Sets the flag for if the model is currently picked or not.
 	 */
 	public void setPickedFlag(boolean picked) {
 		isPicked = picked;
 	}
-	
+
 	/**
 	 * Sets the flag for frustrum culling for this model.
 	 */
 	public void setFrustrumCulling(boolean cull) {
 		enableCulling = cull;
 	}
-	 
+
 	/**
 	 * Helper method to set up the PhysicsModel associated with this Model
 	 * @param modelShape
@@ -834,16 +836,16 @@ public class Model implements Renderable {
 	private void setupPhysicsModel() {
 		// Setup the physics object (@TODO: Support for other collision shapes)
 		ObjectArrayList<javax.vecmath.Vector3f> modelShapePoints = new ObjectArrayList<>();
-		
+
 		for (Face face : faces) {
 			for (VertexData vertex : face.getVertices()) {
 				modelShapePoints.add(new javax.vecmath.Vector3f(vertex.getXYZ()));
 			}
 		}
-		
+
 		// Create and initialize the physics model.
 		ConvexShape modelShape = new ConvexHullShape(modelShapePoints);
-		
+
 		// TODO: Optimize convex hull shape by removing unnecessary vertices.
 		// See http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility.
 		// The issue is that this simplification takes quite a while.

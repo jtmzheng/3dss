@@ -13,7 +13,7 @@ import org.lwjgl.util.vector.Vector3f;
 /**
  * A bounding box used to wrap objects to optimize things such as
  * object picking and frustrum culling.
- * 
+ * @TODO(MZ): Can implement Renderable
  * @author Max
  * @author Adi
  */

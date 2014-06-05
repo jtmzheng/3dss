@@ -14,6 +14,7 @@ import texture.Material;
  */
 public class Face {
 	public List<VertexData> faceData;
+	
 	private Material material = null;
 	
 	/**
@@ -109,6 +110,14 @@ public class Face {
 	 */
 	public List<VertexData> getVertices(){
 		return faceData;
+	}
+	
+	/**
+	 * Get the count of the vertices
+	 * @return of vertices
+	 */
+	public int getCount() {
+		return faceData.size();
 	}
 
 	/**
