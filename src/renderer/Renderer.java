@@ -317,7 +317,7 @@ public class Renderer {
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		GL30.glBindVertexArray(0);
 
-		// Render frame buffer to screen if needed
+		// Render frame buffer to screen if needed (@TODO: Move to ScreenQuad)
 		if(!postProcessConversions.isEmpty()) {
 			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
 			GL11.glViewport(0, 0, context.width, context.height);
@@ -355,8 +355,6 @@ public class Renderer {
 				GL20.glUniform1i(ShaderController.getNoiseTextureLocation(), unitIdNoise - GL13.GL_TEXTURE0);
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, noiseTex.getID());
 				
-				GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D); //@TODO(MZ): Where should this be done?
-
 				// Bind the VAO for the Screen Quad
 				GL30.glBindVertexArray(screen.getVAOId());
 
