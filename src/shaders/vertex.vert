@@ -16,11 +16,11 @@ in vec3 Ks;
 in vec3 Ka;
 
 out vec2 pass_texture;
-out vec3 position_eye, normal_eye;
+out vec3 posEye, normEye;
 out vec3 sKs;
 out vec3 sKd;
 out vec3 sKa;
-out vec3 diffuseColour;
+out vec3 liAmbSphHarm;
 
 struct SHC{
     vec3 L00, L1m1, L10, L11, L2m2, L2m1, L20, L21, L22;
@@ -89,13 +89,13 @@ vec3 sh_light(vec3 normal, SHC l){
 
 void main(void) {
 	mat4 vm = viewMatrix * modelMatrix;
-	position_eye = (vm * in_Position).xyz;
-	normal_eye = normalize(mat3(normMatrix) * in_Normal.xyz);
+	posEye = (vm * in_Position).xyz;
+	normEye = normalize(mat3(normMatrix) * in_Normal.xyz);
 	
 	sKs = Ks;
 	sKd = normalize(in_Color.rgb); 
 	sKa = Ka;
-	diffuseColour = sh_light(normal_eye, groove);
+	liAmbSphHarm = sh_light(normEye, groove);
 	
     gl_Position = projectionMatrix * vm * in_Position;
 	pass_texture = in_Texture;
