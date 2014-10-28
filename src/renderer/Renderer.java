@@ -255,13 +255,6 @@ public class Renderer {
 			skybox.render();
 			ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		}
-		
-		if (textRenderer != null) {
-			ShaderController.setProgram(TEXT_SHADER_PROGRAM);
-			GL20.glUseProgram(ShaderController.getCurrentProgram());
-			textRenderer.render();
-			ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
-		}
 
 		// Select shader program.
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
@@ -321,7 +314,11 @@ public class Renderer {
 			}
 		}
 
+		// Render text on the screen.
+		ShaderController.setProgram(TEXT_SHADER_PROGRAM);
+		GL20.glUseProgram(ShaderController.getCurrentProgram());
 		textRenderer.render();
+		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 
 		GL20.glUseProgram(0);
 		Display.sync(frameRate);

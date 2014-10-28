@@ -137,9 +137,6 @@ public class TextRenderer {
 	}
 	
 	private void draw (FloatBuffer vp, FloatBuffer uv, int L) {
-		ShaderController.setProgram(sp);
-		GL20.glUseProgram(ShaderController.getCurrentProgram());
-
 		TextureManager tm = TextureManager.getInstance();
 		Integer unitId = tm.getTextureSlot();
 		fontTex.bind(unitId);
