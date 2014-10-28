@@ -21,7 +21,7 @@ import renderer.model.ModelFactory;
 import renderer.util.Ground;
 import renderer.util.ParticleEmitter;
 import renderer.util.Skybox;
-import system.Settings;
+import renderer.util.TextBox;
 import texture.Texture;
 import texture.TextureLoader;
 import world.World;
@@ -94,9 +94,14 @@ public class Main {
 		Fog worldFog = new Fog(true);
 		
 		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
-		gameRenderer = new Renderer(512, 512, gameCam, 60, worldFog, "Skybox Test");
+		gameRenderer = new Renderer(800, 600, gameCam, 60, worldFog, "Skybox Test");
 		gameWorld = new World(gameRenderer);
 		
+		TextBox fps = new TextBox("asdf", 50, 100, 60);
+		TextBox test = new TextBox("testing", 50, 250, 60);
+		gameRenderer.addTextBox(fps);
+		gameRenderer.addTextBox(test);
+
 		List<String> files = new ArrayList<>();
 		files.add("miramar_ft.png");
 		files.add("miramar_bk.png");

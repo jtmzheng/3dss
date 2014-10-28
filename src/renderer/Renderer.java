@@ -30,7 +30,10 @@ import renderer.shader.PixelShaderProgram;
 import renderer.shader.ShaderController;
 import renderer.shader.ShaderProgram;
 import renderer.shader.SkyboxShaderProgram;
+import renderer.shader.TextShaderProgram;
 import renderer.util.Skybox;
+import renderer.util.TextBox;
+import renderer.util.TextRenderer;
 import system.Settings;
 import texture.TextureManager;
 
@@ -79,7 +82,8 @@ public class Renderer {
 	private final ShaderProgram POST_PROCESS_SHADER_PROGRAM; 
 	private final ShaderProgram COLOR_PICKING_SHADER_PROGRAM;
 	private final ShaderProgram SKY_BOX_SHADER_PROGRAM;
-	
+	private final ShaderProgram TEXT_SHADER_PROGRAM;
+
 	// Frame buffers
 	private FrameBuffer postProcessFb;
 	private FrameBuffer colourPickingFb;
@@ -93,143 +97,8 @@ public class Renderer {
 	// Instance of the shared settings object.
 	private Settings settings = Settings.getInstance();
 
-	/**
-	 * Default constructor
-	 * @param camera The camera associated with the renderer
-	 */
-	public Renderer(Camera camera, String title) {
-		this.camera = camera;
-		this.width = DEFAULT_WIDTH;
-		this.height = DEFAULT_HEIGHT;
-		this.frameRate = DEFAULT_FRAME_RATE;
-		this.fog = new Fog(false);		
+	private TextRenderer textRenderer;
 
-		// Initialize the OpenGL context
-		initOpenGL(width <= 0 && height <= 0, title);
-		
-		// Initialize shader programs
-		Map<String, Integer> sh = new HashMap<String, Integer>();
-		sh.put(settings.get("paths", "vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
-		sh = new HashMap<>();
-		sh.put(settings.get("paths", "post_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
-		sh = new HashMap<>();
-		sh.put(settings.get("paths", "picking_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
-		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
-		sh = new HashMap<>();
-		sh.put(settings.get("paths", "skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
-		
-		// Initialize the texture manager
-		texManager = TextureManager.getInstance();
-		fbTexUnitId = texManager.getTextureSlot();
-		
-		// Initialize the ScreenQuad
-		screen = new ScreenQuad();
-		postProcessFb = new FrameBuffer(width, height);
-		colourPickingFb = new FrameBuffer(width, height);
-		
-		init();
-	}
-	
-	/**
-	 * Constructor for the renderer (no fog) 
-	 * @param width The width of the renderer.
-	 * @param height The height of the renderer.
-	 * @param camera The camera associated with the renderer.
-	 */
-	public Renderer(int width, int height, Camera camera, String title) {
-		this.camera = camera;
-		this.width = width;
-		this.height = height;
-		this.frameRate = DEFAULT_FRAME_RATE;
-		this.fog = new Fog(false);
-		
-		// Initialize the OpenGL context
-		initOpenGL(width <= 0 && height <= 0, title);
-		
-		// Initialize shader programs
-		Map<String, Integer> sh = new HashMap<String, Integer>();
-		sh.put(settings.get("paths", "vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
-		sh = new HashMap<String, Integer>();
-		sh.put(settings.get("paths", "post_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
-		sh = new HashMap<>();
-		sh.put(settings.get("paths", "picking_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
-		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
-		sh = new HashMap<>();
-		sh.put(settings.get("paths", "skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
-		
-		// Initialize the ScreenQuad
-		screen = new ScreenQuad();
-		postProcessFb = new FrameBuffer(width, height);
-		colourPickingFb = new FrameBuffer(width, height);
-		
-		// Initialize the texture manager
-		texManager = TextureManager.getInstance();
-		fbTexUnitId = texManager.getTextureSlot();
-		
-		init();
-	}
-	
-	/**
-	 * Constructor for the renderer (no fog)
-	 * @param width The width of the renderer.
-	 * @param height The height of the renderer.
-	 * @param camera The camera associated with the renderer.
-	 * @param frameRate The frame rate. 
-	 */
-	public Renderer(int width, int height, Camera camera, int frameRate, String title) {
-		this.camera = camera;
-		this.width = width;
-		this.height = height;
-		this.frameRate = frameRate;
-		this.fog = new Fog(false);
-		
-		// Initialize the OpenGL context
-		initOpenGL(width <= 0 && height <= 0, title);
-		
-		// Initialize shader programs
-		Map<String, Integer> sh = new HashMap<String, Integer>();
-		sh.put(settings.get("paths", "vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
-		sh = new HashMap<String, Integer>();
-		sh.put(settings.get("paths", "post_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
-		sh = new HashMap<>();
-		sh.put(settings.get("paths", "picking_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
-		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
-		sh = new HashMap<>();
-		sh.put(settings.get("paths", "skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
-		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
-		
-		// Initialize the ScreenQuad
-		screen = new ScreenQuad();
-		postProcessFb = new FrameBuffer(width, height);
-		colourPickingFb = new FrameBuffer(width, height);
-		
-		// Initialize the texture manager
-		texManager = TextureManager.getInstance();
-		fbTexUnitId = texManager.getTextureSlot();
-		
-		init();
-	}
-	
 	/**
 	 * Constructor for the renderer
 	 * @param width The width of the renderer.
@@ -257,21 +126,29 @@ public class Renderer {
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
 		sh.put(settings.get("paths", "vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "fragment_path"), GL20.GL_FRAGMENT_SHADER);		
+		sh.put(settings.get("paths", "fragment_path"), GL20.GL_FRAGMENT_SHADER);	
 		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
+
 		sh = new HashMap<String, Integer>();
 		sh.put(settings.get("paths", "post_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(settings.get("paths", "post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
+
 		sh = new HashMap<>();
 		sh.put(settings.get("paths", "picking_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(settings.get("paths", "picking_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
+
 		sh = new HashMap<>();
 		sh.put(settings.get("paths", "skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(settings.get("paths", "skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
-		
+
+		sh = new HashMap<>();
+		sh.put(settings.get("paths", "text_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "text_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		TEXT_SHADER_PROGRAM = new TextShaderProgram(sh);
+
 		// Initialize the ScreenQuad
 		screen = new ScreenQuad();
 		postProcessFb = new FrameBuffer(width, height);
@@ -281,6 +158,8 @@ public class Renderer {
 		texManager = TextureManager.getInstance();
 		fbTexUnitId = texManager.getTextureSlot();
 		
+		// Initialize the text renderer.
+		textRenderer = new TextRenderer("courierNewFont.png", TEXT_SHADER_PROGRAM);
 		init();
 	}	
 	
@@ -377,6 +256,13 @@ public class Renderer {
 			ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		}
 		
+		if (textRenderer != null) {
+			ShaderController.setProgram(TEXT_SHADER_PROGRAM);
+			GL20.glUseProgram(ShaderController.getCurrentProgram());
+			textRenderer.render();
+			ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
+		}
+
 		// Select shader program.
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
@@ -395,7 +281,7 @@ public class Renderer {
 			} 
 			m.render(m.equals(pickedModel));
 		}
-        		
+
 		// Deselect
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		GL30.glBindVertexArray(0);
@@ -434,6 +320,8 @@ public class Renderer {
 				System.out.println("Error: " + testVal);
 			}
 		}
+
+		textRenderer.render();
 
 		GL20.glUseProgram(0);
 		Display.sync(frameRate);
@@ -549,6 +437,14 @@ public class Renderer {
 		postProcessConversions = new HashSet<>();
 	}
 	
+	public void addTextBox(TextBox t) {
+		textRenderer.addTextBox(t);
+	}
+
+	public void removeTextBox(TextBox t) {
+		textRenderer.removeTextBox(t);
+	}
+
 	/**
 	 * Initializes the renderer
 	 */
