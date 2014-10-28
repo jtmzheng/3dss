@@ -32,7 +32,7 @@ import renderer.shader.ShaderProgram;
 import renderer.shader.SkyboxShaderProgram;
 import renderer.shader.TextShaderProgram;
 import renderer.util.Skybox;
-import renderer.util.TextBox;
+import renderer.util.TextManager;
 import renderer.util.TextRenderer;
 import system.Settings;
 import texture.TextureManager;
@@ -46,13 +46,10 @@ import texture.TextureManager;
  */
 public class Renderer {
 	// Defaults 
-	private static final int DEFAULT_WIDTH = 320;
-	private static final int DEFAULT_HEIGHT = 240;
-	private static final int DEFAULT_FRAME_RATE = 60;
 	private static final int MAX_MODELS = 100; // Max models on the temp buffer
 
 	private final Integer DEFAULT_FRAME_BUFFER = 0;
-	
+
 	// List of the models that will be rendered
 	private Set<Model> models;
 	private BlockingQueue<Model> modelBuffer;
@@ -96,6 +93,7 @@ public class Renderer {
 
 	// Instance of the shared settings object.
 	private Settings settings = Settings.getInstance();
+	private TextManager textManager = TextManager.getInstance();
 
 	private TextRenderer textRenderer;
 
@@ -113,7 +111,7 @@ public class Renderer {
 			int frameRate,
 			Fog fog,
 			String title) {
-		
+
 		this.camera = camera;
 		this.width = width;
 		this.height = height;
@@ -122,7 +120,7 @@ public class Renderer {
 		
 		// Initialize the OpenGL context
 		initOpenGL(width <= 0 && height <= 0, title);
-		
+
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
 		sh.put(settings.get("paths", "vertex_path"), GL20.GL_VERTEX_SHADER);
@@ -147,6 +145,7 @@ public class Renderer {
 		sh = new HashMap<>();
 		sh.put(settings.get("paths", "text_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(settings.get("paths", "text_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+
 		TEXT_SHADER_PROGRAM = new TextShaderProgram(sh);
 
 		// Initialize the ScreenQuad
@@ -157,9 +156,9 @@ public class Renderer {
 		// Initialize the texture manager
 		texManager = TextureManager.getInstance();
 		fbTexUnitId = texManager.getTextureSlot();
-		
+
 		// Initialize the text renderer.
-		textRenderer = new TextRenderer("courierNewFont.png", TEXT_SHADER_PROGRAM);
+		textRenderer = new TextRenderer("consolas.png", TEXT_SHADER_PROGRAM);
 		init();
 	}	
 	
@@ -211,8 +210,9 @@ public class Renderer {
 		viewMatrix = camera.getViewMatrix();
 		viewMatrix.store(matrix44Buffer); 
 		matrix44Buffer.flip();
+
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
-		
+
 		// Render each model
 		for(Model m: models){
 			if (!m.isGLsetup()) {
@@ -220,7 +220,8 @@ public class Renderer {
 			} 
 			m.renderPicking();
 		}
-		
+
+
 		// Deselect
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		GL30.glBindVertexArray(0);
@@ -259,14 +260,14 @@ public class Renderer {
 		// Select shader program.
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
-		
+
 		// Set the uniform values of the view matrix 
 		viewMatrix = camera.getViewMatrix();
 		viewMatrix.store(matrix44Buffer); 
 		matrix44Buffer.flip();
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixFragLocation(), false, matrix44Buffer);
-		
+
 		// Render each model
 		for(Model m: models){
 			if (!m.isGLsetup()) {
@@ -432,14 +433,6 @@ public class Renderer {
 	
 	public void resetImageConversions() {
 		postProcessConversions = new HashSet<>();
-	}
-	
-	public void addTextBox(TextBox t) {
-		textRenderer.addTextBox(t);
-	}
-
-	public void removeTextBox(TextBox t) {
-		textRenderer.removeTextBox(t);
 	}
 
 	/**

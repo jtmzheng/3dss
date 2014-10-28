@@ -26,5 +26,6 @@ public class TextShaderProgram extends ShaderProgram {
 	protected void setupUniformLocations() {
 		shaderUniformLocations = new HashMap<>();
 		shaderUniformLocations.put("textureSampler", GL20.glGetUniformLocation(getProgram(), "textureSampler"));
+		shaderUniformLocations.put("screenDimensions", GL20.glGetUniformLocation(getProgram(), "screenDimensions"));
 	}
 }

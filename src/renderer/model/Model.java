@@ -497,7 +497,7 @@ public class Model {
 	}
 
 	public void renderPicking() {
-		if(renderFlag) {		
+		if(renderFlag) {
 			FloatBuffer modelMatrixBuffer = BufferUtils.createFloatBuffer(16);
 			FloatBuffer uniqueIdBuffer = BufferUtils.createFloatBuffer(3);
 			
@@ -542,14 +542,14 @@ public class Model {
 	 * @TODO: Make a class for the HashMaps (a struct) - will keep it cleaner
 	 */
 	public void render(boolean isPicked) {
-		if(renderFlag) {		
+		if(renderFlag) {
 			FloatBuffer modelMatrixBuffer = BufferUtils.createFloatBuffer(16);
 			modelMatrix = physicsModel.getTransformMatrix();
 			modelMatrix.store(modelMatrixBuffer);
 			modelMatrixBuffer.flip();
 
 			GL20.glUniformMatrix4(ShaderController.getModelMatrixLocation(), false, modelMatrixBuffer);
-			
+
 			// If model is picked change the colour
 			if(isPicked) {
 				GL20.glUniform1i(ShaderController.getSelectedModelLocation(), 1);

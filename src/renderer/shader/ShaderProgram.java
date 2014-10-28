@@ -26,18 +26,19 @@ public abstract class ShaderProgram {
 	 * Constructor for the shader program
 	 * @param shaders
 	 */
-	public ShaderProgram(Map<String, Integer> shaders) {		
+	public ShaderProgram(Map<String, Integer> shaders) {
+
 		programId = GL20.glCreateProgram();
 		shaderNameToId = new HashMap<>();
 		shaderIdToType = new HashMap<>();
-		
+
 		for(String file : shaders.keySet()) {
 			int shaderId = loadShader(file, shaders.get(file));
 			GL20.glAttachShader(programId, shaderId);
 			shaderNameToId.put(file, shaderId);
 			shaderIdToType.put(shaderId, shaders.get(file));
 		}
-		
+
 		// Set up the attributes for this program
 		setupAttributes();
 		
@@ -49,7 +50,7 @@ public abstract class ShaderProgram {
 		// Link and validate the program
 		GL20.glLinkProgram(programId);
 		GL20.glValidateProgram(programId);
-				
+
 		// Set up the unifrom locations for this program
 		GL20.glUseProgram(programId);
 		setupUniformLocations();

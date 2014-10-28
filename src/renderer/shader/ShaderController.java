@@ -121,4 +121,8 @@ public class ShaderController {
 	public static int getCubeTextureLocation(){
 		return uniformLocations.containsKey("cubeTexture") ? uniformLocations.get("cubeTexture") : -1;
 	}
+
+	public static int getDimensions() {
+		return uniformLocations.containsKey("screenDimensions") ? uniformLocations.get("screenDimensions") : -1;
+	}
 }
