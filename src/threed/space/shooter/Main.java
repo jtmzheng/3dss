@@ -14,6 +14,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import physics.PhysicsModelProperties;
 import renderer.Camera;
+import renderer.Context;
 import renderer.Fog;
 import renderer.Renderer;
 import renderer.model.Model;
@@ -93,8 +94,11 @@ public class Main {
 		// Create fog
 		Fog worldFog = new Fog(true);
 		
+		// Create the context for the renderer
+		Context context = new Context("Skybox Test", 512, 512, 3, 3, false, 60);
+		
 		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
-		gameRenderer = new Renderer(512, 512, gameCam, 60, worldFog, "Skybox Test");
+		gameRenderer = new Renderer(context, gameCam, worldFog);
 		gameWorld = new World(gameRenderer);
 		
 		List<String> files = new ArrayList<>();

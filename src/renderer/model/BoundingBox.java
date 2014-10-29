@@ -8,9 +8,15 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL31;
 import org.lwjgl.util.vector.Vector3f;
 
+/**
+ * A bounding box used to wrap objects to optimize things such as
+ * object picking and frustrum culling.
+ * @TODO(MZ): Can implement Renderable
+ * @author Max
+ * @author Adi
+ */
 public class BoundingBox {
 
 	public BoundingBox() {
@@ -21,7 +27,10 @@ public class BoundingBox {
 		isBound = false;
 	}
 	
-	public void addVertex(float [] point) {		
+	public boolean addVertex(float [] point) {		
+		if(isBound)
+			return false;
+		
 		if(lowerLeftFront == null) {
 			lowerLeftFront = new Vector3f(point[0], point[1], point[2]);
 		} else {
@@ -37,12 +46,18 @@ public class BoundingBox {
 			upperRightBack.y = Math.max(upperRightBack.y, point[1]);
 			upperRightBack.z = Math.min(upperRightBack.z, point[2]);
 		}
+		
+		return true;
 	}
 	
 	/**
 	 * Binds the object (becomes immutable)
+	 * @return false if bound already
 	 */
-	public void bind() {
+	public boolean bind() {
+		if(isBound)
+			return false;
+		
 		this.vaoId = GL30.glGenVertexArrays();
 		
 		GL30.glBindVertexArray(vaoId);
@@ -59,7 +74,8 @@ public class BoundingBox {
 			   lowerLeftFront.x, upperRightBack.y, upperRightBack.z, 1.0f,
 			   upperRightBack.x, upperRightBack.y, upperRightBack.z, 1.0f
 			};  
-		
+		vertexList = boxVertices;
+
 		int posVboId = GL15.glGenBuffers();
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, posVboId);
 		FloatBuffer buffer = BufferUtils.createFloatBuffer(boxVertices.length);
@@ -75,11 +91,13 @@ public class BoundingBox {
 		indicesBuffer.put(INDICES);
 		indicesBuffer.flip();
 		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);	
 		
+		isBound = true;
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);	
 		GL30.glBindVertexArray(0);
+		return isBound;
 	}
-	
+
 	public boolean isBound() {
 		return isBound;
 	}
@@ -92,6 +110,10 @@ public class BoundingBox {
 		return vboIndId;
 	}
 	
+	public float[] getVertexList() {
+		return vertexList;
+	}
+
 	@Override
 	public String toString() {
 		return "Upper right back: "  + upperRightBack + "\nLower left front: " + lowerLeftFront;
@@ -113,5 +135,6 @@ public class BoundingBox {
 	private Integer vaoId;
 	private Integer vboIndId;
 	private boolean isBound;
+	private float[] vertexList = {};
 	
 }

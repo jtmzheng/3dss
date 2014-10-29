@@ -6,7 +6,8 @@ import java.util.Map;
 
 /**
  * ShaderController will manage the current shader program
- * @TODO: Refactor (For real this time)
+ * @TODO(MZ): Remove deprecated helpers
+ * @TODO(MZ): Add in methods to get properties of program (name, shaders, etc)
  * @author Max 
  */
 public class ShaderController {	
@@ -43,6 +44,24 @@ public class ShaderController {
 	}
 	
 	/**
+	 * True if uniform exists in current program
+	 * @param strName
+	 * @return true if uniform exists in current program
+	 */
+	public static boolean hasUniform(String strName) {
+		return uniformLocations.containsKey(strName);
+	}
+	
+	/**
+	 * Get the uniform location from a uniform name (no guarentee on type)
+	 * @param strName
+	 * @return location if it exists or -1
+	 */
+	public static int getUniformFromName(String strName) {
+		return uniformLocations.containsKey(strName) ? uniformLocations.get(strName) : -1;
+	}
+	
+	/**
 	 * Gets the model matrix location.
 	 * @return the location of the model matrix
 	 */
@@ -66,12 +85,12 @@ public class ShaderController {
 		return uniformLocations.containsKey("viewMatrix") ? uniformLocations.get("viewMatrix") : -1;
 	}
 	
-	public static int getAmbientLocation(){
-		return uniformLocations.containsKey("La") ? uniformLocations.get("La") : -1;
+	public static int getNormalMatrixLocation(){
+		return uniformLocations.containsKey("normMatrix") ? uniformLocations.get("normMatrix") : -1;
 	}
 	
-	public static int getViewMatrixFragLocation(){
-		return uniformLocations.containsKey("viewMatrixFrag") ? uniformLocations.get("viewMatrixFrag") : -1;
+	public static int getAmbientLocation(){
+		return uniformLocations.containsKey("La") ? uniformLocations.get("La") : -1;
 	}
 	
 	public static int getTexSamplerLocation(){
@@ -110,6 +129,10 @@ public class ShaderController {
 		return uniformLocations.containsKey("fbTex") ? uniformLocations.get("fbTex") : -1;
 	}
 	
+	public static int getDepthTextureLocation(){
+		return uniformLocations.containsKey("depthBuffTex") ? uniformLocations.get("depthBuffTex") : -1;
+	}
+	
 	public static int getUniqueIdLocation(){
 		return uniformLocations.containsKey("uniqueId") ? uniformLocations.get("uniqueId") : -1;
 	}
@@ -120,5 +143,21 @@ public class ShaderController {
 	
 	public static int getCubeTextureLocation(){
 		return uniformLocations.containsKey("cubeTexture") ? uniformLocations.get("cubeTexture") : -1;
+	}
+	
+	public static int getNearPlaneLocation() {
+		return uniformLocations.containsKey("nearPlane") ? uniformLocations.get("nearPlane") : -1;
+	}
+	
+	public static int getFarPlaneLocation() {
+		return uniformLocations.containsKey("farPlane") ? uniformLocations.get("farPlane") : -1;
+	}
+
+	public static int getNormalTextureLocation() {
+		return uniformLocations.containsKey("normalTex") ? uniformLocations.get("normalTex") : -1;
+	}
+	
+	public static int getNoiseTextureLocation() {
+		return uniformLocations.containsKey("noiseTex") ? uniformLocations.get("noiseTex") : -1;
 	}
 }

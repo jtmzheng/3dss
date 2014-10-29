@@ -6,7 +6,8 @@ import java.util.List;
 import texture.Material;
 
 /**
- * Represents a face in a model.
+ * Represents a face in a model. Each face has a corresponding material which specifies
+ * its lighting properties and texture maps.
  *
  * @author Max
  * @author Adi
@@ -14,7 +15,6 @@ import texture.Material;
 public class Face {
 	public List<VertexData> faceData;
 	
-	// Each face has a material, which has its own lighting properties.
 	private Material material = null;
 	
 	/**
@@ -110,6 +110,14 @@ public class Face {
 	 */
 	public List<VertexData> getVertices(){
 		return faceData;
+	}
+	
+	/**
+	 * Get the count of the vertices
+	 * @return of vertices
+	 */
+	public int getCount() {
+		return faceData.size();
 	}
 
 	/**
