@@ -1,20 +1,22 @@
 #version 330
 
-// vertex positions input attribute
-in vec2 vp;
+uniform mat4 gFrustumCorners;
 
-// per-vertex texture coordinates input attribute
-in vec2 vt;
+layout(location = 0) in vec2 vp;
+layout(location = 1) in vec2 vt;
+layout(location = 2) in int iFrustum;
 
 // texture coordinates to be interpolated to fragment shaders
 out vec2 st;
-
-uniform mat4 projectionMatrix;
+out vec3 vToFarPlane;
 
 void main (void) {
 	// interpolate texture coordinates
-	mat4 test = projectionMatrix;
 	st = vt;
+	
+	// interpolate the corners
+	vToFarPlane = gFrustumCorners[iFrustum].xyz;
+	
 	// transform vertex position to clip space (camera view and perspective)
 	gl_Position = vec4(vp, 0.0, 1.0);
 }

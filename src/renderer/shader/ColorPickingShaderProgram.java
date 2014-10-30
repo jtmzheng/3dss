@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.lwjgl.opengl.GL20;
 
+import renderer.shader.types.ShaderTypes;
+
 
 /**
  * This shader program is used for color picking
@@ -28,6 +30,11 @@ public class ColorPickingShaderProgram extends ShaderProgram {
 		shaderUniformLocations.put("modelMatrix", GL20.glGetUniformLocation(getProgram(), "modelMatrix"));
 		shaderUniformLocations.put("viewMatrix", GL20.glGetUniformLocation(getProgram(), "viewMatrix"));
 		shaderUniformLocations.put("uniqueId", GL20.glGetUniformLocation(getProgram(), "uniqueId"));
+	}
+
+	@Override
+	public ShaderTypes getShaderType() {
+		return ShaderTypes.PICKING_SHADER;
 	}
 
 }

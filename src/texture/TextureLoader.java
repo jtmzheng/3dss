@@ -11,7 +11,7 @@ import javax.imageio.ImageIO;
 
 import org.lwjgl.BufferUtils;
 
-import system.Settings;
+import util.MathUtils;
 
 /**
  * Utility class to load textures. This should (other than unit tests) only be 
@@ -21,6 +21,35 @@ import system.Settings;
  * @author Max
  */
 public class TextureLoader {	
+	
+	/**
+	 * Generate a random 2D texture
+	 * 
+	 * @param width
+	 * @param height
+	 * @param name
+	 * @param bpp
+	 * @return
+	 */
+	public static Texture loadRandomTexture2D(int width, int height, String name, int bpp) {
+		ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * bpp);
+        try {
+			TextureLoader.fillBufferRandom(buffer, width, height, bpp);
+		} catch(ArrayIndexOutOfBoundsException e) {
+			e.printStackTrace();
+			throw new IllegalArgumentException();
+		}
+        
+        Texture tex = new Texture2D(width, 
+        		height, 
+        		buffer,
+        		name,
+        		bpp == 4);
+        
+        System.out.println("Random Texture: " + tex.getID());
+        return tex;
+	}
+	
 	/**
 	 * Loads a texture given an image filename.
 	 * This file must reside in res/textures/
@@ -107,6 +136,22 @@ public class TextureLoader {
 			}
 		}
 		
+		buffer.flip();
+	}
+	
+	private static void fillBufferRandom(ByteBuffer buffer, int width, int height, int bpp) {
+		// Iterates through the image and adds each pixel to the buffer.
+		for (int y = 0; y < height; y++){
+			for (int x = 0; x < width; x++){
+				buffer.put((byte) MathUtils.randInt(0, Byte.MAX_VALUE));  // Red component.
+				buffer.put((byte) MathUtils.randInt(0, Byte.MAX_VALUE));   // Green component.
+				buffer.put((byte) MathUtils.randInt(0, Byte.MAX_VALUE));          // Blue component
+
+				if (bpp == 4)
+					buffer.put((byte) MathUtils.randInt(0, Byte.MAX_VALUE));  // Alpha component, if it has one.
+			}
+		}
+
 		buffer.flip();
 	}
 	

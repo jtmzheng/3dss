@@ -19,7 +19,7 @@ public class CubeTexture extends Texture {
 	}
 
 	@Override
-	public void bind(int unitId) {
+	public void bind(int unitId, int uniformLocation) {
 		// If not already bound and valid unit Id
 		if(!isBound && unitId > 0) {			
 			texId = GL11.glGenTextures();
@@ -29,7 +29,7 @@ public class CubeTexture extends Texture {
 			
 			// Set uniform variable of texture slot
 			GL20.glUseProgram(ShaderController.getCurrentProgram());
-			GL20.glUniform1i(ShaderController.getCubeTextureLocation(), unitId - GL13.GL_TEXTURE0);
+			GL20.glUniform1i(uniformLocation, unitId - GL13.GL_TEXTURE0);
 			GL11.glBindTexture(GL13.GL_TEXTURE_CUBE_MAP, texId);
 			GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
 

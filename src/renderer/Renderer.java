@@ -1,8 +1,11 @@
 package renderer;
 
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -20,7 +23,9 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector4f;
 
+import renderer.framebuffer.FBTarget;
 import renderer.framebuffer.FrameBuffer;
 import renderer.framebuffer.ScreenQuad;
 import renderer.model.Model;
@@ -35,37 +40,55 @@ import renderer.util.Skybox;
 import renderer.util.TextManager;
 import renderer.util.TextRenderer;
 import system.Settings;
+import texture.Texture;
+import texture.TextureLoader;
 import texture.TextureManager;
+import util.MathUtils;
+import util.Plane;
 
 /**
  * The renderer class should set up OpenGL.
- * @TODO Move context setting to the client
- * @ADD Setting a client defined default shader
+ * @TODO(MZ): Move context setting to the client
+ * @TODO(MZ): Setting a client defined default shader
  * @author Adi
  * @author Max
  */
 public class Renderer {
-	// Defaults 
-	private static final int MAX_MODELS = 100; // Max models on the temp buffer
-
-	private final Integer DEFAULT_FRAME_BUFFER = 0;
+	public static final int MAX_MODELS = 100; // Max models on the temp buffer
+	public static final Integer DEFAULT_FRAME_BUFFER = 0; 
+	public static final float DEFAULT_FOV = 45f;
+	public static final float DEFAULT_FAR_PLANE = 100f;
+	public static final float DEFAULT_NEAR_PLANE = 0.1f;
+	
+	private float mAspectRatio = 1080f / 920f; //@TODO(MZ): Setting FOV, near, far planes
+	private float mFov = DEFAULT_FOV;
+	private float mNear = DEFAULT_NEAR_PLANE;
+	private float mFar = DEFAULT_FAR_PLANE;
 
 	// List of the models that will be rendered
-	private Set<Model> models;
-	private BlockingQueue<Model> modelBuffer;
-	private Map<Integer, Model> mapIdToModel;
+	private Set<Model> mModels;
+	private BlockingQueue<Model> mModelBuffer;
+	private Map<Integer, Model> mMpIdModel;
 	private Model pickedModel = null;
 	private Skybox skybox = null;
 	
-	private int width;
-	private int height;
-	private int frameRate;
+	private Context context;
 	
 	// Matrix variables (should be moved to camera class in the future)
 	private Matrix4f projectionMatrix = null;
 	private Matrix4f viewMatrix = null;
 	private FloatBuffer matrix44Buffer = null;
 	
+	// Planes that make up the frustum.
+	Plane[] frustumPlanes = {
+			new Plane(),
+			new Plane(),
+			new Plane(),
+			new Plane(),
+			new Plane(),
+			new Plane()
+	};
+
 	// The view matrix will be calculated based off this camera
 	private Camera camera = null;    
 	
@@ -86,41 +109,83 @@ public class Renderer {
 	private FrameBuffer colourPickingFb;
 	private Set<Conversion> postProcessConversions;
 	
-	// The frame buffer has its own unit id (for safety)
-	private int fbTexUnitId;
-	
-	private TextureManager texManager;
-
 	// Instance of the shared settings object.
 	private Settings settings = Settings.getInstance();
 	private TextManager textManager = TextManager.getInstance();
 
 	private TextRenderer textRenderer;
+	
+	// Noise texture
+	private Texture noiseTex;
 
 	/**
+	 * Default constructor
+	 * @param context The context to build the renderer with 
+	 * @param camera The camera associated with the renderer
+	 */
+	public Renderer(Context context, Camera camera) {
+		this.camera = camera;
+		this.context = context;
+		
+		this.fog = new Fog(false);		
+
+		// Initialize the OpenGL context
+		initOpenGL();
+		
+		// Initialize shader programs
+		Map<String, Integer> sh = new HashMap<String, Integer>();
+		sh.put(settings.get("paths", "vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
+
+		sh = new HashMap<>();
+		sh.put(settings.get("paths", "post_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
+
+		sh = new HashMap<>();
+		sh.put(settings.get("paths", "picking_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
+		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
+
+		sh = new HashMap<>();
+		sh.put(settings.get("paths", "skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
+		
+		sh = new HashMap<>();
+		sh.put(settings.get("paths", "text_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "text_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		TEXT_SHADER_PROGRAM = new TextShaderProgram(sh);
+
+		// Initialize the ScreenQuad
+		List<FBTarget> targets = new ArrayList<>();
+		targets.add(FBTarget.GL_COLOR_ATTACHMENT);
+		targets.add(FBTarget.GL_DEPTH_ATTACHMENT);
+		targets.add(FBTarget.GL_NORMAL_ATTACHMENT);
+		
+		postProcessFb = new FrameBuffer(context.width, context.height, targets);
+		colourPickingFb = new FrameBuffer(context.width, context.height, Collections.singletonList(FBTarget.GL_COLOR_ATTACHMENT));
+
+		textRenderer = new TextRenderer("consolas.png", TEXT_SHADER_PROGRAM);
+		init();
+	}
+	
+	/**
 	 * Constructor for the renderer
-	 * @param width The width of the renderer.
-	 * @param height The height of the renderer.
-	 * @param camera The camera associated with the renderer.
+	 * @param context The context to build the renderer with
 	 * @param frameRate The frame rate. 
 	 * @param fog The fog
 	 */
-	public Renderer(int width, 
-			int height, 
-			Camera camera, 
-			int frameRate,
-			Fog fog,
-			String title) {
-
+	public Renderer(Context context, Camera camera, Fog fog) {
 		this.camera = camera;
-		this.width = width;
-		this.height = height;
-		this.frameRate = frameRate;
+		this.context = context;
+		
 		this.fog = fog;
 		
 		// Initialize the OpenGL context
-		initOpenGL(width <= 0 && height <= 0, title);
-
+		initOpenGL();
+		
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
 		sh.put(settings.get("paths", "vertex_path"), GL20.GL_VERTEX_SHADER);
@@ -141,23 +206,22 @@ public class Renderer {
 		sh.put(settings.get("paths", "skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(settings.get("paths", "skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
-
+		
 		sh = new HashMap<>();
 		sh.put(settings.get("paths", "text_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(settings.get("paths", "text_fragment_path"), GL20.GL_FRAGMENT_SHADER);
-
 		TEXT_SHADER_PROGRAM = new TextShaderProgram(sh);
 
-		// Initialize the ScreenQuad
-		screen = new ScreenQuad();
-		postProcessFb = new FrameBuffer(width, height);
-		colourPickingFb = new FrameBuffer(width, height);
 		
-		// Initialize the texture manager
-		texManager = TextureManager.getInstance();
-		fbTexUnitId = texManager.getTextureSlot();
+		// Shader outputs (order must match output of fragment shader)
+		List<FBTarget> targets = new ArrayList<>();
+		targets.add(FBTarget.GL_COLOR_ATTACHMENT);
+		targets.add(FBTarget.GL_DEPTH_ATTACHMENT);
+		targets.add(FBTarget.GL_NORMAL_ATTACHMENT);
 
-		// Initialize the text renderer.
+		postProcessFb = new FrameBuffer(context.width, context.height, targets);
+		colourPickingFb = new FrameBuffer(context.width, context.height, Collections.singletonList(FBTarget.GL_COLOR_ATTACHMENT));
+		
 		textRenderer = new TextRenderer("consolas.png", TEXT_SHADER_PROGRAM);
 		init();
 	}	
@@ -167,8 +231,8 @@ public class Renderer {
 	 * @see Model
 	 */
 	public void addModel(Model model) throws IllegalStateException {
-		modelBuffer.add(model);
-		mapIdToModel.put(model.getUID(), model);
+		mModelBuffer.add(model);
+		mMpIdModel.put(model.getUID(), model);
 	}
 	
 	/**
@@ -184,8 +248,8 @@ public class Renderer {
 	 * @see Model
 	 */
 	public void removeModel(Model model) {
-		models.remove(model);	
-		mapIdToModel.remove(model.getUID());
+		mModels.remove(model);	
+		mMpIdModel.remove(model.getUID());
 	}
 	
 	/**
@@ -197,7 +261,7 @@ public class Renderer {
 
 	public void renderColourPicking() {
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, colourPickingFb.getFrameBuffer());	
-		GL11.glViewport(0, 0, width, height);
+		GL11.glViewport(0, 0, context.width, context.height);
 
 		// Select shader program.
 		ShaderController.setProgram(COLOR_PICKING_SHADER_PROGRAM);
@@ -214,9 +278,9 @@ public class Renderer {
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
 
 		// Render each model
-		for(Model m: models){
-			if (!m.isGLsetup()) {
-				m.setupGL();
+		for(Model m: mModels) {
+			if (!m.isBound()) {
+				m.bind();
 			} 
 			m.renderPicking();
 		}
@@ -240,10 +304,9 @@ public class Renderer {
 			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, postProcessFb.getFrameBuffer());
 		}
 		
-		GL11.glViewport(0, 0, width, height);
-		
 		// Clear the color and depth buffers
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+		GL11.glViewport(0, 0, context.width, context.height);
 
 		// Render the skybox first 
 		if(skybox != null) {
@@ -266,24 +329,26 @@ public class Renderer {
 		viewMatrix.store(matrix44Buffer); 
 		matrix44Buffer.flip();
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
-		GL20.glUniformMatrix4(ShaderController.getViewMatrixFragLocation(), false, matrix44Buffer);
 
 		// Render each model
-		for(Model m: models){
-			if (!m.isGLsetup()) {
-				m.setupGL();
-			} 
-			m.render(m.equals(pickedModel));
+		for(Model m: mModels){
+			if (!m.isBound()) {
+				m.bind();
+			}
+			if (!m.shouldCull() || isInView(m)) {
+				m.setPickedFlag(m.equals(pickedModel));
+				m.render(viewMatrix);
+			}
 		}
 
 		// Deselect
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		GL30.glBindVertexArray(0);
 
-		// Render frame buffer to screen if needed
+		// Render frame buffer to screen if needed (@TODO: Move to ScreenQuad)
 		if(!postProcessConversions.isEmpty()) {
 			GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, DEFAULT_FRAME_BUFFER);
-			GL11.glViewport(-width, -height, width * 2, height * 2); // @TODO: Fix hack
+			GL11.glViewport(0, 0, context.width, context.height);
 
 			int testVal = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
 			if(testVal == GL30.GL_FRAMEBUFFER_COMPLETE) {
@@ -291,14 +356,33 @@ public class Renderer {
 
 				ShaderController.setProgram(POST_PROCESS_SHADER_PROGRAM);
 				GL20.glUseProgram(ShaderController.getCurrentProgram());
-
-				GL13.glActiveTexture(fbTexUnitId);
-				GL20.glUniform1i(ShaderController.getFBTexLocation(), fbTexUnitId - GL13.GL_TEXTURE0);
-				GL11.glBindTexture(GL11.GL_TEXTURE_2D, postProcessFb.getFrameBufferTexture());
-
-				// Regenerate the mip map
-				GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
-
+				
+				viewMatrix.store(matrix44Buffer); 
+				matrix44Buffer.flip();
+				GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
+				
+				TextureManager tm = TextureManager.getInstance();
+				Integer unitIdColour = tm.getTextureSlot();
+				Integer unitIdDepth = tm.getTextureSlot();
+				Integer unitIdNormal = tm.getTextureSlot();
+				Integer unitIdNoise = tm.getTextureSlot();
+				
+				GL13.glActiveTexture(unitIdColour);
+				GL20.glUniform1i(ShaderController.getFBTexLocation(), unitIdColour - GL13.GL_TEXTURE0);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, postProcessFb.getFrameBufferTexture(FBTarget.GL_COLOR_ATTACHMENT));
+				
+				GL13.glActiveTexture(unitIdDepth);
+				GL20.glUniform1i(ShaderController.getDepthTextureLocation(), unitIdDepth - GL13.GL_TEXTURE0);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, postProcessFb.getFrameBufferTexture(FBTarget.GL_DEPTH_ATTACHMENT));
+				
+				GL13.glActiveTexture(unitIdNormal);
+				GL20.glUniform1i(ShaderController.getNormalTextureLocation(), unitIdNormal - GL13.GL_TEXTURE0);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, postProcessFb.getFrameBufferTexture(FBTarget.GL_NORMAL_ATTACHMENT));
+				
+				GL13.glActiveTexture(unitIdNoise);
+				GL20.glUniform1i(ShaderController.getNoiseTextureLocation(), unitIdNoise - GL13.GL_TEXTURE0);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, noiseTex.getID());
+				
 				// Bind the VAO for the Screen Quad
 				GL30.glBindVertexArray(screen.getVAOId());
 
@@ -308,8 +392,11 @@ public class Renderer {
 				// Unbind 
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 				GL30.glBindVertexArray(0);
-				
 				ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
+				tm.returnTextureSlot(unitIdColour);
+				tm.returnTextureSlot(unitIdDepth);
+				tm.returnTextureSlot(unitIdNormal);
+				tm.returnTextureSlot(unitIdNoise);
 			} else {
 				System.out.println("Error: " + testVal);
 			}
@@ -322,7 +409,7 @@ public class Renderer {
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 
 		GL20.glUseProgram(0);
-		Display.sync(frameRate);
+		Display.sync(context.frameRate);
 		Display.update();
 	}
 	
@@ -330,7 +417,7 @@ public class Renderer {
 	 * Takes model buffer and places it in the main set
 	 */
 	public void updateModels() {
-		modelBuffer.drainTo(models);
+		mModelBuffer.drainTo(mModels);
 	}
 	
 	/**
@@ -351,15 +438,15 @@ public class Renderer {
 	 * @return frameRate the frame rate 
 	 */
 	public int getFrameRate() {
-		return frameRate;
+		return context.frameRate;
 	}
 	
 	public int getWidth() {
-		return width;
+		return context.width;
 	}
 	
 	public int getHeight() {
-		return height;
+		return context.height;
 	}
 	
 	/**
@@ -375,7 +462,7 @@ public class Renderer {
 	 * @return model
 	 */
 	public Model getModel(int id) {
-		return mapIdToModel.get(id);
+		return mMpIdModel.get(id);
 	}
 	
 	/**
@@ -408,10 +495,10 @@ public class Renderer {
 		int modelId = getModelId(pixel.get(0), pixel.get(1), pixel.get(2));
 		
 		// Check if the model is valid
-		if(mapIdToModel.containsKey(modelId)) {
+		if(mMpIdModel.containsKey(modelId)) {
 			// Select if not picked
-			if(!mapIdToModel.get(modelId).equals(pickedModel)) {
-				pickedModel = mapIdToModel.get(modelId);
+			if(!mMpIdModel.get(modelId).equals(pickedModel)) {
+				pickedModel = mMpIdModel.get(modelId);
 			} else {
 				pickedModel = null;
 			}
@@ -436,31 +523,105 @@ public class Renderer {
 	}
 
 	/**
+	 * Returns true if the model is currently in view, and false otherwise.
+	 * This is used for frustum culling to only render models whose bounding boxes are in view.
+	 */
+	private boolean isInView (Model m) {
+		float[] pts = m.getBoundingBox().getVertexList();
+		Vector4f[] transformedPts = new Vector4f[8];
+		Matrix4f tMat = m.getPhysicsModel().getTransformMatrix();
+
+		for (int i = 0; i < pts.length; i+=4) {
+			Vector4f mPt = new Vector4f(pts[i], pts[i+1], pts[i+2], pts[i+3]);
+			Matrix4f.transform(tMat, mPt, mPt);
+			Matrix4f.transform(viewMatrix, mPt, mPt);
+			transformedPts[i/4] = mPt;
+		}
+		
+		boolean outsidefrustum = true;
+		for (int i = 0; i < frustumPlanes.length; i++) {
+			for (int j = 0; j < transformedPts.length; j++) {
+				float dP = MathUtils.dotPlaneWithVector(frustumPlanes[i], transformedPts[j]);
+				outsidefrustum &= dP < 0f;
+			}
+			if (outsidefrustum == true) return false;
+			outsidefrustum = true;
+		}
+		return true;
+	}
+
+	/**
+	 * Computes the frustum planes using the projection matrix (see http://graphics.cs.ucf.edu/cap4720/fall2008/plane_extraction.pdf).
+	 * This algorithm gives the planes in view space (camera space).
+	 */
+	private void computeFrustumPlanes() {
+		// Left plane.
+		frustumPlanes[0].a = projectionMatrix.m03 + projectionMatrix.m00; 
+		frustumPlanes[0].b = projectionMatrix.m13 + projectionMatrix.m10;
+		frustumPlanes[0].c = projectionMatrix.m23 + projectionMatrix.m20;
+		frustumPlanes[0].d = projectionMatrix.m33 + projectionMatrix.m30;
+
+		// Right plane.
+		frustumPlanes[1].a = projectionMatrix.m03 - projectionMatrix.m00; 
+		frustumPlanes[1].b = projectionMatrix.m13 - projectionMatrix.m10;
+		frustumPlanes[1].c = projectionMatrix.m23 - projectionMatrix.m20;
+		frustumPlanes[1].d = projectionMatrix.m33 - projectionMatrix.m30;
+
+		// Top plane.
+		frustumPlanes[2].a = projectionMatrix.m03 - projectionMatrix.m01; 
+		frustumPlanes[2].b = projectionMatrix.m13 - projectionMatrix.m11;
+		frustumPlanes[2].c = projectionMatrix.m23 - projectionMatrix.m21;
+		frustumPlanes[2].d = projectionMatrix.m33 - projectionMatrix.m31;
+
+		// Bottom plane.
+		frustumPlanes[3].a = projectionMatrix.m03 + projectionMatrix.m01;
+		frustumPlanes[3].b = projectionMatrix.m13 + projectionMatrix.m11;
+		frustumPlanes[3].c = projectionMatrix.m23 + projectionMatrix.m21;
+		frustumPlanes[3].d = projectionMatrix.m33 + projectionMatrix.m31;
+
+		// Near plane.
+		frustumPlanes[4].a = projectionMatrix.m30 + projectionMatrix.m20;
+		frustumPlanes[4].b = projectionMatrix.m31 + projectionMatrix.m21;
+		frustumPlanes[4].c = projectionMatrix.m32 + projectionMatrix.m22;
+		frustumPlanes[4].d = DEFAULT_NEAR_PLANE;
+		
+		// Far plane.
+		frustumPlanes[5].a = projectionMatrix.m30 - projectionMatrix.m20;
+		frustumPlanes[5].b = projectionMatrix.m31 - projectionMatrix.m21;
+		frustumPlanes[5].c = projectionMatrix.m32 - projectionMatrix.m22;
+		frustumPlanes[5].d = DEFAULT_FAR_PLANE;
+
+		// Normalize plane normals.
+		for (int i = 0; i < frustumPlanes.length; i++) {
+			MathUtils.normalizePlane(frustumPlanes[i]);
+		}
+	}
+
+	/**
 	 * Initializes the renderer
 	 */
 	private void init() {		
-		modelBuffer = new ArrayBlockingQueue<>(MAX_MODELS);
-		models = new HashSet<>();
-		mapIdToModel = new HashMap<>();
+		mModelBuffer = new ArrayBlockingQueue<>(MAX_MODELS);
+		mModels = new HashSet<>();
+		mMpIdModel = new HashMap<>();
 		postProcessConversions = new HashSet<>();
 		
 		// Set up view and projection matrices
 		projectionMatrix = new Matrix4f();
-		float fieldOfView = 45f;
-		float aspectRatio = (float)width / (float)height;
-		float near_plane = 0.1f;
-		float far_plane = 100f;
+		mAspectRatio = (float)context.width / (float)context.height; //@TODO(MZ): Setting FOV, near, far planes
 
-		float y_scale = (float)(1/Math.tan((Math.toRadians(fieldOfView / 2f))));
-		float x_scale = y_scale / aspectRatio;
-		float frustum_length = far_plane - near_plane;
+		float ySfl = (float)(1 / Math.tan((Math.toRadians(mFov / 2f))));
+		float xSfl = ySfl / mAspectRatio;
+		float dulFrustum = mFar - mNear;
 
-		projectionMatrix.m00 = x_scale;
-		projectionMatrix.m11 = y_scale;
-		projectionMatrix.m22 = -((far_plane + near_plane) / frustum_length);
+		projectionMatrix.m00 = xSfl;
+		projectionMatrix.m11 = ySfl;
+		projectionMatrix.m22 = -((mFar + mNear) / dulFrustum);
 		projectionMatrix.m23 = -1;
-		projectionMatrix.m32 = -((2 * near_plane * far_plane) / frustum_length);
+		projectionMatrix.m32 = -((2 * mNear * mFar) / dulFrustum);
 		projectionMatrix.m33 = 0;
+		
+		computeFrustumPlanes();
 
 		viewMatrix = new Matrix4f();
 
@@ -468,7 +629,7 @@ public class Renderer {
 		matrix44Buffer = BufferUtils.createFloatBuffer(16);
 		viewMatrix.store(matrix44Buffer);
 		matrix44Buffer.flip();
-		
+
 		// Initialize the uniform variables
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
@@ -496,6 +657,23 @@ public class Renderer {
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
 		GL20.glUniformMatrix4(ShaderController.getProjectionMatrixLocation(), false, matrix44Buffer);
 		
+		// Set the near and far planes for the post processing shader
+		ShaderController.setProgram(POST_PROCESS_SHADER_PROGRAM);
+		// region: @TODO: Move setting uniforms to Renderable 
+		GL20.glUseProgram(ShaderController.getCurrentProgram());
+		GL20.glUniform1f(ShaderController.getNearPlaneLocation(), mNear);
+		GL20.glUniform1f(ShaderController.getFarPlaneLocation(), mFar);
+		screen = new ScreenQuad(mFov, mFar, mAspectRatio); 
+		screen.setUniforms();	
+		// endregion
+		
+		// Set up the noise texture
+		TextureManager tm = TextureManager.getInstance();
+		Integer unitIdNoise = tm.getTextureSlot();
+		noiseTex = TextureLoader.loadRandomTexture2D(this.getWidth(), this.getHeight(), "noiseTex", 4);
+		noiseTex.bind(unitIdNoise, ShaderController.getNoiseTextureLocation());
+		tm.returnTextureSlot(unitIdNoise);
+		
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		GL20.glUseProgram(0);
 	}
@@ -504,23 +682,23 @@ public class Renderer {
 	 * Initializes OpenGL (currently using 3.2).
 	 * @param fullscreen Determines whether we should run in fullscreen.
 	 */
-	private void initOpenGL(boolean fullscreen, String title) {
+	private void initOpenGL() {
 		try{
 			PixelFormat pixelFormat = new PixelFormat();
-			ContextAttribs contextAtr = new ContextAttribs(3, 3)
+			ContextAttribs contextAtr = new ContextAttribs(context.majorVersion, context.minorVersion)
 				.withForwardCompatible(true)
-				.withProfileCore(false);
+				.withProfileCore(context.useCore);
 
-			if (fullscreen) 
+			if (context.useFullscreen) 
 				Display.setFullscreen(true);
 			else 
-				Display.setDisplayMode(new DisplayMode(this.width, this.height));
+				Display.setDisplayMode(new DisplayMode(context.width, context.height));
 
-			Display.setTitle(title);
+			Display.setTitle(context.title);
 			Display.create(pixelFormat, contextAtr);
 			
-			if (width != 0 && height != 0)
-				setViewPort(0, 0, this.width, this.height);
+			if (context.width != 0 && context.height != 0)
+				setViewPort(0, 0, context.width, context.height);
 			
 		} catch (LWJGLException e){
 			e.printStackTrace();

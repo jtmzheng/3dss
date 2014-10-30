@@ -13,13 +13,13 @@ import renderer.shader.ShaderController;
 //@TODO: updateLight(LightGL lgl) method
 
 public class LightManager {
+	private final static int MAX_LIGHTS = 30;
 
 	private Map<Object, Light> mLightMap; 
 	private Map<Light, LightGL> mLightToGLMap;
 	
 	private final Object LightManagerLock = new Object();
 	
-	private final static int MAX_LIGHTS = 30;
 	private static BlockingQueue<Integer> mLightIndices; // Holds uniform location of each light
 	private static LightManager mLightManager = null;
 	private LightGL[] lightsGL;

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.lwjgl.opengl.GL20;
 
+import renderer.shader.types.ShaderTypes;
 import system.Settings;
 
 /**
@@ -14,13 +15,14 @@ import system.Settings;
  */
 public class DefaultShaderProgram extends ShaderProgram {
 	public DefaultShaderProgram(Map<String, Integer> shaders) {
-		super(shaders);
+		super(shaders, true);
 	}
 	
 	protected void setupAttributes() {
 		shaderAttributes = new HashMap<>();
 		Settings settings = Settings.getInstance();
 
+		// Define attributes
 		shaderAttributes.put("in_Position", settings.get("attributes", "in_Position", int.class));
 		shaderAttributes.put("in_Color", settings.get("attributes", "in_Color", int.class));
 		shaderAttributes.put("in_TextureCoord", settings.get("attributes", "in_TextureCoord", int.class));
@@ -28,7 +30,10 @@ public class DefaultShaderProgram extends ShaderProgram {
 		shaderAttributes.put("Ks", settings.get("attributes", "Ks", int.class));
 		shaderAttributes.put("Ka", settings.get("attributes", "Ka", int.class));
 		shaderAttributes.put("specExp", settings.get("attributes", "specExp", int.class));
-		shaderAttributes.put("texture", settings.get("attributes", "texture", int.class));	
+		shaderAttributes.put("texture", settings.get("attributes", "texture", int.class));
+		
+		// Add attributes to definition
+		// @TODO(MZ)
 	}
 	
 	protected void setupUniformLocations() {
@@ -37,8 +42,9 @@ public class DefaultShaderProgram extends ShaderProgram {
 		shaderUniformLocations.put("projectionMatrix", GL20.glGetUniformLocation(getProgram(), "projectionMatrix"));
 		shaderUniformLocations.put("modelMatrix", GL20.glGetUniformLocation(getProgram(), "modelMatrix"));
 		shaderUniformLocations.put("viewMatrix", GL20.glGetUniformLocation(getProgram(), "viewMatrix"));
-		shaderUniformLocations.put("viewMatrixFrag", GL20.glGetUniformLocation(getProgram(), "viewMatrixFrag"));
-
+		shaderUniformLocations.put("mvMatrix", GL20.glGetUniformLocation(getProgram(), "mvMatrix"));
+		shaderUniformLocations.put("normMatrix", GL20.glGetUniformLocation(getProgram(), "normMatrix"));
+		
 		// Light uniform location
 		shaderUniformLocations.put("La", GL20.glGetUniformLocation(getProgram(), "La"));
 
@@ -56,5 +62,10 @@ public class DefaultShaderProgram extends ShaderProgram {
 		
 		// Color picking locations
 		shaderUniformLocations.put("selectedModel", GL20.glGetUniformLocation(getProgram(), "selectedModel"));
+	}
+
+	@Override
+	public ShaderTypes getShaderType() {
+		return ShaderTypes.RENDERING_SHADER;
 	}
 }

@@ -26,7 +26,7 @@ public class Skybox {
 		
 		TextureManager tm = TextureManager.getInstance();
 		Integer unitId = tm.getTextureSlot();
-		texture.bind(unitId);
+		texture.bind(unitId, ShaderController.getCubeTextureLocation());
 		tm.returnTextureSlot(unitId);
 		
 		GL30.glBindVertexArray(vaoId);

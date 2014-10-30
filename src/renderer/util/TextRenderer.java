@@ -39,7 +39,7 @@ public class TextRenderer {
 			this.fontTex = (Texture2D) TextureLoader.loadTexture2D(textureFileName);
 			TextureManager tm = TextureManager.getInstance();
 			unitId = tm.getTextureSlot();
-			fontTex.bind(unitId);
+			fontTex.bind(unitId, ShaderController.getTexSamplerLocation());
 		} catch (IllegalArgumentException | IOException e) {
 			e.printStackTrace();
 		}

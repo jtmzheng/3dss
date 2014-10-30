@@ -12,6 +12,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import physics.PhysicsModelProperties;
 import renderer.Camera;
+import renderer.Context;
 import renderer.Fog;
 import renderer.Renderer;
 import renderer.model.Model;
@@ -81,8 +82,11 @@ public class MainPrimitives {
 		// Create fog
 		Fog worldFog = new Fog(new Vector3f(0.2f, 0.2f, 0.2f), 2.0f, 10.0f, true);
 				
+		// Define the OpenGL context
+		Context context = new Context("Primitives Test", 600, 600, 3, 3, false, 60);
+		
 		gameCam = new Camera(new Vector3f(10.0f, 0.0f, -20.0f));
-		gameRenderer = new Renderer(600, 600, gameCam, 60, worldFog, "Primitives Test");
+		gameRenderer = new Renderer(context, gameCam, worldFog);
 		gameWorld = new World(gameRenderer);
 
 		Ground ground = new Ground(1000, 1000);
