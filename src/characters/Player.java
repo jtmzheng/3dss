@@ -152,6 +152,10 @@ public class Player implements InputListener {
 		updatePhysics();
 	}
 
+	public Vector3f getPosition () {
+		return playerCam.getLocation();
+	}
+
 	/**
 	 * This event handler fires whenever a mouse button is clicked.
 	 * @param evt A MouseClickEvent object.

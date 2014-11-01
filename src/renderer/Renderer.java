@@ -35,7 +35,10 @@ import renderer.shader.PixelShaderProgram;
 import renderer.shader.ShaderController;
 import renderer.shader.ShaderProgram;
 import renderer.shader.SkyboxShaderProgram;
+import renderer.shader.TextShaderProgram;
 import renderer.util.Skybox;
+import renderer.util.TextManager;
+import renderer.util.TextRenderer;
 import system.Settings;
 import texture.Texture;
 import texture.TextureLoader;
@@ -99,7 +102,8 @@ public class Renderer {
 	private final ShaderProgram POST_PROCESS_SHADER_PROGRAM; 
 	private final ShaderProgram COLOR_PICKING_SHADER_PROGRAM;
 	private final ShaderProgram SKY_BOX_SHADER_PROGRAM;
-	
+	private final ShaderProgram TEXT_SHADER_PROGRAM;
+
 	// Frame buffers
 	private FrameBuffer postProcessFb;
 	private FrameBuffer colourPickingFb;
@@ -107,6 +111,9 @@ public class Renderer {
 	
 	// Instance of the shared settings object.
 	private Settings settings = Settings.getInstance();
+	private TextManager textManager = TextManager.getInstance();
+
+	private TextRenderer textRenderer;
 	
 	// Noise texture
 	private Texture noiseTex;
@@ -130,19 +137,27 @@ public class Renderer {
 		sh.put(settings.get("paths", "vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(settings.get("paths", "fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
+
 		sh = new HashMap<>();
 		sh.put(settings.get("paths", "post_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(settings.get("paths", "post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
+
 		sh = new HashMap<>();
 		sh.put(settings.get("paths", "picking_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(settings.get("paths", "picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
 		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
+
 		sh = new HashMap<>();
 		sh.put(settings.get("paths", "skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(settings.get("paths", "skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
 		
+		sh = new HashMap<>();
+		sh.put(settings.get("paths", "text_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "text_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		TEXT_SHADER_PROGRAM = new TextShaderProgram(sh);
+
 		// Initialize the ScreenQuad
 		List<FBTarget> targets = new ArrayList<>();
 		targets.add(FBTarget.GL_COLOR_ATTACHMENT);
@@ -151,7 +166,8 @@ public class Renderer {
 		
 		postProcessFb = new FrameBuffer(context.width, context.height, targets);
 		colourPickingFb = new FrameBuffer(context.width, context.height, Collections.singletonList(FBTarget.GL_COLOR_ATTACHMENT));
-		
+
+		textRenderer = new TextRenderer("consolas.png", TEXT_SHADER_PROGRAM);
 		init();
 	}
 	
@@ -173,30 +189,40 @@ public class Renderer {
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
 		sh.put(settings.get("paths", "vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "fragment_path"), GL20.GL_FRAGMENT_SHADER);		
+		sh.put(settings.get("paths", "fragment_path"), GL20.GL_FRAGMENT_SHADER);	
 		DEFAULT_SHADER_PROGRAM = new DefaultShaderProgram(sh);
+
 		sh = new HashMap<String, Integer>();
 		sh.put(settings.get("paths", "post_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(settings.get("paths", "post_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		POST_PROCESS_SHADER_PROGRAM = new PixelShaderProgram(sh);
+
 		sh = new HashMap<>();
 		sh.put(settings.get("paths", "picking_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(settings.get("paths", "picking_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
+
 		sh = new HashMap<>();
 		sh.put(settings.get("paths", "skybox_vertex_path"), GL20.GL_VERTEX_SHADER);
 		sh.put(settings.get("paths", "skybox_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		SKY_BOX_SHADER_PROGRAM = new SkyboxShaderProgram(sh);
+		
+		sh = new HashMap<>();
+		sh.put(settings.get("paths", "text_vertex_path"), GL20.GL_VERTEX_SHADER);
+		sh.put(settings.get("paths", "text_fragment_path"), GL20.GL_FRAGMENT_SHADER);
+		TEXT_SHADER_PROGRAM = new TextShaderProgram(sh);
+
 		
 		// Shader outputs (order must match output of fragment shader)
 		List<FBTarget> targets = new ArrayList<>();
 		targets.add(FBTarget.GL_COLOR_ATTACHMENT);
 		targets.add(FBTarget.GL_DEPTH_ATTACHMENT);
 		targets.add(FBTarget.GL_NORMAL_ATTACHMENT);
-		
+
 		postProcessFb = new FrameBuffer(context.width, context.height, targets);
 		colourPickingFb = new FrameBuffer(context.width, context.height, Collections.singletonList(FBTarget.GL_COLOR_ATTACHMENT));
 		
+		textRenderer = new TextRenderer("consolas.png", TEXT_SHADER_PROGRAM);
 		init();
 	}	
 	
@@ -248,6 +274,7 @@ public class Renderer {
 		viewMatrix = camera.getViewMatrix();
 		viewMatrix.store(matrix44Buffer); 
 		matrix44Buffer.flip();
+
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
 
 		// Render each model
@@ -257,7 +284,8 @@ public class Renderer {
 			} 
 			m.renderPicking();
 		}
-		
+
+
 		// Deselect
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		GL30.glBindVertexArray(0);
@@ -291,11 +319,11 @@ public class Renderer {
 			skybox.render();
 			ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		}
-		
+
 		// Select shader program.
 		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 		GL20.glUseProgram(ShaderController.getCurrentProgram());
-		
+
 		// Set the uniform values of the view matrix 
 		viewMatrix = camera.getViewMatrix();
 		viewMatrix.store(matrix44Buffer); 
@@ -312,7 +340,7 @@ public class Renderer {
 				m.render(viewMatrix);
 			}
 		}
-        		
+
 		// Deselect
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		GL30.glBindVertexArray(0);
@@ -373,6 +401,12 @@ public class Renderer {
 				System.out.println("Error: " + testVal);
 			}
 		}
+
+		// Render text on the screen.
+		ShaderController.setProgram(TEXT_SHADER_PROGRAM);
+		GL20.glUseProgram(ShaderController.getCurrentProgram());
+		textRenderer.render();
+		ShaderController.setProgram(DEFAULT_SHADER_PROGRAM);
 
 		GL20.glUseProgram(0);
 		Display.sync(context.frameRate);
@@ -487,7 +521,7 @@ public class Renderer {
 	public void resetImageConversions() {
 		postProcessConversions = new HashSet<>();
 	}
-	
+
 	/**
 	 * Returns true if the model is currently in view, and false otherwise.
 	 * This is used for frustum culling to only render models whose bounding boxes are in view.

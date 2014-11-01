@@ -77,7 +77,7 @@ public class World {
 		synchronized(PHYSICS_WORLD_LOCK) {
 			dynamicsWorld.stepSimulation(1.0f / renderer.getFrameRate());
 			renderer.updateModels();
-			renderer.renderColourPicking();
+			// renderer.renderColourPicking(); //TODO: this is throwing a GL error (invalid operation). find out why
 			renderer.renderScene();
 		}
 	}

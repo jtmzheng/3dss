@@ -22,7 +22,8 @@ import renderer.model.ModelFactory;
 import renderer.util.Ground;
 import renderer.util.ParticleEmitter;
 import renderer.util.Skybox;
-import system.Settings;
+import renderer.util.TextBox;
+import renderer.util.TextManager;
 import texture.Texture;
 import texture.TextureLoader;
 import world.World;
@@ -42,7 +43,10 @@ public class Main {
 	private static Player player;
 	private static Camera gameCam;
 	private static ArrayList<Input> rawInputs = new ArrayList<Input>();
-	
+	private static TextManager textManager = TextManager.getInstance();
+
+	private static TextBox playerPosition;
+
 	public static void main(String [] args){
 		setupWorld();
 		setupPlayer();
@@ -56,9 +60,18 @@ public class Main {
 			
 			player.move();
 			gameWorld.simulate();
+			updateTextOnScreen();
 		}
 		
 		gameWorld.cleanupDynamicWorldObjects();
+	}
+
+	public static void updateTextOnScreen () {
+		Vector3f position = player.getPosition();
+		double x = Math.round(position.x*100.0)/100.0;
+		double y = Math.round(position.y*100.0)/100.0;
+		double z = Math.round(position.z*100.0)/100.0;
+		textManager.setText(playerPosition, "pos: (" + x + "," + y + "," + z + ")");
 	}
 
 	/**
@@ -85,6 +98,9 @@ public class Main {
 			i.initialize();
 			i.setListener(player);
 		}
+
+		playerPosition = new TextBox("", 10, 10, 18);
+		textManager.addTextBox(playerPosition);
 	}
 	
 	/**
@@ -100,7 +116,7 @@ public class Main {
 		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
 		gameRenderer = new Renderer(context, gameCam, worldFog);
 		gameWorld = new World(gameRenderer);
-		
+
 		List<String> files = new ArrayList<>();
 		files.add("miramar_ft.png");
 		files.add("miramar_bk.png");

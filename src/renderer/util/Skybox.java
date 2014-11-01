@@ -41,7 +41,7 @@ public class Skybox {
 
 		// Put the position coordinates in attribute list 0
 		GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0);
-		
+
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 		GL30.glBindVertexArray(0);
 	}
@@ -52,20 +52,21 @@ public class Skybox {
 		
 		GL11.glDisable(GL11.GL_CULL_FACE);
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		
+
 		GL11.glDepthMask(false);
 		GL13.glActiveTexture(unitId);
 		GL20.glUniform1i(ShaderController.getCubeTextureLocation(), unitId - GL13.GL_TEXTURE0);
 		GL11.glBindTexture(GL13.GL_TEXTURE_CUBE_MAP, texture.getID());
 		GL30.glBindVertexArray(vaoId);
 		GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 36);
-		GL13.glActiveTexture(0);
+
+		// note: calling glActiveTexture(0) results in an 'invalid enum' opengl error.
+		// i don't think it is required, either.
+
 		GL11.glDepthMask(true);
 		GL30.glBindVertexArray(0);
-		
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
-		
 		tm.returnTextureSlot(unitId);
 	}
 

@@ -507,7 +507,7 @@ public class Model implements Renderable {
 
 
 	public void renderPicking() {
-		if(renderFlag) {		
+		if(renderFlag) {
 			FloatBuffer modelMatrixBuffer = BufferUtils.createFloatBuffer(16);
 			FloatBuffer uniqueIdBuffer = BufferUtils.createFloatBuffer(3);
 

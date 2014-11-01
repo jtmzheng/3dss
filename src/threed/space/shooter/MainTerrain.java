@@ -20,6 +20,8 @@ import renderer.Renderer;
 import renderer.model.Model;
 import renderer.model.ModelFactory;
 import renderer.util.Skybox;
+import renderer.util.TextBox;
+import renderer.util.TextManager;
 import terrain.BlockTerrain;
 import terrain.BlockTerrainGenerator;
 import texture.Texture;
@@ -29,7 +31,6 @@ import characters.Player;
 
 public class MainTerrain {
 
-
 	/**
 	 * Test client
 	 * @param args
@@ -37,6 +38,10 @@ public class MainTerrain {
 	public static void main(String [] args) {
 		BlockTerrainGenerator btg = new BlockTerrainGenerator(25, 1, 1.1);
 		BlockTerrain bt = btg.generateTerrain();
+
+		TextManager textManager = TextManager.getInstance();
+		TextBox playerPosition = new TextBox("", 10, 10, 18);
+		textManager.addTextBox(playerPosition);
 
 		// Define the context for the renderer
 		Context context = new Context("Terrain Test", 600, 600, 3, 3, false, 60);
@@ -102,6 +107,12 @@ public class MainTerrain {
 
 			player.move();
 			gameWorld.simulate();
+			
+			Vector3f position = player.getPosition();
+			double x = Math.round(position.x*100.0)/100.0;
+			double y = Math.round(position.y*100.0)/100.0;
+			double z = Math.round(position.z*100.0)/100.0;
+			textManager.setText(playerPosition, "pos: (" + x + "," + y + "," + z + ")");
 		}
 
 		gameWorld.cleanupDynamicWorldObjects();
