@@ -37,7 +37,6 @@ import renderer.shader.ShaderProgram;
 import renderer.shader.SkyboxShaderProgram;
 import renderer.shader.TextShaderProgram;
 import renderer.util.Skybox;
-import renderer.util.TextManager;
 import renderer.util.TextRenderer;
 import system.Settings;
 import texture.Texture;
@@ -108,10 +107,6 @@ public class Renderer {
 	private FrameBuffer postProcessFb;
 	private FrameBuffer colourPickingFb;
 	private Set<Conversion> postProcessConversions;
-	
-	// Instance of the shared settings object.
-	private Settings settings = Settings.getInstance();
-	private TextManager textManager = TextManager.getInstance();
 
 	private TextRenderer textRenderer;
 	
@@ -131,6 +126,8 @@ public class Renderer {
 
 		// Initialize the OpenGL context
 		initOpenGL();
+		
+		Settings settings = Settings.getInstance();
 		
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
@@ -185,6 +182,8 @@ public class Renderer {
 		
 		// Initialize the OpenGL context
 		initOpenGL();
+		
+		Settings settings = Settings.getInstance();
 		
 		// Initialize shader programs
 		Map<String, Integer> sh = new HashMap<String, Integer>();
