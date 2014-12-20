@@ -72,9 +72,9 @@ void main(void) {
 	    	vec3 reflectionEye = reflect(-ndposLiEye, normEye);
 			vec3 surfaceViewerEye = normalize(-posEye);
 	    
-	    	float dotSpecular = abs(dot(normalize(reflectionEye), surfaceViewerEye));
-			dotSpecular = min(dotSpecular, 1.0);
-	
+	    	// Phong specular lighting
+	    	float dotSpecular = dot(normalize(reflectionEye), surfaceViewerEye);
+			dotSpecular = max(dotSpecular, 0);
 			float specFactor = pow(dotSpecular, lights[index].specExp);
 	
 			// Attenuation of light over distance
