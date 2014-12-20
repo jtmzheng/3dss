@@ -54,7 +54,7 @@ float getFogFactor(float dist) {
 
 void main(void) {
 	vec3 Ia = La * sKa / 2;
-	vec3 Id = vec3(0, 0, 0), Is = vec3(0, 0, 0), tIa = vec3(0, 0, 0);
+	vec3 Id = vec3(0, 0, 0), Is = vec3(0, 0, 0);
 	vec3 liAmbDiff = Ia; // light component for ambient and diffuse lighting
 	vec3 liSpec = vec3(0, 0, 0);
 
@@ -89,7 +89,6 @@ void main(void) {
 			// Get light component due to current light
 			tId = lights[index].Ld * sKd * dotLightEye;	
 			tIs = lights[index].Ls * sKs * specFactor;	
-			tIa = Ia / 2;
 			
 			// If directional lighting is enabled
 			if(lights[index].isDirectional > 0.5){
@@ -106,11 +105,10 @@ void main(void) {
 				
 				tId *= spot_factor; // zero if outside of spotlight
   				tIs *= spot_factor;
-  				tIa *= spot_factor;
 			}
 		
-			liAmbDiff += ((tId + tIa) / fAttTotal);
-			liSpec += tIs / fAttTotal;
+			liAmbDiff += (tId / fAttTotal);
+			liSpec += (tIs / fAttTotal);
 	    } 
 	    
 	}
