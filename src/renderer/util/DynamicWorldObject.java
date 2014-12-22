@@ -6,8 +6,6 @@ package renderer.util;
  *
  */
 public interface DynamicWorldObject {
-
 	public boolean needsCleanup();
 	public boolean runCleanup();
-	
 }

@@ -28,7 +28,7 @@ public class ModelFactory {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public static Model loadObjModel(File file) throws InterruptedException, IOException {
+	public static ModelInt loadObjModel(File file) throws InterruptedException, IOException {
 		List<Face> faces;
 
 		Parser parseFile = new Parser();
@@ -36,7 +36,7 @@ public class ModelFactory {
 		
 		faces = parseFile.getFaces();
 		
-		Model m = new Model(faces, new PhysicsModelProperties());
+		ModelInt m = new ModelInt(faces, new PhysicsModelProperties());
 		return m;
 	}
 	
@@ -48,7 +48,7 @@ public class ModelFactory {
 	 * @throws InterruptedException
 	 * @throws IOException
 	 */
-	public static Model loadObjModel(File file, Vector3f pos) throws InterruptedException, IOException {
+	public static ModelInt loadObjModel(File file, Vector3f pos) throws InterruptedException, IOException {
 		List<Face> faces;
 
 		Parser parseFile = new Parser();
@@ -56,7 +56,7 @@ public class ModelFactory {
 		
 		faces = parseFile.getFaces();
 		
-		Model m = new Model(faces, pos, new PhysicsModelProperties());
+		ModelInt m = new ModelInt(faces, pos, new PhysicsModelProperties());
 		return m;
 	}
 	
@@ -68,7 +68,7 @@ public class ModelFactory {
 	 * @throws InterruptedException
 	 * @throws IOException
 	 */
-	public static Model loadObjModel(File file, PhysicsModelProperties rigidBodyProp) throws InterruptedException, IOException {
+	public static ModelInt loadObjModel(File file, PhysicsModelProperties rigidBodyProp) throws InterruptedException, IOException {
 		List<Face> faces;
 
 		Parser parseFile = new Parser();
@@ -76,7 +76,7 @@ public class ModelFactory {
 		
 		faces = parseFile.getFaces();
 		
-		Model m = new Model(faces, rigidBodyProp);
+		ModelInt m = new ModelInt(faces, rigidBodyProp);
 		return m;
 	}
 
@@ -89,7 +89,7 @@ public class ModelFactory {
 	 * @throws InterruptedException
 	 * @throws IOException
 	 */
-	public static Model loadObjModel(File file, Vector3f pos, PhysicsModelProperties rigidBodyProp) throws InterruptedException, IOException {
+	public static ModelInt loadObjModel(File file, Vector3f pos, PhysicsModelProperties rigidBodyProp) throws InterruptedException, IOException {
 		List<Face> faces;
 
 		Parser parseFile = new Parser();
@@ -97,7 +97,7 @@ public class ModelFactory {
 		
 		faces = parseFile.getFaces();
 		
-		Model m = new Model(faces, pos, rigidBodyProp);
+		ModelInt m = new ModelInt(faces, pos, rigidBodyProp);
 		return m;
 	}
 }

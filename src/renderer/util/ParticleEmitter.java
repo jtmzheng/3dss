@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import org.lwjgl.util.vector.Vector3f;
 
 import renderer.model.Model;
+import renderer.model.ModelInt;
 import util.Primitives;
 import world.World;
 
@@ -216,7 +217,7 @@ public class ParticleEmitter implements DynamicWorldObject {
 		private static final float DEFAULT_PARTICLE_SIZE = 0.03f;
 
 		// The model for this particle.
-		private Model model;
+		private ModelInt model;
 		
 		// The runnable to remove a particle from the world.
 		private final Runnable removeParticle = new Runnable() {
@@ -250,7 +251,7 @@ public class ParticleEmitter implements DynamicWorldObject {
 		 * Returns the model of this particle.
 		 * @return model
 		 */
-		public Model getModel() {
+		public ModelInt getModel() {
 			return model;
 		}
 	}

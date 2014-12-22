@@ -4,6 +4,7 @@ import com.bulletphysics.collision.dispatch.CollisionFlags;
 
 import physics.PhysicsModelProperties;
 import renderer.model.Model;
+import renderer.model.ModelInt;
 import util.Primitives;
 
 /**
@@ -11,7 +12,7 @@ import util.Primitives;
  * 
  * @author Adi
  */
-public class Ground extends Model {
+public class Ground extends ModelInt {
 	private static PhysicsModelProperties groundProps;
 
 	static {
@@ -27,7 +28,7 @@ public class Ground extends Model {
 	 */
 	public Ground(float x, float y) {
 		super(Primitives.getPlane(x,  y).getFaceList(), groundProps);
-		setFrustrumCulling(false);
+		super.setFrustrumCulling(false);
 	}
 	
 	/**
@@ -35,7 +36,7 @@ public class Ground extends Model {
 	 * it remains static.
 	 * @param gm
 	 */
-	public Ground(Model gm) {
+	public Ground(ModelInt gm) {
 		super(gm.getFaceList(), groundProps);
 	}
 }

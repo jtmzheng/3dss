@@ -2,6 +2,7 @@ package util;
 
 import java.util.Random;
 
+import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -11,6 +12,13 @@ import org.lwjgl.util.vector.Vector4f;
  * @author Adi
  */
 public class MathUtils {
+	public static final Matrix4f IDENTITY4x4 = new Matrix4f();
+	
+	// @TODO: Probably bad usage of a static initializer
+	static {
+		Matrix4f.setIdentity(IDENTITY4x4);
+    }
+	
 	/**
 	 * Returns true if a point is inside a set of planes, and false otherwise.
 	 */

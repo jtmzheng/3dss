@@ -28,7 +28,7 @@ import org.lwjgl.util.vector.Vector4f;
 import renderer.framebuffer.FBTarget;
 import renderer.framebuffer.FrameBuffer;
 import renderer.framebuffer.ScreenQuad;
-import renderer.model.Model;
+import renderer.model.ModelInt;
 import renderer.shader.ColorPickingShaderProgram;
 import renderer.shader.DefaultShaderProgram;
 import renderer.shader.PixelShaderProgram;
@@ -65,10 +65,10 @@ public class Renderer {
 	private float mFar = DEFAULT_FAR_PLANE;
 
 	// List of the models that will be rendered
-	private Set<Model> mModels;
-	private BlockingQueue<Model> mModelBuffer;
-	private Map<Integer, Model> mMpIdModel;
-	private Model pickedModel = null;
+	private Set<Renderable> mModels;
+	private BlockingQueue<Renderable> mModelBuffer;
+	private Map<Integer, Renderable> mMpIdModel;
+	private Renderable pickedModel = null;
 	private Skybox skybox = null;
 	
 	private Context context;
@@ -226,12 +226,15 @@ public class Renderer {
 	}	
 	
 	/**
-	 * Bind a new model to the renderer (buffers up model to be added during main render loop)
-	 * @see Model
+	 * Bind a new ModelInt to the renderer (buffers up ModelInt to be added during main render loop)
+	 * @see ModelInt
 	 */
-	public void addModel(Model model) throws IllegalStateException {
-		mModelBuffer.add(model);
-		mMpIdModel.put(model.getUID(), model);
+	public void addModel(Renderable rdle) throws IllegalStateException {
+		mModelBuffer.add(rdle);
+		
+		// @TODO: Fix this hack
+		if(ModelInt.class.isAssignableFrom(rdle.getClass()))
+			mMpIdModel.put(((ModelInt)rdle).getUID(), rdle);
 	}
 	
 	/**
@@ -243,12 +246,15 @@ public class Renderer {
 	}
 
 	/**
-	 * Removes a model from the renderer
-	 * @see Model
+	 * Removes a ModelInt from the renderer
+	 * @see ModelInt
 	 */
-	public void removeModel(Model model) {
-		mModels.remove(model);	
-		mMpIdModel.remove(model.getUID());
+	public void removeModel(Renderable rdle) {
+		mModels.remove(rdle);	
+		
+		// @TODO: Fix this hack
+		if(ModelInt.class.isAssignableFrom(rdle.getClass()))
+			mMpIdModel.remove(((ModelInt)rdle).getUID());
 	}
 	
 	/**
@@ -276,11 +282,17 @@ public class Renderer {
 
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
 
-		// Render each model
-		for(Model m: mModels) {
+		// Render each ModelInt
+		for(Renderable rd: mModels) {
+			// @TODO: Fix this hack
+			if(!ModelInt.class.isAssignableFrom(rd.getClass()))
+				continue;
+			
+			ModelInt m = (ModelInt)rd;
 			if (!m.isBound()) {
 				m.bind();
 			} 
+			
 			m.renderPicking();
 		}
 
@@ -329,14 +341,15 @@ public class Renderer {
 		matrix44Buffer.flip();
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
 
-		// Render each model
-		for(Model m: mModels){
+		// Render each ModelInt
+		for(Renderable m: mModels){
 			if (!m.isBound()) {
 				m.bind();
 			}
-			if (!m.shouldCull() || isInView(m)) {
-				m.setPickedFlag(m.equals(pickedModel));
-				m.render(viewMatrix);
+			
+			if (!m.isCullable(viewMatrix, frustumPlanes)) {
+				// m.setPickedFlag(m.equals(pickedModel));
+				m.render(MathUtils.IDENTITY4x4, viewMatrix);
 			}
 		}
 
@@ -413,7 +426,7 @@ public class Renderer {
 	}
 	
 	/**
-	 * Takes model buffer and places it in the main set
+	 * Takes ModelInt buffer and places it in the main set
 	 */
 	public void updateModels() {
 		mModelBuffer.drainTo(mModels);
@@ -457,10 +470,10 @@ public class Renderer {
 	}
 	
 	/**
-	 * Get model based off of UID
-	 * @return model
+	 * Get ModelInt based off of UID
+	 * @return ModelInt
 	 */
-	public Model getModel(int id) {
+	public Renderable getModel(int id) {
 		return mMpIdModel.get(id);
 	}
 	
@@ -483,7 +496,7 @@ public class Renderer {
 	}
 	
 	/**
-	 * Select or deselect current colour picked model 
+	 * Select or deselect current colour picked ModelInt 
 	 * @param x x-coordinate to sample pixel
 	 * @param y y-coordinate to sample pixel
 	 */
@@ -493,7 +506,7 @@ public class Renderer {
 		GL11.glReadPixels(x, y, 1, 1, GL11.GL_RGBA, GL11.GL_FLOAT, pixel);
 		int modelId = getModelId(pixel.get(0), pixel.get(1), pixel.get(2));
 		
-		// Check if the model is valid
+		// Check if the ModelInt is valid
 		if(mMpIdModel.containsKey(modelId)) {
 			// Select if not picked
 			if(!mMpIdModel.get(modelId).equals(pickedModel)) {
@@ -519,34 +532,6 @@ public class Renderer {
 	
 	public void resetImageConversions() {
 		postProcessConversions = new HashSet<>();
-	}
-
-	/**
-	 * Returns true if the model is currently in view, and false otherwise.
-	 * This is used for frustum culling to only render models whose bounding boxes are in view.
-	 */
-	private boolean isInView (Model m) {
-		float[] pts = m.getBoundingBox().getVertexList();
-		Vector4f[] transformedPts = new Vector4f[8];
-		Matrix4f tMat = m.getPhysicsModel().getTransformMatrix();
-
-		for (int i = 0; i < pts.length; i+=4) {
-			Vector4f mPt = new Vector4f(pts[i], pts[i+1], pts[i+2], pts[i+3]);
-			Matrix4f.transform(tMat, mPt, mPt);
-			Matrix4f.transform(viewMatrix, mPt, mPt);
-			transformedPts[i/4] = mPt;
-		}
-		
-		boolean outsidefrustum = true;
-		for (int i = 0; i < frustumPlanes.length; i++) {
-			for (int j = 0; j < transformedPts.length; j++) {
-				float dP = MathUtils.dotPlaneWithVector(frustumPlanes[i], transformedPts[j]);
-				outsidefrustum &= dP < 0f;
-			}
-			if (outsidefrustum == true) return false;
-			outsidefrustum = true;
-		}
-		return true;
 	}
 
 	/**
@@ -724,7 +709,7 @@ public class Renderer {
 	}	
 	
 	/**
-	 * Get model ID from colour (for colour picking) 
+	 * Get ModelInt ID from colour (for colour picking) 
 	 * @param r
 	 * @param g
 	 * @param b

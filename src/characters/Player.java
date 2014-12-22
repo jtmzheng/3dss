@@ -15,6 +15,7 @@ import renderer.light.Light;
 import renderer.light.LightHandle;
 import renderer.light.LightManager;
 import renderer.model.Model;
+import renderer.model.ModelInt;
 import system.Settings;
 import event.PubSubListener;
 import event.PublishEventType;
@@ -33,7 +34,7 @@ import event.Publisher;
 public class Player implements InputListener {
 	// Camera object that the player uses.
 	private Camera playerCam;
-	private Model playerModel;
+	private ModelInt playerModel;
 	private Renderer renderer;
 	
 	//Light parameters
@@ -72,7 +73,7 @@ public class Player implements InputListener {
 	 * @param m The player model
 	 * @param r The renderer
 	 */
-	public Player(Camera c, Model m, Renderer r) {
+	public Player(Camera c, ModelInt m, Renderer r) {
 		playerCam = c;
 		playerModel = m;
 		renderer = r;

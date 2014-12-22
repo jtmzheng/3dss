@@ -19,6 +19,7 @@ import renderer.Fog;
 import renderer.Renderer;
 import renderer.model.Model;
 import renderer.model.ModelFactory;
+import renderer.model.ModelInt;
 import renderer.util.Ground;
 import renderer.util.ParticleEmitter;
 import renderer.util.Skybox;
@@ -83,7 +84,7 @@ public class Main {
 			playerProperties.setProperty("mass", 10f);
 			playerProperties.setProperty("restitution", 0.75f);
 			
-			Model a = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), playerProperties);
+			ModelInt a = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), playerProperties);
 			player = new Player(gameCam, a, gameRenderer);
 			gameWorld.addModel(a);
 		} catch (InterruptedException | IOException e) {
@@ -144,8 +145,8 @@ public class Main {
 			bProperties.setProperty("mass", 10f);
 			bProperties.setProperty("restitution", 0.2f);
 			
-			Model a = ModelFactory.loadObjModel(new File("res/obj/ATAT.obj"), new Vector3f(5, 0, 5));
-			Model b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), new Vector3f(-5, 0, -5), bProperties);
+			ModelInt a = ModelFactory.loadObjModel(new File("res/obj/ATAT.obj"), new Vector3f(5, 0, 5));
+			ModelInt b = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), new Vector3f(-5, 0, -5), bProperties);
 			
 			Ground ground = new Ground(1000, 1000);
 			ground.translate(new Vector3f(-500, 0, -500));

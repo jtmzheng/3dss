@@ -17,8 +17,8 @@ import renderer.Camera;
 import renderer.Context;
 import renderer.Fog;
 import renderer.Renderer;
-import renderer.model.Model;
 import renderer.model.ModelFactory;
+import renderer.model.ModelInt;
 import renderer.util.Skybox;
 import renderer.util.TextBox;
 import renderer.util.TextManager;
@@ -73,7 +73,7 @@ public class MainTerrain {
 			gameRenderer.addSkybox(sb);
 		}
 
-		gameWorld.addModel(bt.blockModel);
+		gameWorld.addModel((ModelInt)bt.blockModel);
 
 		Player player;
 		try {
@@ -81,7 +81,7 @@ public class MainTerrain {
 			playerProperties.setProperty("mass", 10f);
 			playerProperties.setProperty("restitution", 0.75f);
 
-			Model a = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), playerProperties);
+			ModelInt a = ModelFactory.loadObjModel(new File("res/obj/sphere.obj"), playerProperties);
 			player = new Player(gameCam, a, gameRenderer);
 			gameWorld.addModel(a);
 		} catch (InterruptedException | IOException e) {

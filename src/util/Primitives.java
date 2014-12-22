@@ -9,6 +9,7 @@ import org.lwjgl.util.vector.Vector3f;
 import physics.PhysicsModelProperties;
 import renderer.model.Face;
 import renderer.model.Model;
+import renderer.model.ModelInt;
 import renderer.model.VertexData;
 import texture.Material;
 
@@ -26,7 +27,7 @@ public class Primitives {
      * @param height Height of the box.
      * @return a rectangular prism
      */
-    public static Model getRectangularPrism(float width, float length, float height) {
+    public static ModelInt getRectangularPrism(float width, float length, float height) {
         return getRectangularPrism(width, length, height, new PhysicsModelProperties());
     }
 
@@ -38,7 +39,7 @@ public class Primitives {
      * @param props Any custom physics properties.
      * @return a rectangular prism
      */
-    public static Model getRectangularPrism(float width, float length, float height, PhysicsModelProperties props) {
+    public static ModelInt getRectangularPrism(float width, float length, float height, PhysicsModelProperties props) {
         Material mat = new Material();
         Vector3f[] v = {
             new Vector3f(0, 0, 0),
@@ -82,7 +83,7 @@ public class Primitives {
         faceList.add(new Face(new VertexData(v[1], vt[1], vn[0]), new VertexData(v[5], vt[3], vn[0]), new VertexData(v[7], vt[2], vn[0]), mat));
         faceList.add(new Face(new VertexData(v[1], vt[1], vn[0]), new VertexData(v[7], vt[2], vn[0]), new VertexData(v[3], vt[0], vn[0]), mat));
         
-        return new Model(faceList, props);
+        return new ModelInt(faceList, props);
     }
 
     /**
@@ -90,7 +91,7 @@ public class Primitives {
      * @param edgeLength Length of an edge on the cube.
      * @return a cube
      */
-    public static Model getCube(float edgeLength) {
+    public static ModelInt getCube(float edgeLength) {
         return getRectangularPrism(edgeLength, edgeLength, edgeLength);
     }
 
@@ -100,7 +101,7 @@ public class Primitives {
      * @param props Any custom physics properties.
      * @return a cube
      */
-    public static Model getCube(float edgeLength, PhysicsModelProperties props) {
+    public static ModelInt getCube(float edgeLength, PhysicsModelProperties props) {
         return getRectangularPrism(edgeLength, edgeLength, edgeLength, props);
     }
 
@@ -110,7 +111,7 @@ public class Primitives {
      * @param length Length of the plane.
      * @return a plane
      */
-    public static Model getPlane(float width, float length) {
+    public static ModelInt getPlane(float width, float length) {
         return getRectangularPrism(width, length, 0f);
     }
 
@@ -121,7 +122,7 @@ public class Primitives {
      * @param props Any custom physics properties.
      * @return a plane
      */
-    public static Model getPlane(float width, float length, PhysicsModelProperties props) {
+    public static ModelInt getPlane(float width, float length, PhysicsModelProperties props) {
         return getRectangularPrism(width, length, 0f, props);
     }
 }

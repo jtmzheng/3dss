@@ -176,7 +176,8 @@ public class Camera {
 		right.y = cameraRight.y / cameraRight.length();
 		right.z = cameraRight.z / cameraRight.length();
 		
-		forwards.x = -cameraDirection.x / cameraDirection.length(); // ????? why reversed
+		// W vector is oppostive to camera direction (gaze)
+		forwards.x = -cameraDirection.x / cameraDirection.length(); 
 		forwards.y = -cameraDirection.y / cameraDirection.length();
 		forwards.z = -cameraDirection.z / cameraDirection.length();
 		

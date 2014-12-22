@@ -7,7 +7,7 @@ import javax.vecmath.Vector3f;
 
 import physics.PhysicsModel;
 import renderer.Renderer;
-import renderer.model.Model;
+import renderer.model.ModelInt;
 import renderer.util.DynamicWorldObject;
 
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
@@ -58,18 +58,26 @@ public class World {
 		return success;
 	}
 	
-	public void addModel(Model model) throws IllegalStateException {
+	public void addModel(ModelInt model) throws IllegalStateException {
 		synchronized(PHYSICS_WORLD_LOCK) {
 			renderer.addModel(model);
-			dynamicsWorld.addRigidBody(model.getPhysicsModel().getRigidBody());
+			
+			// @TODO: Fix this hack
+			if(ModelInt.class.isAssignableFrom(model.getClass())) {
+				dynamicsWorld.addRigidBody(((ModelInt)model).getPhysicsModel().getRigidBody());
+			}
 		}
 	}
 
-	public void removeModel(Model model) {
+	public void removeModel(ModelInt model) {
 		synchronized(PHYSICS_WORLD_LOCK) {
 			renderer.removeModel(model);
-			dynamicsWorld.removeCollisionObject(model.getPhysicsModel().getRigidBody());
-			dynamicsWorld.removeRigidBody(model.getPhysicsModel().getRigidBody());
+
+			// @TODO: Fix this hack
+			if(ModelInt.class.isAssignableFrom(model.getClass())) {
+				dynamicsWorld.removeCollisionObject(((ModelInt)model).getPhysicsModel().getRigidBody());
+				dynamicsWorld.removeRigidBody(((ModelInt)model).getPhysicsModel().getRigidBody());
+			}
 		}
 	}
 	
@@ -77,7 +85,9 @@ public class World {
 		synchronized(PHYSICS_WORLD_LOCK) {
 			dynamicsWorld.stepSimulation(1.0f / renderer.getFrameRate());
 			renderer.updateModels();
-			// renderer.renderColourPicking(); //TODO: this is throwing a GL error (invalid operation). find out why
+			
+			//TODO: this is throwing a GL error (invalid operation). find out why
+			// renderer.renderColourPicking(); 
 			renderer.renderScene();
 		}
 	}
@@ -93,13 +103,5 @@ public class World {
         ConstraintSolver solver = new SequentialImpulseConstraintSolver();
         dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
         dynamicsWorld.setGravity(new Vector3f(0.0f, WORLD_GRAVITY, 0.0f));
-	}
-	
-	/**
-	 * Test client
-	 * @param args
-	 */
-	public static void main(int args[]) {
-		
 	}
 }
