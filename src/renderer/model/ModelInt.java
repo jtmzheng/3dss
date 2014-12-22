@@ -187,20 +187,14 @@ public class ModelInt extends Model {
 			Vector3f ld, 
 			Vector3f ls, 
 			Vector3f la, 
-			PhysicsModelProperties rigidBodyProp){
-
-		this.faces = f;
+			PhysicsModelProperties rigidBodyProp) {
+		super(f, pos, ld, ls, la);
+		
 		this.physicsProps = rigidBodyProp;
-
-		initialPos = pos;
-
-		// Setup the light associated with this ModelInt
-		mLightHandle = new LightHandle(this, new Light(pos, ls, ld, la, null));
 
 		// Set the ID to the hash code
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
-
 		setup();
 	}
 
@@ -213,17 +207,12 @@ public class ModelInt extends Model {
 	public ModelInt(List<Face> f,
 			Vector3f pos,
 			PhysicsModelProperties rigidBodyProp){
-
-		this.faces = f;
+		super(f, pos);
 		this.physicsProps = rigidBodyProp;
-
-		// Setup the ModelInt 
-		initialPos = pos;
-
+		
 		// Set the ID to the hash code
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
-
 		setup();
 	}
 
@@ -233,16 +222,12 @@ public class ModelInt extends Model {
 	 * @param rigidBodyProp Custom physics properties this ModelInt should have.
 	 */
 	public ModelInt(List<Face> f, PhysicsModelProperties rigidBodyProp){
-
-		this.faces = f;
+		super(f);
 		this.physicsProps = rigidBodyProp;
-
-		initialPos = DEFAULT_INITIAL_POSITION;
 
 		// Set the ID to the hash code
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
-
 		setup();
 	}
 
@@ -252,40 +237,27 @@ public class ModelInt extends Model {
 	 * @param f
 	 */
 	public ModelInt(List<Face> f) {
-		this.faces = f;
+		super(f);
 		this.physicsProps = new PhysicsModelProperties();
-
-		initialPos = DEFAULT_INITIAL_POSITION;
 
 		// Set the UID to the hash code
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
-
 		setup();
 	}
+	
 	/**
 	 * Copy constructor
 	 * @param ModelInt ModelInt to copy
 	 * @param position Initial position of copy
 	 */
-	public ModelInt(ModelInt ModelInt, Vector3f position) {
-
-		// Copy the ModelInt faces
-		List<Face> faceList = new ArrayList<>();
-		for (Face face : ModelInt.getFaceList()) {
-			faceList.add(new Face(face));
-		}
-
-		// Set member variables
-		this.faces = faceList;
-		this.physicsProps = new PhysicsModelProperties(ModelInt.getPhysicsProperties());
-
-		initialPos = position;
-
+	public ModelInt(ModelInt model, Vector3f position) {
+		super(model, position);
+		this.physicsProps = new PhysicsModelProperties(model.getPhysicsProperties());
+		
 		// Set the UID to the hash code
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
-
 		setup();
 	}
 
@@ -690,14 +662,6 @@ public class ModelInt extends Model {
 	}
 
 	/**
-	 * Returns the list of faces that make up this ModelInt.
-	 * @return the list of faces
-	 */
-	public List<Face> getFaceList () {
-		return faces;
-	}
-
-	/**
 	 * Returns the physics properties that this ModelInt has.
 	 * @return the physics properties of the ModelInt
 	 */
@@ -719,13 +683,6 @@ public class ModelInt extends Model {
 	 */
 	public boolean isBound() {
 		return isBound;
-	}
-
-	/**
-	 * Gets if the ModelInt should be culled or not.
-	 */
-	public boolean shouldCull() {
-		return enableCulling;
 	}
 
 	/**
@@ -781,36 +738,10 @@ public class ModelInt extends Model {
 	}
 
 	/**
-	 * Remove the non-triangle faces from the ModelInt (triangulates quads)
-	 * @param List to remove non-triangles from
-	 */
-	private void triangulate() {
-		List<Face> removeFaces = new ArrayList<Face>();
-		List<Face> addFaces = new ArrayList<Face>();
-		for (Face face : this.faces) {
-			if (face.faceData.size() == 4) {
-				removeFaces.add(face);
-				addFaces.add(new Face(face.getVertex(0) , face.getVertex(1) , face.getVertex(2), face.getMaterial()));
-				addFaces.add(new Face(face.getVertex(0) , face.getVertex(2) , face.getVertex(3), face.getMaterial()));
-			} else if (face.faceData.size() > 4){
-				removeFaces.add(face); //TODO(MZ): Currently just culls any face > 4 vertices
-			}
-		}
-
-		this.faces.removeAll(removeFaces);
-		this.faces.addAll(addFaces); 
-	}
-
-	/**
 	 * Setup the ModelInt
 	 */
-	public void setup() {
-		isBound = false;
-
-		// Strip any quads / polygons. 
-		triangulate();
-
-		// Setup the physics ModelInt
+	private void setup() {
+		// Setup the physics model
 		setupPhysicsModel();
 	}
 

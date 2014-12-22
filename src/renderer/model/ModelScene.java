@@ -14,6 +14,10 @@ import util.Plane;
 
 public class ModelScene extends Model {
 
+	public ModelScene(List<Face> f) {
+		super(f);
+	}
+
 	@Override
 	public void render(Matrix4f parentMatrix, Matrix4f viewMatrix) {
 		// TODO Auto-generated method stub
