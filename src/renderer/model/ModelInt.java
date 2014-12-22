@@ -56,53 +56,13 @@ import com.bulletphysics.util.ObjectArrayList;
  * @author Adi
  */
 public class ModelInt extends Model {
-	// Defaults
-	private static final Vector3f DEFAULT_INITIAL_POSITION = new Vector3f(0, 0, 0);
-
-	// Enable culling for this ModelInt or not.
-	protected boolean enableCulling = true;
-
 	// Unique ID for the ModelInt (used for picking)
 	private final int uniqueId;
 	private final Vector3f uniqueIdColour;
 
-	// Map of VBOs and indices for each material in the ModelInt
-	private Map<Material, Integer> mapVBOIndexIds;
-	private Map<Material, Integer> mapIndiceCount;
-
-	// Vertex Array Objects
-	private Map<Material, Integer> mapVAOIds;
-
-	// The ModelInt matrix assosciated with this ModelInt.
-	private Matrix4f modelMatrix;
-
-	// Faces that make up this ModelInt.
-	private List<Face> faces;
-	private Map<Material, List<Face>> mapMaterialToFaces;
-
-	// LightHandle of the ModelInt
-	private LightHandle mLightHandle = null;
-
 	// Physics ModelInt
 	private PhysicsModel physicsModel;
-
-	// Flag for whether this ModelInt should be rendered
-	private boolean renderFlag;	
-
-	// Physics properties of the ModelInt.
 	private PhysicsModelProperties physicsProps;
-
-	// Initial position of the ModelInt.
-	private Vector3f initialPos;
-
-	// Bounding box for the ModelInt
-	private BoundingBox boundBox;
-
-	// Instance of the shared settings object.
-	private Settings settings = Settings.getInstance();
-
-	// If the ModelInt has been bound yet.
-	private boolean isBound = false;
 
 	// If the ModelInt is currently being picked.
 	private boolean isPicked = false;
@@ -505,7 +465,6 @@ public class ModelInt extends Model {
 
 		return isBound;
 	}
-
 
 	public void renderPicking() {
 		if(renderFlag) {
