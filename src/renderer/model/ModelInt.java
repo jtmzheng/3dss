@@ -195,7 +195,7 @@ public class ModelInt extends Model {
 		// Set the ID to the hash code
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
-		setup();
+		setupPhysicsModel();
 	}
 
 	/**
@@ -213,7 +213,7 @@ public class ModelInt extends Model {
 		// Set the ID to the hash code
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
-		setup();
+		setupPhysicsModel();
 	}
 
 	/**
@@ -228,7 +228,7 @@ public class ModelInt extends Model {
 		// Set the ID to the hash code
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
-		setup();
+		setupPhysicsModel();
 	}
 
 	/**
@@ -243,7 +243,7 @@ public class ModelInt extends Model {
 		// Set the UID to the hash code
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
-		setup();
+		setupPhysicsModel();
 	}
 	
 	/**
@@ -258,7 +258,7 @@ public class ModelInt extends Model {
 		// Set the UID to the hash code
 		uniqueIdColour = ColourUtils.encodeColour(hashCode());
 		uniqueId = ColourUtils.decodeColour(uniqueIdColour.x, uniqueIdColour.y, uniqueIdColour.z);
-		setup();
+		setupPhysicsModel();
 	}
 
 	/**
@@ -735,14 +735,6 @@ public class ModelInt extends Model {
 		if(mLightHandle != null) {
 			mLightHandle.invalidate();
 		}
-	}
-
-	/**
-	 * Setup the ModelInt
-	 */
-	private void setup() {
-		// Setup the physics model
-		setupPhysicsModel();
 	}
 
 	/**
