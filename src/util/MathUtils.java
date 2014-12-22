@@ -13,6 +13,9 @@ import org.lwjgl.util.vector.Vector4f;
  */
 public class MathUtils {
 	public static final Matrix4f IDENTITY4x4 = new Matrix4f();
+	public static final Vector3f X_AXIS = new Vector3f(1, 0, 0);
+	public static final Vector3f Y_AXIS = new Vector3f(0, 1, 0);
+	public static final Vector3f Z_AXIS = new Vector3f(0, 0, 1);
 	
 	// @TODO: Probably bad usage of a static initializer
 	static {

@@ -3,8 +3,10 @@ package renderer.model;
 import java.util.List;
 
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
 import renderer.Renderable;
+import util.MathUtils;
 import util.Plane;
 
 /**
@@ -20,38 +22,74 @@ public class ModelScene extends Model {
 
 	@Override
 	public void render(Matrix4f parentMatrix, Matrix4f viewMatrix) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean bind() {
-		// TODO Auto-generated method stub
-		return false;
+		super.render(parentMatrix, viewMatrix);
 	}
 
 	@Override
 	public boolean hasChildren() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public List<Renderable> getChildren() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public boolean isBound() {
-		// TODO Auto-generated method stub
+	public boolean isCullable(Matrix4f viewMatrix, Plane[] frustumPlanes) {
 		return false;
 	}
 
 	@Override
-	public boolean isCullable(Matrix4f viewMatrix, Plane[] frustumPlanes) {
-		// TODO Auto-generated method stub
-		return false;
+	protected Matrix4f getModelMatrix(Matrix4f parentMatrix) {
+		return Matrix4f.mul(modelMatrix, parentMatrix, null);
+	}
+
+	@Override
+	public boolean isBound() {
+		return isBound;
+	}
+	
+	/**
+	 * Translate the modelMatrix by a given vector
+	 * @param s The displacement vector
+	 */
+	public void translate(Vector3f s) {
+		Matrix4f.translate(s, modelMatrix, modelMatrix);
+	}
+
+	/**
+	 * Rotate about the y-axis
+	 * @param angle The angle to rotate by.
+	 */
+	public void rotateY(float angle){
+		Matrix4f.rotate(angle, MathUtils.Y_AXIS, modelMatrix, modelMatrix);
+	}
+
+	/**
+	 * Rotate about the x-axis
+	 * @param angle The angle to rotate by.
+	 */	
+	public void rotateX(float angle){
+		Matrix4f.rotate(angle, MathUtils.X_AXIS, modelMatrix, modelMatrix);
+	}
+
+	/**
+	 * Rotate about the z-axis
+	 * @param angle The angle to rotate by.
+	 */
+	@Override
+	public void rotateZ(float angle){
+		Matrix4f.rotate(angle, MathUtils.Z_AXIS, modelMatrix, modelMatrix);
+	}
+
+	/**
+	 * Scale the ModelScene by a given vector.
+	 * @param scale The scale vector to scale by.
+	 */
+	@Override
+	public void scale(Vector3f scale){
+		Matrix4f.scale(scale, modelMatrix, modelMatrix);
 	}
 
 }
