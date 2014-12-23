@@ -92,7 +92,7 @@ public class MainPrimitives {
 		gameWorld = new World(gameRenderer);
 
 		Ground ground = new Ground(1000, 1000);
-		ground.translate(new Vector3f(-500, 0, -500));
+		ground.translate(new Vector3f(0, -5, 0));
 
 		List<ModelInt> modelsToMerge = new ArrayList<ModelInt>();
 		ModelInt current = (ModelInt) Primitives.getCube(2, ModelType.INTERACTIVE);
