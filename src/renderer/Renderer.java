@@ -53,7 +53,7 @@ import util.Plane;
  * @author Max
  */
 public class Renderer {
-	public static final int MAX_MODELS = 100; // Max models on the temp buffer
+	public static final int MAX_MODELS = 200; // Max models on the temp buffer
 	public static final Integer DEFAULT_FRAME_BUFFER = 0; 
 	public static final float DEFAULT_FOV = 45f;
 	public static final float DEFAULT_FAR_PLANE = 100f;
@@ -142,7 +142,7 @@ public class Renderer {
 
 		sh = new HashMap<>();
 		sh.put(settings.get("paths", "picking_vertex_path"), GL20.GL_VERTEX_SHADER);
-		sh.put(settings.get("paths", "picking_frag_path"), GL20.GL_FRAGMENT_SHADER);
+		sh.put(settings.get("paths", "picking_fragment_path"), GL20.GL_FRAGMENT_SHADER);
 		COLOR_PICKING_SHADER_PROGRAM = new ColorPickingShaderProgram(sh);
 
 		sh = new HashMap<>();
@@ -349,7 +349,7 @@ public class Renderer {
 			
 			if (!m.isCullable(viewMatrix, frustumPlanes)) {
 				// m.setPickedFlag(m.equals(pickedModel));
-				m.render(MathUtils.IDENTITY4x4, viewMatrix);
+				m.render(new Matrix4f(MathUtils.IDENTITY4x4), viewMatrix);
 			}
 		}
 

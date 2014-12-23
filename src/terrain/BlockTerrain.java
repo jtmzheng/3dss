@@ -10,6 +10,7 @@ import physics.PhysicsModelProperties;
 import renderer.Renderable;
 import renderer.model.Model;
 import renderer.model.ModelInt;
+import renderer.model.ModelType;
 import util.Plane;
 import util.Primitives;
 
@@ -34,7 +35,7 @@ public class BlockTerrain implements Renderable {
 	
 	private void setup() {
 		List<ModelInt> modelsToMerge = new ArrayList<>();
-		ModelInt base = (ModelInt) Primitives.getCube(cSize);
+		ModelInt base = (ModelInt) Primitives.getCube(cSize, ModelType.INTERACTIVE);
 		
 		long start = System.currentTimeMillis();
 		for (int x = 0; x < data.length; x++) {

@@ -9,6 +9,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import renderer.model.Model;
 import renderer.model.ModelInt;
+import renderer.model.ModelType;
 import util.Primitives;
 import world.World;
 
@@ -239,7 +240,7 @@ public class ParticleEmitter implements DynamicWorldObject {
 		 * @param particleSizeScale Scaling factor for the size of a particle (Default is 1).
 		 */
 		public Particle(Vector3f position, Vector3f velocity, long lifetime, float particleSizeScale) {
-			model = Primitives.getCube(DEFAULT_PARTICLE_SIZE * particleSizeScale);
+			model = (ModelInt) Primitives.getCube(DEFAULT_PARTICLE_SIZE * particleSizeScale, ModelType.INTERACTIVE);
 			model.translate(position);
 			
 			RigidBody rb = model.getPhysicsModel().getRigidBody();

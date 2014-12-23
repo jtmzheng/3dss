@@ -77,18 +77,22 @@ public abstract class Model implements Renderable {
 		
 		// Setup the light associated with this Model
 		this.mLightHandle = new LightHandle(this, new Light(pos, ls, ld, la, null));	
+		this.modelMatrix = new Matrix4f();
 		setup();
 	}
 	
 	public Model(List<Face> f, Vector3f pos) {
 		this.faces = f;
 		this.initialPos = pos;
+		this.modelMatrix = new Matrix4f();
+		Matrix4f.translate(pos, modelMatrix, modelMatrix);
 		setup();
 	}
 	
 	public Model(List<Face> f) {
 		this.faces = f;
-		this.initialPos = DEFAULT_INITIAL_POSITION;
+		this.initialPos = new Vector3f(DEFAULT_INITIAL_POSITION);
+		this.modelMatrix = new Matrix4f();
 		setup();
 	}
 	
@@ -102,13 +106,14 @@ public abstract class Model implements Renderable {
 		// Set member variables
 		this.faces = faceList;
 		this.initialPos = pos;
-		
+		this.modelMatrix = new Matrix4f();
+		Matrix4f.translate(pos, modelMatrix, modelMatrix);
 		setup();
 	}
 	
 
 	/**
-	 * Bind the ModelInt for rendering
+	 * Bind the Model for rendering
 	 * @return
 	 */
 	public boolean bind() {
@@ -276,8 +281,7 @@ public abstract class Model implements Renderable {
 		// Bind the bounding box
 		boundBox.bind();
 
-		//Initialize ModelInt matrix (Initialized to the identity in the constructor)
-		modelMatrix = new Matrix4f(); 
+		//Initialize flags
 		renderFlag = true;
 		isBound = true;
 
@@ -290,7 +294,7 @@ public abstract class Model implements Renderable {
 	 * @param viewMatrix
 	 * @return
 	 */
-	protected abstract Matrix4f getModelMatrix(Matrix4f parentMatrix);
+	public abstract Matrix4f getModelMatrix(Matrix4f parentMatrix);
 	
 	/**
 	 * Render a ModelInt that has already been set up
@@ -301,14 +305,14 @@ public abstract class Model implements Renderable {
 			return;
 
 		FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
-		modelMatrix = getModelMatrix(parentMatrix);
-		modelMatrix.store(buffer);
+		Matrix4f currModelMatrix = getModelMatrix(parentMatrix);
+		currModelMatrix.store(buffer);
 		buffer.flip();
 
 		GL20.glUniformMatrix4(ShaderController.getModelMatrixLocation(), false, buffer);
 		
 		//TODO(MZ): If not orthogonal (ie, scale) need Matrix4f.transpose(Matrix4f.invert(Matrix4f.mul(viewMatrix, modelMatrix, null), null), null);
-		Matrix4f normMatrix = Matrix4f.mul(viewMatrix, modelMatrix, null); 
+		Matrix4f normMatrix = Matrix4f.mul(viewMatrix, currModelMatrix, null); 
 		normMatrix.store(buffer);
 		buffer.flip();
 

@@ -5,6 +5,7 @@ import com.bulletphysics.collision.dispatch.CollisionFlags;
 import physics.PhysicsModelProperties;
 import renderer.model.Model;
 import renderer.model.ModelInt;
+import renderer.model.ModelType;
 import util.Primitives;
 
 /**
@@ -27,7 +28,7 @@ public class Ground extends ModelInt {
 	 * @param y Length of the ground.
 	 */
 	public Ground(float x, float y) {
-		super(Primitives.getPlane(x,  y).getFaceList(), groundProps);
+		super(Primitives.getPlane(x,  y, ModelType.INTERACTIVE).getFaceList(), groundProps);
 		super.setFrustrumCulling(false);
 	}
 	

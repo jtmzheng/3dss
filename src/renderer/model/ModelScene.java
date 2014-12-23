@@ -11,7 +11,7 @@ import util.Plane;
 
 /**
  * Non-interactive model for the scene (can be a part of the Scene Graph)
- * @author maxz
+ * @author Max
  */
 
 public class ModelScene extends Model {
@@ -41,8 +41,8 @@ public class ModelScene extends Model {
 	}
 
 	@Override
-	protected Matrix4f getModelMatrix(Matrix4f parentMatrix) {
-		return Matrix4f.mul(modelMatrix, parentMatrix, null);
+	public Matrix4f getModelMatrix(Matrix4f parentMatrix) {
+		return Matrix4f.mul(parentMatrix, modelMatrix, null);
 	}
 
 	@Override
@@ -54,32 +54,39 @@ public class ModelScene extends Model {
 	 * Translate the modelMatrix by a given vector
 	 * @param s The displacement vector
 	 */
+	@Override
 	public void translate(Vector3f s) {
+		Vector3f.add(initialPos, s, initialPos);
 		Matrix4f.translate(s, modelMatrix, modelMatrix);
 	}
 
 	/**
-	 * Rotate about the y-axis
+	 * Rotate about the y-axis (degrees)
 	 * @param angle The angle to rotate by.
 	 */
+	@Override
 	public void rotateY(float angle){
+		angle = (float) Math.toRadians(angle);
 		Matrix4f.rotate(angle, MathUtils.Y_AXIS, modelMatrix, modelMatrix);
 	}
 
 	/**
-	 * Rotate about the x-axis
+	 * Rotate about the x-axis (degrees)
 	 * @param angle The angle to rotate by.
 	 */	
+	@Override
 	public void rotateX(float angle){
+		angle = (float) Math.toRadians(angle);
 		Matrix4f.rotate(angle, MathUtils.X_AXIS, modelMatrix, modelMatrix);
 	}
 
 	/**
-	 * Rotate about the z-axis
+	 * Rotate about the z-axis (degrees)
 	 * @param angle The angle to rotate by.
 	 */
 	@Override
 	public void rotateZ(float angle){
+		angle = (float) Math.toRadians(angle);
 		Matrix4f.rotate(angle, MathUtils.Z_AXIS, modelMatrix, modelMatrix);
 	}
 

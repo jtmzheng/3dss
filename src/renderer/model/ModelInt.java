@@ -1,18 +1,13 @@
 package renderer.model;
 
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import javax.vecmath.Quat4f;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
@@ -27,7 +22,6 @@ import renderer.light.Light;
 import renderer.light.LightHandle;
 import renderer.shader.ShaderController;
 import texture.Material;
-import texture.TextureManager;
 import util.ColourUtils;
 import util.MathUtils;
 import util.Plane;
@@ -310,7 +304,7 @@ public class ModelInt extends Model {
 	 * @return
 	 */
 	@Override
-	protected Matrix4f getModelMatrix(Matrix4f parentMatrix) {
+	public Matrix4f getModelMatrix(Matrix4f parentMatrix) {
 		return physicsModel.getTransformMatrix();
 	}
 	
@@ -423,10 +417,6 @@ public class ModelInt extends Model {
 
 	public float[] getModelMatrixBuffer() {
 		return physicsModel.getOpenGLTransformMatrix();
-	}
-	
-	public Matrix4f getModelMatrix() {
-		return physicsModel.getTransformMatrix();
 	}
 
 	/**

@@ -6,6 +6,7 @@ import java.util.List;
 import javax.vecmath.Vector3f;
 
 import physics.PhysicsModel;
+import renderer.Renderable;
 import renderer.Renderer;
 import renderer.model.ModelInt;
 import renderer.util.DynamicWorldObject;
@@ -58,7 +59,7 @@ public class World {
 		return success;
 	}
 	
-	public void addModel(ModelInt model) throws IllegalStateException {
+	public void addModel(Renderable model) throws IllegalStateException {
 		synchronized(PHYSICS_WORLD_LOCK) {
 			renderer.addModel(model);
 			
@@ -69,7 +70,7 @@ public class World {
 		}
 	}
 
-	public void removeModel(ModelInt model) {
+	public void removeModel(Renderable model) {
 		synchronized(PHYSICS_WORLD_LOCK) {
 			renderer.removeModel(model);
 

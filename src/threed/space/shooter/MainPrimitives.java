@@ -17,6 +17,7 @@ import renderer.Fog;
 import renderer.Renderer;
 import renderer.model.Model;
 import renderer.model.ModelInt;
+import renderer.model.ModelType;
 import renderer.util.Ground;
 import util.Primitives;
 import world.World;
@@ -63,7 +64,7 @@ public class MainPrimitives {
 		playerProperties.setProperty("mass", 10f);
 		playerProperties.setProperty("restitution", 0.75f);
 		
-		ModelInt a = Primitives.getRectangularPrism(5, 5, 10, playerProperties);
+		ModelInt a = (ModelInt) Primitives.getRectangularPrism(5, 5, 5, playerProperties);
 		player = new Player(gameCam, a, gameRenderer);
 		gameWorld.addModel(a);
 		
@@ -94,7 +95,7 @@ public class MainPrimitives {
 		ground.translate(new Vector3f(-500, 0, -500));
 
 		List<ModelInt> modelsToMerge = new ArrayList<ModelInt>();
-		ModelInt current = Primitives.getCube(2);
+		ModelInt current = (ModelInt) Primitives.getCube(2, ModelType.INTERACTIVE);
 		for (int x = 0; x < 5; x++) {
 			for (int y = 0; y < 5; y++) {
 				ModelInt copy = new ModelInt(current, new Vector3f(x, y, 0));
