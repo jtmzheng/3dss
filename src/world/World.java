@@ -2,6 +2,7 @@ package world;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import javax.vecmath.Vector3f;
 
@@ -31,7 +32,9 @@ public class World {
 
 	private DynamicsWorld dynamicsWorld;
 	private Renderer renderer;
-	
+	private ArrayBlockingQueue<Renderable> removeQueue;
+	private ArrayBlockingQueue<Renderable> addQueue;
+
 	private List<DynamicWorldObject> worldObjects;
 	
 	/**
@@ -41,6 +44,9 @@ public class World {
 	public World(Renderer renderer) {
 		this.renderer = renderer;
 		this.worldObjects = new ArrayList<>();
+
+		removeQueue = new ArrayBlockingQueue<Renderable>(100);
+		addQueue = new ArrayBlockingQueue<Renderable>(100);
 		setupPhysics(/*@TODO: Options*/);
 	}
 	
@@ -59,40 +65,56 @@ public class World {
 		return success;
 	}
 	
-	public void addModel(Renderable model) throws IllegalStateException {
-		synchronized(PHYSICS_WORLD_LOCK) {
-			renderer.addModel(model);
-			
-			// @TODO: Fix this hack
-			if(ModelInt.class.isAssignableFrom(model.getClass())) {
-				dynamicsWorld.addRigidBody(((ModelInt)model).getPhysicsModel().getRigidBody());
-			}
-		}
+	public void addModel(Renderable model) {
+		addQueue.add(model);
 	}
 
 	public void removeModel(Renderable model) {
-		synchronized(PHYSICS_WORLD_LOCK) {
-			renderer.removeModel(model);
+		removeQueue.add(model);
+	}
 
-			// @TODO: Fix this hack
-			if(ModelInt.class.isAssignableFrom(model.getClass())) {
-				dynamicsWorld.removeCollisionObject(((ModelInt)model).getPhysicsModel().getRigidBody());
-				dynamicsWorld.removeRigidBody(((ModelInt)model).getPhysicsModel().getRigidBody());
-			}
+	private void _addModel(Renderable model) throws IllegalStateException {
+		renderer.addModel(model);
+
+		// @TODO: Fix this hack
+		if(ModelInt.class.isAssignableFrom(model.getClass())) {
+			dynamicsWorld.addRigidBody(((ModelInt)model).getPhysicsModel().getRigidBody());
+		}
+	}
+
+	private void _removeModel(Renderable model) {
+		renderer.removeModel(model);
+
+		// @TODO: Fix this hack
+		if(ModelInt.class.isAssignableFrom(model.getClass())) {
+			dynamicsWorld.removeCollisionObject(((ModelInt)model).getPhysicsModel().getRigidBody());
+			dynamicsWorld.removeRigidBody(((ModelInt)model).getPhysicsModel().getRigidBody());
 		}
 	}
 	
 	public void simulate() {
-		synchronized(PHYSICS_WORLD_LOCK) {
-			dynamicsWorld.stepSimulation(1.0f / renderer.getFrameRate());
-			renderer.updateModels();
-			
-			//TODO: this is throwing a GL error (invalid operation). find out why
-			// renderer.renderColourPicking(); 
-			renderer.renderScene();
+		dynamicsWorld.stepSimulation(1.0f / renderer.getFrameRate());
+		renderer.updateModels();
+
+		//TODO: this is throwing a GL error (invalid operation). find out why
+		// renderer.renderColourPicking();
+		renderer.renderScene();
+
+		// Flush the add and remove model queues synchronously, so we don't add
+		// or remove while simulating.
+		flushQueues();
+	}
+
+	private void flushQueues() {
+		while (!removeQueue.isEmpty()) {
+			_removeModel(removeQueue.poll());
+		}
+
+		while (!addQueue.isEmpty()) {
+			_addModel(addQueue.poll());
 		}
 	}
-	
+
 	/**
 	 * Set up the physics (JBullets) of the World
 	 * @see PhysicsModel 
