@@ -112,7 +112,7 @@ public class Main {
 		Fog worldFog = new Fog(true);
 		
 		// Create the context for the renderer
-		Context context = new Context("Skybox Test", 512, 512, 3, 3, false, 60);
+		Context context = new Context("Skybox Test", 1000, 1000, 3, 3, false, 60);
 		
 		gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
 		gameRenderer = new Renderer(context, gameCam, worldFog);
