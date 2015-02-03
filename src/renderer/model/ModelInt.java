@@ -326,37 +326,20 @@ public class ModelInt extends Model {
 	}
 	
 	/**
-	 * Checks if the model should be culled or not
-	 * @param viewMatrix
-	 * @param frustumPlanes
-	 * @return
+	 * Render a ModelInt that has already been set up
+	 * @TODO: Make a class for the HashMaps (a struct) - will keep it cleaner
 	 */
-	public boolean isCullable(Matrix4f viewMatrix, Plane[] frustumPlanes) {
-		if(!this.enableCulling)
-			return false;
-		
-		float[] pts = this.getBoundingBox().getVertexList();
-		Vector4f[] transformedPts = new Vector4f[8];
-		Matrix4f tMat = this.getPhysicsModel().getTransformMatrix();
+	public void render(Matrix4f parentMatrix, Matrix4f viewMatrix, Plane[] frustumPlanes) {
+		super.render(parentMatrix, viewMatrix, frustumPlanes);
+		if(!renderFlag)
+			return;
 
-		for (int i = 0; i < pts.length; i+=4) {
-			Vector4f mPt = new Vector4f(pts[i], pts[i+1], pts[i+2], pts[i+3]);
-			Matrix4f.transform(tMat, mPt, mPt);
-			Matrix4f.transform(viewMatrix, mPt, mPt);
-			transformedPts[i/4] = mPt;
+		// @TODO: Get picking working or remove code
+		if(isPicked) {
+			GL20.glUniform1i(ShaderController.getSelectedModelLocation(), 1);
+		} else {
+			GL20.glUniform1i(ShaderController.getSelectedModelLocation(), 0);
 		}
-		
-		boolean outsidefrustum = true;
-		for (int i = 0; i < frustumPlanes.length; i++) {
-			for (int j = 0; j < transformedPts.length; j++) {
-				float dP = MathUtils.dotPlaneWithVector(frustumPlanes[i], transformedPts[j]);
-				outsidefrustum &= dP < 0f;
-			}
-			if (outsidefrustum == true) return true;
-			outsidefrustum = false;
-		}
-		
-		return false;
 	}
 
 	/**

@@ -22,6 +22,11 @@ public class SceneGraph implements Renderable {
 	public void render(Matrix4f parentMatrix, Matrix4f viewMatrix) {
 		root.render(parentMatrix, viewMatrix);
 	}
+	
+	@Override
+	public void render(Matrix4f parentMatrix, Matrix4f viewMatrix, Plane[] frustumPlanes) {
+		root.render(parentMatrix, viewMatrix, frustumPlanes);
+	}
 
 	@Override
 	public boolean bind() {
@@ -44,7 +49,7 @@ public class SceneGraph implements Renderable {
 	}
 
 	@Override
-	public boolean isCullable(Matrix4f viewMatrix, Plane[] frustumPlanes) {
-		return false;
+	public boolean isCullable(Matrix4f viewMatrix, Matrix4f parentMatrix, Plane[] frustumPlanes) {
+		return root.isCullable(viewMatrix, parentMatrix, frustumPlanes);
 	}
 }

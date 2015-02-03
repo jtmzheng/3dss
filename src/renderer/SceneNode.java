@@ -39,6 +39,20 @@ public class SceneNode implements Renderable {
 			child.render(parentMatrix, viewMatrix);
 		}
 	}
+	
+	/**
+	 * Recursively render each child
+	 */
+	@Override
+	public void render(Matrix4f parentMatrix, Matrix4f viewMatrix, Plane[] frustumPlanes) {
+		if(this.model != null)
+			model.render(parentMatrix, viewMatrix);
+		
+		parentMatrix = model.getModelMatrix(parentMatrix);
+		for(Renderable child : children) {
+			child.render(parentMatrix, viewMatrix);
+		}
+	}
 
 	/**
 	 * Recursively bind each child
@@ -76,7 +90,8 @@ public class SceneNode implements Renderable {
 	}
 
 	@Override
-	public boolean isCullable(Matrix4f viewMatrix, Plane[] frustumPlanes) {
+	public boolean isCullable(Matrix4f viewMatrix, Matrix4f parentMatrix, Plane[] frustumPlanes) {
+		// TODO:MZ Implement culling
 		return false;
 	}
 	

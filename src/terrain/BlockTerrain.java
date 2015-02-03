@@ -68,6 +68,11 @@ public class BlockTerrain implements Renderable {
 	public void render(Matrix4f parentMatrix, Matrix4f viewMatrix) {
 		blockModel.render(parentMatrix, viewMatrix);
 	}
+	
+	@Override
+	public void render(Matrix4f parentMatrix, Matrix4f viewMatrix, Plane[] frustumPlanes) {
+		blockModel.render(parentMatrix, viewMatrix, frustumPlanes);
+	}
 
 	@Override
 	public boolean bind() {
@@ -93,7 +98,7 @@ public class BlockTerrain implements Renderable {
 	}
 
 	@Override
-	public boolean isCullable(Matrix4f viewMatrix, Plane[] frustumPlanes) {
+	public boolean isCullable(Matrix4f viewMatrix, Matrix4f parentMatrix, Plane[] frustumPlanes) {
 		// TODO Auto-generated method stub
 		return false;
 	}

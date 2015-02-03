@@ -171,7 +171,7 @@ public class ParticleEmitter implements DynamicWorldObject {
 				Particle p = new Particle(initialPosition, velocity, particleLifetime, particleSizeScale);
 
 				try {
-					gameWorld.addModel(p.getModel());
+					gameWorld.addModelSync(p.getModel());
 				} catch(IllegalStateException e) {
 					e.printStackTrace();
 				}
@@ -225,7 +225,7 @@ public class ParticleEmitter implements DynamicWorldObject {
 			@Override
 			public void run() {
 				try {
-					gameWorld.removeModel(model);
+					gameWorld.removeModelSync(model);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

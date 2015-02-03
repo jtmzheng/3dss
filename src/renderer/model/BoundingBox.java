@@ -13,12 +13,29 @@ import org.lwjgl.util.vector.Vector3f;
 /**
  * A bounding box used to wrap objects to optimize things such as
  * object picking and frustrum culling.
- * @TODO(MZ): Can implement Renderable
+ * @TODO(MZ): Can implement Renderable (or maybe OctObj), might make more sense for this to be an OctObj, and key to a Renderable
  * @author Max
  * @author Adi
  */
 public class BoundingBox {
-
+	public static final int [] INDICES =  
+		{ 
+			0, 1, 2, 3, 8, // Front wall
+			4, 5, 6, 7, 8, // Back wall
+			4, 0, 6, 2, 8, // Left wall
+			1, 5, 3, 7, 8, // Right wall
+			2, 3, 6, 7, 8, // Top wall
+			0, 1, 4, 5     // Bottom wall
+		}; 
+	public static final int PRIMITIVE_RESTART_INDEX = 8;
+	
+	private Vector3f lowerLeftFront;
+	private Vector3f upperRightBack;
+	private Integer vaoId;
+	private Integer vboIndId;
+	private boolean isBound;
+	private float[] vertexList = {};
+	
 	public BoundingBox() {
 		lowerLeftFront = null;
 		upperRightBack = null;
@@ -113,28 +130,38 @@ public class BoundingBox {
 	public float[] getVertexList() {
 		return vertexList;
 	}
+	
+	public Vector3f getCentre() {
+		return new Vector3f(
+				(lowerLeftFront.x + upperRightBack.x) / 2,
+				(lowerLeftFront.y + upperRightBack.y) / 2,
+				(lowerLeftFront.z + upperRightBack.z) / 2);
+	}
+	
+	public Vector3f getWidth() {
+		return new Vector3f(
+				(upperRightBack.x - lowerLeftFront.x),
+				(upperRightBack.y - lowerLeftFront.y),
+				(upperRightBack.z - lowerLeftFront.z));
+	}
+	
+	public float getCentre(int dim) {
+		if(dim == 0) return (lowerLeftFront.x + upperRightBack.x) / 2;
+		if(dim == 1) return (lowerLeftFront.y + upperRightBack.y) / 2;
+		if(dim == 2) return (lowerLeftFront.z + upperRightBack.z) / 2;
+		return 0;
+	}
+	
+	public float getWidth(int dim) {
+		if(dim == 0) return Math.abs(upperRightBack.x - lowerLeftFront.x);
+		if(dim == 1) return Math.abs(upperRightBack.y - lowerLeftFront.y);
+		if(dim == 2) return Math.abs(upperRightBack.z - lowerLeftFront.z);
+		return 0;
+	}
 
 	@Override
 	public String toString() {
 		return "Upper right back: "  + upperRightBack + "\nLower left front: " + lowerLeftFront;
 	}
-	
-	public static final int [] INDICES =  
-		{ 
-			0, 1, 2, 3, 8, // Front wall
-			4, 5, 6, 7, 8, // Back wall
-			4, 0, 6, 2, 8, // Left wall
-			1, 5, 3, 7, 8, // Right wall
-			2, 3, 6, 7, 8, // Top wall
-			0, 1, 4, 5     // Bottom wall
-		}; 
-	public static final int PRIMITIVE_RESTART_INDEX = 8;
-	
-	private Vector3f lowerLeftFront;
-	private Vector3f upperRightBack;
-	private Integer vaoId;
-	private Integer vboIndId;
-	private boolean isBound;
-	private float[] vertexList = {};
-	
+
 }
