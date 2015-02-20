@@ -1,4 +1,4 @@
-package spatial;
+package accelerators;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ public class OctTree implements Renderable {
 	private long size;
 	private List<Cullable> children;
 	private int maxDepth;
-	
+
 	public OctTree(float x, float y, float z, float halfWidth, int maxDepth) {
 		this.maxDepth = maxDepth;
 		this.root = new OctNode(x, y, z, halfWidth, maxDepth);
@@ -36,6 +36,9 @@ public class OctTree implements Renderable {
 	}
 	
 	public boolean insert(Cullable obj) {
+		if (obj == null)
+			return false;
+
 		root.insert(obj);
 		children.add(obj);
 		return true;

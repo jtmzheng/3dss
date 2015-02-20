@@ -1,4 +1,4 @@
-package spatial;
+package accelerators;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +62,12 @@ public class OctNode implements Renderable {
 	}
 	
 	public void insert(Cullable obj) {
+		// If max depth is reached, short circuit and add to render list for this node
+		if(maxDepth == 0) {
+			objects.add(obj);
+			return;
+		}
+		
 		boolean straddle = false;
 		int index = 0;
 		count++;
@@ -76,8 +82,9 @@ public class OctNode implements Renderable {
 		}
 		
 		System.out.println("Max depth: " + maxDepth);
-		// If the object straddles a geometric boundary for the node, or if the max depth is reached add to this level
-		if(straddle || maxDepth == 0) {
+		
+		// If the object straddles a geometric boundary for the node, add to render list for this node
+		if(straddle) {
 			objects.add(obj);
 		} else {
 			if(children[index] == null) {
@@ -151,13 +158,15 @@ public class OctNode implements Renderable {
 	@Override
 	public boolean isCullable(Matrix4f viewMatrix, Matrix4f parentMatrix, Plane[] frustumPlanes) {
 		Vector4f[] corners = new Vector4f[CAPACITY];
+		Matrix4f pvMatrix = new Matrix4f();
+		Matrix4f.mul(viewMatrix, parentMatrix, pvMatrix);
+		
 		for(int j = 0; j < CAPACITY; j++) {
 			float dx = ((j & 1) > 0 ? halfWidth : -halfWidth);
 			float dy = ((j & 2) > 0 ? halfWidth : -halfWidth);
 			float dz = ((j & 4) > 0 ? halfWidth : -halfWidth);
 			corners[j] = new Vector4f(x + dx, y + dy, z + dz, 1);
-			Matrix4f.transform(parentMatrix, corners[j], corners[j]);
-			Matrix4f.transform(viewMatrix, corners[j], corners[j]);
+			Matrix4f.transform(pvMatrix, corners[j], corners[j]);
 		}
 		
 		boolean outsidefrustum = true;
@@ -169,7 +178,7 @@ public class OctNode implements Renderable {
 					break;
 			}
 			
-			// If any outside any plane can deem object to be cullable
+			// If all the BBox points are on the other side of a frustum plane, cull it.
 			if (outsidefrustum == true) 
 				return true;
 	

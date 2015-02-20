@@ -2,6 +2,7 @@ package renderer.model;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.Vector;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -35,7 +36,15 @@ public class BoundingBox {
 	private Integer vboIndId;
 	private boolean isBound;
 	private float[] vertexList = {};
-	
+
+	public BoundingBox(Vector3f p1, Vector3f p2) {
+		lowerLeftFront = p1;
+		upperRightBack = p2;
+		vaoId = -1;
+		vboIndId = -1;
+		isBound = false;
+	}
+
 	public BoundingBox() {
 		lowerLeftFront = null;
 		upperRightBack = null;
@@ -80,23 +89,12 @@ public class BoundingBox {
 		GL30.glBindVertexArray(vaoId);
 		GL20.glEnableVertexAttribArray(0); 
 		
-		float [] boxVertices =  
-			{ 
-			   lowerLeftFront.x, lowerLeftFront.y, lowerLeftFront.z, 1.0f,
-			   upperRightBack.x, lowerLeftFront.y, lowerLeftFront.z, 1.0f,
-			   lowerLeftFront.x, upperRightBack.y, lowerLeftFront.z, 1.0f,
-			   upperRightBack.x, upperRightBack.y, lowerLeftFront.z, 1.0f,
-			   lowerLeftFront.x, lowerLeftFront.y, upperRightBack.z, 1.0f,
-			   upperRightBack.x, lowerLeftFront.y, upperRightBack.z, 1.0f,
-			   lowerLeftFront.x, upperRightBack.y, upperRightBack.z, 1.0f,
-			   upperRightBack.x, upperRightBack.y, upperRightBack.z, 1.0f
-			};  
-		vertexList = boxVertices;
+		vertexList = currentBounds();
 
 		int posVboId = GL15.glGenBuffers();
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, posVboId);
-		FloatBuffer buffer = BufferUtils.createFloatBuffer(boxVertices.length);
-		buffer.put(boxVertices);
+		FloatBuffer buffer = BufferUtils.createFloatBuffer(vertexList.length);
+		buffer.put(vertexList);
 		buffer.flip();
 		
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
@@ -157,6 +155,82 @@ public class BoundingBox {
 		if(dim == 1) return Math.abs(upperRightBack.y - lowerLeftFront.y);
 		if(dim == 2) return Math.abs(upperRightBack.z - lowerLeftFront.z);
 		return 0;
+	}
+
+	/**
+	 * This bisects the bounding box into two bounding boxes by using the plane defined by
+	 * the center point of the bounding box in the provided dimension.
+	 * @param dim
+	 * @return The left side of the bisection.
+	 */
+	public BoundingBox bisectLeft (int dim) {
+		float halfWidth = getWidth(dim) / 2;
+
+		if (dim == 0) {
+			return new BoundingBox(
+				lowerLeftFront,
+				new Vector3f(upperRightBack.x - halfWidth, upperRightBack.y, upperRightBack.z)
+			);
+		} else if (dim == 1) {
+			return new BoundingBox(
+				lowerLeftFront,
+				new Vector3f(upperRightBack.x, upperRightBack.y - halfWidth, upperRightBack.z)
+			);
+		} else {
+			return new BoundingBox(
+				lowerLeftFront,
+				new Vector3f(upperRightBack.x, upperRightBack.y, upperRightBack.z - halfWidth)
+			);
+		}
+	}
+
+	/**
+	 * This bisects the bounding box into two bounding boxes by using the plane defined by
+	 * the center point of the bounding box in the provided dimension.
+	 * @param dim
+	 * @return The right side of the bisection.
+	 */
+	public BoundingBox bisectRight (int dim) {
+		float halfWidth = getWidth(dim) / 2;
+
+		if (dim == 0) {
+			return new BoundingBox(
+				new Vector3f(lowerLeftFront.x + halfWidth, lowerLeftFront.y, lowerLeftFront.z),
+				upperRightBack
+			);
+		} else if (dim == 1) {
+			return new BoundingBox(
+				new Vector3f(lowerLeftFront.x, lowerLeftFront.y + halfWidth, lowerLeftFront.z),
+				upperRightBack
+			);
+		} else {
+			return new BoundingBox(
+				new Vector3f(lowerLeftFront.x, lowerLeftFront.y, lowerLeftFront.z  + halfWidth),
+				upperRightBack
+			);
+		}
+	}
+
+	/**
+	 * Returns the bounds of this BoundingBox.
+	 * 
+	 * WARNING(adi): the actual bounds of the box are still subject to change, atleast until the
+	 * the bind() method is called. This function should only be used when using BoundingBoxes as a
+	 * wrapper representing a bounding volume, rather than a renderable object tied to OpenGL.
+	 * @return
+	 */
+	public float[] currentBounds() {
+		float[] ret = { 
+			   lowerLeftFront.x, lowerLeftFront.y, lowerLeftFront.z, 1.0f,
+			   upperRightBack.x, lowerLeftFront.y, lowerLeftFront.z, 1.0f,
+			   lowerLeftFront.x, upperRightBack.y, lowerLeftFront.z, 1.0f,
+			   upperRightBack.x, upperRightBack.y, lowerLeftFront.z, 1.0f,
+			   lowerLeftFront.x, lowerLeftFront.y, upperRightBack.z, 1.0f,
+			   upperRightBack.x, lowerLeftFront.y, upperRightBack.z, 1.0f,
+			   lowerLeftFront.x, upperRightBack.y, upperRightBack.z, 1.0f,
+			   upperRightBack.x, upperRightBack.y, upperRightBack.z, 1.0f
+			};  
+		return ret;
 	}
 
 	@Override

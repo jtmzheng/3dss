@@ -17,6 +17,7 @@ import renderer.Camera;
 import renderer.Context;
 import renderer.Fog;
 import renderer.Renderer;
+import renderer.model.BoundingBox;
 import renderer.model.Model;
 import renderer.model.ModelFactory;
 import renderer.model.ModelInt;
@@ -25,14 +26,15 @@ import renderer.model.ModelType;
 import renderer.util.Skybox;
 import renderer.util.TextBox;
 import renderer.util.TextManager;
-import spatial.OctTree;
 import texture.Texture;
 import texture.TextureLoader;
 import util.Primitives;
 import world.World;
+import accelerators.KDTree;
+import accelerators.OctTree;
 import characters.Player;
 
-public class MainSpatial {
+public class MainSpatialKD {
 
 	public static List<Model> generateCube(Vector3f origin, int xSize, int ySize, int zSize, int cSize, Model base) {
 		Vector3f start = new Vector3f(
@@ -64,8 +66,7 @@ public class MainSpatial {
 	public static void main(String[] args) {
 		ModelScene base = (ModelScene)Primitives.getCube(1, ModelType.SCENE);
 		List<Model> blockModel = generateCube(new Vector3f(0, 0, 0), 35, 35, 35, 5, base);
-		OctTree octree = new OctTree(0, 0, 0, 50, 5);
-		
+
 		TextManager textManager = TextManager.getInstance();
 		TextBox playerPosition = new TextBox("", 10, 10, 18);
 		textManager.addTextBox(playerPosition);
@@ -86,6 +87,13 @@ public class MainSpatial {
 		files.add("miramar_rt.png");
 		files.add("miramar_lf.png");
 
+		
+		BoundingBox worldBox = new BoundingBox(
+			new Vector3f(-500f, -500f, -500f),
+			new Vector3f(500f, 500f, 500f)
+		);
+		KDTree kdTree = new KDTree(worldBox);
+
 		Skybox sb = null;
 		try {
 			Texture sbTex = TextureLoader.loadCubeMapTexture(files, "miramar");
@@ -102,11 +110,11 @@ public class MainSpatial {
 
 		for(Model model : blockModel) {
 			model.bind();
-			octree.insert(model);
+			kdTree.insert(model);
 			//gameWorld.addModel(model);
 		}
 
-		gameWorld.addModel(octree);
+		gameWorld.addModel(kdTree);
 		Player player;
 		try {
 			PhysicsModelProperties playerProperties = new PhysicsModelProperties();
