@@ -11,11 +11,14 @@ public interface Renderable {
 	
 	// @TODO: Review bind(), isCullable
 	public void render(Matrix4f parentMatrix, Matrix4f viewMatrix);
+	public void render(Matrix4f parentMatrix, Matrix4f viewMatrix, Plane[] frustumPlanes);
 	public boolean bind(); 
 	public boolean hasChildren();
 	public List<Renderable> getChildren();
 	public boolean isBound(); 
-	public boolean isCullable(Matrix4f viewMatrix, Plane[] frustumPlanes);
+	
+	// @TODO: Arguments need to be flipped in order
+	public boolean isCullable(Matrix4f viewMatrix, Matrix4f parentMatrix, Plane[] frustumPlanes);
 	
 	// @TODO: Possible extensions
 	// public void setUniforms();	

@@ -17,28 +17,55 @@ import renderer.Camera;
 import renderer.Context;
 import renderer.Fog;
 import renderer.Renderer;
+import renderer.model.BoundingBox;
 import renderer.model.Model;
 import renderer.model.ModelFactory;
 import renderer.model.ModelInt;
+import renderer.model.ModelScene;
+import renderer.model.ModelType;
 import renderer.util.Skybox;
 import renderer.util.TextBox;
 import renderer.util.TextManager;
-import terrain.BlockTerrain;
-import terrain.BlockTerrainGenerator;
 import texture.Texture;
 import texture.TextureLoader;
+import util.Primitives;
 import world.World;
+import accelerators.KDTree;
+import accelerators.OctTree;
 import characters.Player;
 
-public class MainTerrain {
+public class MainSpatialKD {
+
+	public static List<Model> generateCube(Vector3f origin, int xSize, int ySize, int zSize, int cSize, Model base) {
+		Vector3f start = new Vector3f(
+				origin.x - ((float) xSize * cSize) / 2,
+				origin.y - ((float) ySize * cSize) / 2, 
+				origin.z - ((float) zSize * cSize) / 2);
+		ArrayList<Model> modelList = new ArrayList<>();
+		
+		for (int x = 0; x < xSize; x++) {
+			for (int y = 0; y < ySize; y++) {
+				for (int z = 0; z < zSize; z++) {
+					ModelScene copy = new ModelScene(base, new Vector3f(
+							start.x + (float) cSize / 2 + x * cSize, 
+							start.y + (float) cSize / 2 + y * cSize, 
+							start.z	+ (float) cSize / 2 + z * cSize));
+					modelList.add(copy);
+				}
+			}
+		}
+
+		return modelList;
+	}
 
 	/**
 	 * Test client
+	 * 
 	 * @param args
 	 */
-	public static void main(String [] args) {
-		BlockTerrainGenerator btg = new BlockTerrainGenerator(25, 1, 1.1);
-		BlockTerrain bt = btg.generateTerrain();
+	public static void main(String[] args) {
+		ModelScene base = (ModelScene)Primitives.getCube(1, ModelType.SCENE);
+		List<Model> blockModel = generateCube(new Vector3f(0, 0, 0), 35, 35, 35, 5, base);
 
 		TextManager textManager = TextManager.getInstance();
 		TextBox playerPosition = new TextBox("", 10, 10, 18);
@@ -46,12 +73,12 @@ public class MainTerrain {
 
 		// Define the context for the renderer
 		Context context = new Context("Terrain Test", 600, 600, 3, 3, false, 60);
-		
+
 		Camera gameCam = new Camera(new Vector3f(0.0f, 0.0f, 5.0f));
 		Fog fog = new Fog(false);
 		Renderer gameRenderer = new Renderer(context, gameCam, fog);
 		World gameWorld = new World(gameRenderer);
-		
+
 		List<String> files = new ArrayList<>();
 		files.add("miramar_ft.png");
 		files.add("miramar_bk.png");
@@ -59,6 +86,13 @@ public class MainTerrain {
 		files.add("miramar_dn.png");
 		files.add("miramar_rt.png");
 		files.add("miramar_lf.png");
+
+		
+		BoundingBox worldBox = new BoundingBox(
+			new Vector3f(-500f, -500f, -500f),
+			new Vector3f(500f, 500f, 500f)
+		);
+		KDTree kdTree = new KDTree(worldBox);
 
 		Skybox sb = null;
 		try {
@@ -70,12 +104,17 @@ public class MainTerrain {
 			e2.printStackTrace();
 		}
 
-		if(sb != null) {
+		if (sb != null) {
 			gameRenderer.addSkybox(sb);
 		}
 
-		gameWorld.addModel((ModelInt)bt.blockModel);
+		for(Model model : blockModel) {
+			model.bind();
+			kdTree.insert(model);
+			//gameWorld.addModel(model);
+		}
 
+		gameWorld.addModel(kdTree);
 		Player player;
 		try {
 			PhysicsModelProperties playerProperties = new PhysicsModelProperties();
@@ -100,23 +139,25 @@ public class MainTerrain {
 		}
 
 		// Game loop.
-		while(!Display.isCloseRequested()){
+		while (!Display.isCloseRequested()) {
 			// Poll the inputs.
 			for (Input i : rawInputs) {
 				i.poll();
 			}
 
 			player.move();
+			long start = System.currentTimeMillis();
 			gameWorld.simulate();
-			
+			long end = System.currentTimeMillis();
+			System.out.println("Time 1: " + (end - start));
+
 			Vector3f position = player.getPosition();
-			double x = Math.round(position.x*100.0)/100.0;
-			double y = Math.round(position.y*100.0)/100.0;
-			double z = Math.round(position.z*100.0)/100.0;
+			double x = Math.round(position.x * 100.0) / 100.0;
+			double y = Math.round(position.y * 100.0) / 100.0;
+			double z = Math.round(position.z * 100.0) / 100.0;
 			textManager.setText(playerPosition, "pos: (" + x + "," + y + "," + z + ")");
 		}
 
 		gameWorld.cleanupDynamicWorldObjects();
 	}
-
 }

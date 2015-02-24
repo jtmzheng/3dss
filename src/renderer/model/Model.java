@@ -16,6 +16,7 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import renderer.Renderable;
 import renderer.light.Light;
@@ -25,6 +26,8 @@ import system.Settings;
 import texture.Material;
 import texture.Texture;
 import texture.TextureManager;
+import util.MathUtils;
+import util.Plane;
 
 /**
  * Super class for all kinds of models
@@ -32,7 +35,7 @@ import texture.TextureManager;
  * @author Max
  *
  */
-public abstract class Model implements Renderable {
+public abstract class Model implements Cullable {
 	// Defaults
 	protected static final Vector3f DEFAULT_INITIAL_POSITION = new Vector3f(0, 0, 0);
 
@@ -97,13 +100,13 @@ public abstract class Model implements Renderable {
 	}
 	
 	public Model(Model model, Vector3f pos) {
-		// Copy the ModelInt faces
+		// Copy the Model faces
 		List<Face> faceList = new ArrayList<>();
 		for (Face face : model.faces) {
 			faceList.add(new Face(face));
 		}
 
-		// Set member variables
+		// Set member variables (Note the model matrix does nothing in the case of ModelInt, controlled by physics)
 		this.faces = faceList;
 		this.initialPos = pos;
 		this.modelMatrix = new Matrix4f();
@@ -297,7 +300,7 @@ public abstract class Model implements Renderable {
 	public abstract Matrix4f getModelMatrix(Matrix4f parentMatrix);
 	
 	/**
-	 * Render a ModelInt that has already been set up
+	 * Render a ModelInt that has already been set up (Deprecated)
 	 * @TODO: Make a class for the HashMaps (a struct) - will keep it cleaner
 	 */
 	public void render(Matrix4f parentMatrix, Matrix4f viewMatrix) {
@@ -350,6 +353,102 @@ public abstract class Model implements Renderable {
 	}
 	
 	/**
+	 * Render a ModelInt that has already been set up (Culls if outside frustum planes)
+	 * @TODO: Make a class for the HashMaps (a struct) - will keep it cleaner
+	 */
+	public void render(Matrix4f parentMatrix, Matrix4f viewMatrix, Plane[] frustumPlanes) {
+		// Check if flagged for rendering
+		if(!renderFlag)
+			return;
+		
+		// Check if cullable
+		if(isCullable(viewMatrix, new Matrix4f(MathUtils.IDENTITY4x4), frustumPlanes))
+			return;
+
+		FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
+		Matrix4f currModelMatrix = getModelMatrix(parentMatrix);
+		currModelMatrix.store(buffer);
+		buffer.flip();
+
+		GL20.glUniformMatrix4(ShaderController.getModelMatrixLocation(), false, buffer);
+		
+		//TODO(MZ): If not orthogonal (ie, scale) need Matrix4f.transpose(Matrix4f.invert(Matrix4f.mul(viewMatrix, modelMatrix, null), null), null);
+		Matrix4f normMatrix = Matrix4f.mul(viewMatrix, currModelMatrix, null); 
+		normMatrix.store(buffer);
+		buffer.flip();
+
+		GL20.glUniformMatrix4(ShaderController.getNormalMatrixLocation(), false, buffer);
+		TextureManager tm = TextureManager.getInstance();
+
+		// Do bind and draw for each material's faces
+		for(Material material : mapMaterialToFaces.keySet()) {
+			List<Integer> rgiUsedSlots = new ArrayList<>();
+			// Loop through all texture IDs for a given material
+			for(Integer tex : material.getActiveTextureIds()) {
+				Integer unitId = tm.getTextureSlot();
+
+				if(unitId == null) {
+					continue;
+				}
+
+				// Bind and activate sampler 
+				GL20.glUniform1i(ShaderController.getTexSamplerLocation(), unitId - GL13.GL_TEXTURE0); //TODO(MZ): This should be mapped to a uniform location specified in the material
+				GL13.glActiveTexture(unitId);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex);
+				rgiUsedSlots.add(unitId);
+			}
+
+			// Bind to the index VBO that has all the information about the order of the vertices and draw the vertices
+			GL30.glBindVertexArray(mapVAOIds.get(material));
+			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mapVBOIndexIds.get(material));
+			GL11.glDrawElements(GL11.GL_TRIANGLES, mapIndiceCount.get(material), GL11.GL_UNSIGNED_INT, 0);
+			
+			for(Integer iUsed : rgiUsedSlots) {
+				tm.returnTextureSlot(iUsed);
+			}
+		}
+	}
+	
+	
+	/**
+	 * Checks if the model should be culled or not
+	 * @param viewMatrix
+	 * @param frustumPlanes
+	 * @return
+	 */
+	public boolean isCullable(Matrix4f viewMatrix, Matrix4f parentMatrix, Plane[] frustumPlanes) {
+		if(!this.enableCulling)
+			return false;
+		
+		float[] pts = this.getBoundingBox().getVertexList();
+		Vector4f[] transformedPts = new Vector4f[8];
+		Matrix4f tMat = this.getModelMatrix(parentMatrix);
+
+		for (int i = 0; i < pts.length; i+=4) {
+			Vector4f mPt = new Vector4f(pts[i], pts[i+1], pts[i+2], pts[i+3]);
+			Matrix4f.transform(tMat, mPt, mPt);
+			Matrix4f.transform(viewMatrix, mPt, mPt);
+			transformedPts[i/4] = mPt;
+		}
+		
+		boolean outsidefrustum = true;
+		for (int i = 0; i < frustumPlanes.length; i++) {
+			for (int j = 0; j < transformedPts.length; j++) {
+				float dP = MathUtils.dotPlaneWithVector(frustumPlanes[i], transformedPts[j]);
+				outsidefrustum &= dP < 0f;
+			}
+			
+			// If any outside any plane can deem object to be cullable
+			if (outsidefrustum == true) 
+				return true;
+			
+			outsidefrustum = true;
+		}
+		
+		return false;
+	}
+	
+	/**
 	 * Returns the list of faces that make up this ModelInt.
 	 * @return the list of faces
 	 */
@@ -382,6 +481,44 @@ public abstract class Model implements Renderable {
 	public abstract void rotateX(float angle);
 	public abstract void rotateZ(float angle);
 	public abstract void scale(Vector3f scale);
+	
+	// TODO:MZ Either remove from OctObj interface or implement
+	@Override
+	public Vector3f getMin() {
+		return null;
+	}
+	
+	// TODO:MZ Either remove from OctObj interface or implement
+	@Override
+	public Vector3f getMax() {
+		return null;
+	}
+	
+	public Vector3f getCentre() {
+		Vector3f modelCentre3 = boundBox.getCentre();
+		Vector4f modelCentre = new Vector4f(modelCentre3.x, modelCentre3.y, modelCentre3.z, 1.0f);
+		Matrix4f.transform(modelMatrix, modelCentre, modelCentre);
+		return new Vector3f(modelCentre.x, modelCentre.y, modelCentre.z);
+	}
+	
+	public float getCentre(int dim) {
+		Vector3f modelCentre3 = boundBox.getCentre();
+		Vector4f modelCentre = new Vector4f(modelCentre3.x, modelCentre3.y, modelCentre3.z, 1.0f);
+		Matrix4f.transform(modelMatrix, modelCentre, modelCentre);
+		if(dim == 0) return modelCentre.x;
+		if(dim == 1) return modelCentre.y;
+		if(dim == 2) return modelCentre.z;
+		return -1;
+	}
+	
+	public Vector3f getWidth() {
+		return boundBox.getWidth();
+	}
+	
+	// For convinience
+	public float getWidth(int dim) {
+		return boundBox.getWidth(dim);
+	}
 	
 	/**
 	 * Setup the Model

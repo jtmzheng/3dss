@@ -65,15 +65,15 @@ public class World {
 		return success;
 	}
 	
-	public void addModel(Renderable model) {
+	public void addModelSync(Renderable model) {
 		addQueue.add(model);
 	}
 
-	public void removeModel(Renderable model) {
+	public void removeModelSync(Renderable model) {
 		removeQueue.add(model);
 	}
 
-	private void _addModel(Renderable model) throws IllegalStateException {
+	public synchronized void addModel(Renderable model) throws IllegalStateException {
 		renderer.addModel(model);
 
 		// @TODO: Fix this hack
@@ -82,7 +82,7 @@ public class World {
 		}
 	}
 
-	private void _removeModel(Renderable model) {
+	public synchronized void removeModel(Renderable model) {
 		renderer.removeModel(model);
 
 		// @TODO: Fix this hack
@@ -94,24 +94,22 @@ public class World {
 	
 	public void simulate() {
 		dynamicsWorld.stepSimulation(1.0f / renderer.getFrameRate());
-		renderer.updateModels();
+		
+		// Flush the add and remove model queues synchronously
+		flushQueues();
 
 		//TODO: this is throwing a GL error (invalid operation). find out why
 		// renderer.renderColourPicking();
 		renderer.renderScene();
-
-		// Flush the add and remove model queues synchronously, so we don't add
-		// or remove while simulating.
-		flushQueues();
 	}
 
 	private void flushQueues() {
 		while (!removeQueue.isEmpty()) {
-			_removeModel(removeQueue.poll());
+			removeModel(removeQueue.poll());
 		}
 
 		while (!addQueue.isEmpty()) {
-			_addModel(addQueue.poll());
+			addModel(addQueue.poll());
 		}
 	}
 

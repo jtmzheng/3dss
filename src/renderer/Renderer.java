@@ -53,12 +53,11 @@ import util.Plane;
  * @author Max
  */
 public class Renderer {
-	public static final int MAX_MODELS = 200; // Max models on the temp buffer
 	public static final Integer DEFAULT_FRAME_BUFFER = 0; 
 	public static final float DEFAULT_FOV = 45f;
 	public static final float DEFAULT_FAR_PLANE = 100f;
 	public static final float DEFAULT_NEAR_PLANE = 0.1f;
-	
+		
 	private float mAspectRatio = 1080f / 920f; //@TODO(MZ): Setting FOV, near, far planes
 	private float mFov = DEFAULT_FOV;
 	private float mNear = DEFAULT_NEAR_PLANE;
@@ -66,7 +65,6 @@ public class Renderer {
 
 	// List of the models that will be rendered
 	private Set<Renderable> mModels;
-	private BlockingQueue<Renderable> mModelBuffer;
 	private Map<Integer, Renderable> mMpIdModel;
 	private Renderable pickedModel = null;
 	private Skybox skybox = null;
@@ -229,8 +227,8 @@ public class Renderer {
 	 * Bind a new ModelInt to the renderer (buffers up ModelInt to be added during main render loop)
 	 * @see ModelInt
 	 */
-	public void addModel(Renderable rdle) throws IllegalStateException {
-		mModelBuffer.add(rdle);
+	public void addModel(Renderable rdle) {
+		mModels.add(rdle);
 		
 		// @TODO: Fix this hack
 		if(ModelInt.class.isAssignableFrom(rdle.getClass()))
@@ -340,17 +338,15 @@ public class Renderer {
 		viewMatrix.store(matrix44Buffer); 
 		matrix44Buffer.flip();
 		GL20.glUniformMatrix4(ShaderController.getViewMatrixLocation(), false, matrix44Buffer);
-
-		// Render each ModelInt
+		
+		// Render each Renderable bound to the Renderer
 		for(Renderable m: mModels){
 			if (!m.isBound()) {
 				m.bind();
 			}
 			
-			if (!m.isCullable(viewMatrix, frustumPlanes)) {
-				// m.setPickedFlag(m.equals(pickedModel));
-				m.render(new Matrix4f(MathUtils.IDENTITY4x4), viewMatrix);
-			}
+			// m.setPickedFlag(m.equals(pickedModel));
+			m.render(new Matrix4f(MathUtils.IDENTITY4x4), viewMatrix, frustumPlanes);
 		}
 
 		// Deselect
@@ -423,13 +419,6 @@ public class Renderer {
 		GL20.glUseProgram(0);
 		Display.sync(context.frameRate);
 		Display.update();
-	}
-	
-	/**
-	 * Takes ModelInt buffer and places it in the main set
-	 */
-	public void updateModels() {
-		mModelBuffer.drainTo(mModels);
 	}
 	
 	/**
@@ -585,7 +574,6 @@ public class Renderer {
 	 * Initializes the renderer
 	 */
 	private void init() {		
-		mModelBuffer = new ArrayBlockingQueue<>(MAX_MODELS);
 		mModels = new HashSet<>();
 		mMpIdModel = new HashMap<>();
 		postProcessConversions = new HashSet<>();

@@ -20,6 +20,10 @@ public class ModelScene extends Model {
 		super(f);
 	}
 
+	public ModelScene(Model base, Vector3f origin) {
+		super(base, origin);
+	}
+
 	@Override
 	public void render(Matrix4f parentMatrix, Matrix4f viewMatrix) {
 		super.render(parentMatrix, viewMatrix);
@@ -33,11 +37,6 @@ public class ModelScene extends Model {
 	@Override
 	public List<Renderable> getChildren() {
 		return null;
-	}
-
-	@Override
-	public boolean isCullable(Matrix4f viewMatrix, Plane[] frustumPlanes) {
-		return false;
 	}
 
 	@Override
