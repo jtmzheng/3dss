@@ -30,7 +30,7 @@ public class TextureManager {
 	/**
 	 * Default texture map to apply to a material when there is none specified.
 	 */
-	public static final String DEFAULT_TEXTURE_FILENAME = "fur_hair.png";
+	public static final String DEFAULT_TEXTURE_FILENAME = "blank.png";
 	
 	/**
 	 * OpenGL Texture Slot IDs
